@@ -1,0 +1,7 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic-settings>=2.4
+python-multipart>=0.0.9   # needed later for file uploads
+# dev
+pytest>=8
+httpx>=0.27               # FastAPI's TestClient uses it

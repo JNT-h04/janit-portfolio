@@ -1,0 +1,54 @@
+// Static facts about each project. The *working demo* for each lives on the
+// backend; this file only drives cards and page headers, so it stays in the
+// frontend where it loads instantly.
+
+export type Project = {
+  slug: string
+  codename: string
+  title: string
+  tagline: string
+  stack: string[]
+  threat: 'LOW' | 'MED' | 'HIGH' // how heavy the model is; shown on the card
+  online: boolean // becomes true once the demo is wired to the backend
+}
+
+export const PROJECTS: Project[] = [
+  {
+    slug: 'book-summarizer',
+    codename: 'LEXICON',
+    title: 'Book Summarizer',
+    tagline: 'Upload a PDF, DOCX, EPUB or TXT book and get chapter summaries, key insights and flashcards.',
+    stack: ['Gemini', 'PyMuPDF', 'FastAPI', 'Streaming'],
+    threat: 'LOW',
+    online: false,
+  },
+  {
+    slug: 'crack-severity',
+    codename: 'FRACTURE',
+    title: 'Crack Severity Detection',
+    tagline: 'Upload a photo of a concrete crack and get its severity, probable cause and repair advice.',
+    stack: ['TensorFlow', 'ResNet50', 'OpenCV'],
+    threat: 'MED',
+    online: false,
+  },
+  {
+    slug: 'alzheimer-xai',
+    codename: 'CORTEX',
+    title: 'XAI Alzheimer Detection',
+    tagline: 'Upload a brain MRI scan and get the dementia stage plus a Grad-CAM heatmap of what the model looked at.',
+    stack: ['PyTorch', 'ResNet50', 'Grad-CAM'],
+    threat: 'MED',
+    online: false,
+  },
+  {
+    slug: 'meeting-assistant',
+    codename: 'ECHO',
+    title: 'AI Meeting Assistant',
+    tagline: 'Upload a meeting recording to get a transcript with speakers, a summary, and answers to questions about it.',
+    stack: ['Whisper', 'pyannote', 'BART', 'FAISS'],
+    threat: 'HIGH',
+    online: false,
+  },
+]
+
+export const findProject = (slug: string) => PROJECTS.find((p) => p.slug === slug)

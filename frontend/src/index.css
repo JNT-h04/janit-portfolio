@@ -1,0 +1,161 @@
+@import 'tailwindcss';
+
+/* Design tokens. Tailwind v4 turns each --color-* into utilities such as
+   text-neon, bg-void, border-grid. Change a colour here and the whole site follows. */
+@theme {
+  --color-void: #05060a;
+  --color-panel: #0b0e17;
+  --color-grid: #16324a;
+  --color-neon: #00f0ff;
+  --color-hot: #ff2a6d;
+  --color-acid: #d1f700;
+  --color-dim: #6b7a90;
+  --color-text: #d7e3f4;
+
+  --font-display: 'Orbitron', sans-serif;
+  --font-mono: 'Share Tech Mono', ui-monospace, monospace;
+  --font-body: 'Rajdhani', sans-serif;
+}
+
+html,
+body {
+  background: var(--color-void);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 18px;
+}
+
+/* The custom cursor replaces the system one, but only for a real mouse. */
+@media (pointer: fine) {
+  html.has-cursor,
+  html.has-cursor * {
+    cursor: none !important;
+  }
+}
+
+::selection {
+  background: var(--color-hot);
+  color: var(--color-void);
+}
+
+/* ---------- Background: a receding neon grid ---------- */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 120%, #0a2a3f 0%, var(--color-void) 60%);
+}
+.bg-grid::before {
+  content: '';
+  position: absolute;
+  left: -50%;
+  right: -50%;
+  bottom: -30%;
+  height: 80%;
+  background-image:
+    linear-gradient(var(--color-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform: perspective(400px) rotateX(65deg);
+  animation: grid-scroll 4s linear infinite;
+  mask-image: linear-gradient(to top, black 20%, transparent 90%);
+}
+@keyframes grid-scroll {
+  to {
+    background-position: 0 60px;
+  }
+}
+
+/* ---------- CRT overlay: scanlines + vignette ---------- */
+.crt {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background:
+    repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.18) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.55) 100%);
+}
+
+/* ---------- Glitch text ---------- */
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  opacity: 0.85;
+}
+.glitch::before {
+  color: var(--color-hot);
+  animation: glitch-a 2.8s infinite steps(1);
+}
+.glitch::after {
+  color: var(--color-neon);
+  animation: glitch-b 3.3s infinite steps(1);
+}
+@keyframes glitch-a {
+  0%, 88%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+  89% { clip-path: inset(10% 0 60% 0); transform: translate(-4px, -1px); }
+  92% { clip-path: inset(55% 0 20% 0); transform: translate(3px, 1px); }
+  95% { clip-path: inset(30% 0 45% 0); transform: translate(-2px, 0); }
+}
+@keyframes glitch-b {
+  0%, 84%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+  85% { clip-path: inset(65% 0 5% 0); transform: translate(4px, 1px); }
+  88% { clip-path: inset(15% 0 70% 0); transform: translate(-3px, -1px); }
+  91% { clip-path: inset(40% 0 30% 0); transform: translate(2px, 0); }
+}
+
+/* ---------- HUD panel with cut corners and corner brackets ---------- */
+.hud-panel {
+  position: relative;
+  background: linear-gradient(135deg, rgb(0 240 255 / 0.06), rgb(11 14 23 / 0.85) 40%);
+  border: 1px solid rgb(0 240 255 / 0.25);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+  backdrop-filter: blur(4px);
+}
+.hud-panel::before,
+.hud-panel::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--color-neon);
+  border-style: solid;
+  pointer-events: none;
+}
+.hud-panel::before {
+  top: 6px;
+  left: 6px;
+  border-width: 2px 0 0 2px;
+}
+.hud-panel::after {
+  bottom: 6px;
+  right: 6px;
+  border-width: 0 2px 2px 0;
+}
+
+.text-glow {
+  text-shadow: 0 0 8px currentColor, 0 0 22px color-mix(in srgb, currentColor 50%, transparent);
+}
+
+.blink {
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-grid::before,
+  .glitch::before,
+  .glitch::after,
+  .blink {
+    animation: none;
+  }
+}

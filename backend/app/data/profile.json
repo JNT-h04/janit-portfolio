@@ -1,0 +1,31 @@
+{
+  "name": "Janit B",
+  "role": "AI/ML Engineer",
+  "location": "Salem, Tamil Nadu, India",
+  "summary": "CSE (AI & ML) undergraduate at VIT Chennai. I build and ship full-stack AI applications, from training the model to the API to the interface people actually use.",
+  "links": [
+    { "label": "GITHUB", "url": "https://github.com/Janit06" },
+    { "label": "LINKEDIN", "url": "https://linkedin.com/in/janit2006" },
+    { "label": "EMAIL", "url": "mailto:janit.b2006@gmail.com" }
+  ],
+  "skills": [
+    { "name": "Python", "level": 90 },
+    { "name": "PyTorch / TensorFlow", "level": 80 },
+    { "name": "LangChain / RAG", "level": 75 },
+    { "name": "FastAPI", "level": 70 },
+    { "name": "React", "level": 45 },
+    { "name": "Java / C++", "level": 65 }
+  ],
+  "experience": [
+    {
+      "company": "Strategy Fox International Pvt. Ltd.",
+      "title": "AI & Software Engineering Intern",
+      "period": "May 2026 – Jun 2026",
+      "points": [
+        "Built a real-time AI voice agent with ElevenLabs for customer support workflows.",
+        "Automated business processes with conversational flows wired to REST APIs.",
+        "Customised and maintained client Shopify stores."
+      ]
+    }
+  ]
+}

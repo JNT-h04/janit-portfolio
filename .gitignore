@@ -1,0 +1,18 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+.env
+.pytest_cache/
+*.sqlite*
+# node
+node_modules/
+dist/
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/
+# model weights are too big for git
+*.h5
+*.pt
+*.pth
