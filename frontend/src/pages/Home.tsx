@@ -23,7 +23,7 @@ export default function Home() {
         </motion.p>
         <GlitchText
           as="h1"
-          text="JANIT B"
+          text="JANIT B, AI/ML engineer"
           intensity={1.3}
           className="cyber-title mt-6 mb-2 w-fit"
           render={(variant) => <CyberLogo variant={variant} className="block h-auto w-[min(88vw,780px)] lg:w-[min(52vw,660px)]" />}
@@ -34,7 +34,7 @@ export default function Home() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          AI/ML engineer. Every project below actually runs, so pick one and try it.
+          Every project below actually runs, so pick one and try it.
         </motion.p>
         <motion.div
           className="mt-10 flex flex-wrap gap-4 font-mono"

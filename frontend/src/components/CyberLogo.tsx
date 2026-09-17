@@ -2,17 +2,17 @@ import { useId } from 'react'
 
 /**
  * "JANIT B" drawn by hand in the style of the Cyberpunk 2077 logo: thin,
- * sharp, slanted strokes, every letter different, a long tail sweeping left
- * off the J (like the logo's C) and a spike dropping off the B (like its K).
+ * sharp, slanted strokes, every letter different. The J's tail sweeps left
+ * and the B's tail sweeps right, so the name sits between two "wings", and a
+ * spaced-out title underneath plays the part of the logo's "2077".
  *
  * No font looks like this, so each letter is a set of polygons on a small
  * grid: cap height runs from y=0 to the baseline at y=100. `advance` is how
- * far the pen moves right after the letter. `evenodd` lets the B's inner
- * shapes punch holes in its outline.
+ * far the pen moves right after the letter.
  */
 
 type Point = [number, number]
-type Glyph = { advance: number; shapes: Point[][]; evenodd?: boolean }
+type Glyph = { advance: number; shapes: Point[][] }
 
 const GLYPHS: Record<string, Glyph> = {
   J: {
@@ -44,66 +44,98 @@ const GLYPHS: Record<string, Glyph> = {
   },
   ' ': { advance: 30, shapes: [] },
   B: {
-    advance: 74,
-    evenodd: true,
+    advance: 70,
     shapes: [
-      [[0, 0], [56, 0], [68, 10], [68, 36], [58, 46], [72, 56], [72, 88], [60, 100], [0, 100]],
-      [[11, 11], [52, 11], [57, 16], [57, 32], [51, 39], [11, 39]],
-      [[11, 54], [56, 54], [61, 60], [61, 84], [55, 89], [11, 89]],
+      [[0, 100], [2, 6], [17, -12], [13, 100]], // stem, rising to a point above the cap line
+      // upper bowl: an angular reversed C that closes against the stem
+      [[13, 0], [52, 0], [62, 9], [60, 33], [49, 43], [13, 43], [13, 33], [45, 33], [50, 28], [51, 14], [46, 10], [13, 10]],
+      // lower bowl, wider; its bottom runs on into a long tail sweeping right
+      [
+        [13, 43], [57, 43], [68, 53], [66, 82], [58, 93], [176, 93], [120, 100], [13, 100],
+        [13, 90], [50, 90], [55, 84], [56, 58], [52, 53], [13, 53],
+      ],
     ],
   },
 }
 
-// The B's spike is a separate shape so evenodd doesn't treat it as a hole.
-const EXTRAS: Record<string, Point[][]> = { B: [[[52, 95], [70, 88], [134, 142]]] }
-
 const GAP = 9
+const SLANT = 14 // degrees
 const LEFT = -120 // room for the J's tail (it leans further left once slanted)
-const TOP = -12
-const HEIGHT = 160 // room for the B's spike below the baseline
+const RIGHT_PAD = 180 // room for the B's tail
+const TOP = -20
+const HEIGHT = 170 // letters plus the title underneath
 
 const toPath = (shape: Point[], dx: number) => 'M' + shape.map(([x, y]) => `${x + dx},${y}`).join('L') + 'Z'
 
 export default function CyberLogo({
   text = 'JANIT B',
+  subtitle = 'AI · ML · ENGINEER',
   variant = 'base',
   className = '',
 }: {
   text?: string
-  /** base: gradient fill. slice: flat currentColor, used by the glitch copies. */
+  subtitle?: string
+  /** base: gradient fill with split edges. slice: flat currentColor, for the glitch copies. */
   variant?: 'base' | 'slice'
   className?: string
 }) {
-  const gradientId = useId()
+  const id = useId()
   let x = 0
-  const paths: { d: string; evenodd?: boolean }[] = []
+  let lastStart = 0
+  const d: string[] = []
   for (const ch of text.toUpperCase()) {
     const glyph = GLYPHS[ch]
     if (!glyph) continue
-    if (glyph.shapes.length) paths.push({ d: glyph.shapes.map((s) => toPath(s, x)).join(''), evenodd: glyph.evenodd })
-    for (const extra of EXTRAS[ch] ?? []) paths.push({ d: toPath(extra, x) })
+    lastStart = x
+    d.push(...glyph.shapes.map((s) => toPath(s, x)))
     x += glyph.advance + GAP
   }
-  const width = x + 70 - LEFT // +70: room for the B's spike
+  const width = lastStart + RIGHT_PAD - LEFT
+  const base = variant === 'base'
 
   return (
     <svg viewBox={`${LEFT} ${TOP} ${width} ${HEIGHT}`} className={`overflow-visible ${className}`} aria-hidden>
-      {variant === 'base' && (
+      {base && (
         <defs>
-          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`${id}fill`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#ffffff" />
             <stop offset="0.3" stopColor="#bff9ff" />
             <stop offset="0.55" stopColor="#00f0ff" />
             <stop offset="1" stopColor="#ff2a6d" />
           </linearGradient>
+          {/* red and cyan copies nudged left/right, plus a soft glow.
+              Done in SVG so it hits the big letters but not the small title. */}
+          <filter id={`${id}split`} x="-20%" y="-40%" width="140%" height="180%">
+            <feDropShadow dx="-3" dy="0" stdDeviation="0" floodColor="#ff2a6d" floodOpacity="0.85" result="a" />
+            <feDropShadow in="a" dx="3" dy="0" stdDeviation="0" floodColor="#00f0ff" floodOpacity="0.6" result="b" />
+            <feDropShadow in="b" dx="0" dy="0" stdDeviation="9" floodColor="#00f0ff" floodOpacity="0.55" />
+          </filter>
+          <filter id={`${id}glow`} x="-10%" y="-100%" width="120%" height="300%">
+            <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#00f0ff" floodOpacity="0.8" />
+          </filter>
         </defs>
       )}
-      {/* -14° slant, like the logo's forward lean */}
-      <g transform="skewX(-14)" fill={variant === 'base' ? `url(#${gradientId})` : 'currentColor'}>
-        {paths.map((p, i) => (
-          <path key={i} d={p.d} fillRule={p.evenodd ? 'evenodd' : 'nonzero'} />
-        ))}
+      <g
+        transform={`skewX(-${SLANT})`}
+        fill={base ? `url(#${id}fill)` : 'currentColor'}
+        filter={base ? `url(#${id}split)` : undefined}
+      >
+        <path d={d.join('')} />
       </g>
+      {subtitle && (
+        <text
+          x={lastStart + 160}
+          y={136}
+          textAnchor="end"
+          fontFamily='"Share Tech Mono", monospace'
+          fontSize={20}
+          letterSpacing={8}
+          fill={base ? '#00f0ff' : 'currentColor'}
+          filter={base ? `url(#${id}glow)` : undefined}
+        >
+          {subtitle}
+        </text>
+      )}
     </svg>
   )
 }

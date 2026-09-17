@@ -60,11 +60,8 @@ body {
   filter: none;
 }
 
-/* The hero logo (components/CyberLogo.tsx): gradient letters with red/cyan split edges and a glow. */
-.cyber-title .glitch-base {
-  filter: drop-shadow(-3px 0 0 rgb(255 42 109 / 0.85)) drop-shadow(3px 0 0 rgb(0 240 255 / 0.6))
-    drop-shadow(0 0 18px rgb(0 240 255 / 0.55));
-}
+/* The hero logo draws its own edge colours and glow (components/CyberLogo.tsx);
+   the glitch slices just get a soft glow in their flash colour. */
 .cyber-title .glitch-slice svg {
   filter: drop-shadow(0 0 6px currentColor);
 }
