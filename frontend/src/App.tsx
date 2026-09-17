@@ -1,11 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import BootScreen from './effects/BootScreen'
 import Cursor from './effects/Cursor'
+import CyberCity from './effects/CyberCity'
 import Home from './pages/Home'
 import NotFound from './pages/NotFound'
 import ProjectPage from './pages/ProjectPage'
+import { TerminalContext } from './terminal/context'
 import TerminalDock from './terminal/TerminalDock'
 
 export default function App() {
@@ -24,12 +26,13 @@ export default function App() {
   }, [location.pathname, location.hash])
 
   return (
-    <>
-      <div className="backdrop-grid" />
+    <TerminalContext.Provider value={{ open: terminalOpen, setOpen: setTerminalOpen }}>
+      <CyberCity variant="sunset" />
+      <ScrollScrim />
       <div className="crt" />
       <Cursor />
       <BootScreen />
-      <TerminalDock open={terminalOpen} setOpen={setTerminalOpen} />
+      <TerminalDock />
 
       <nav className="sticky top-0 z-40 border-b border-neon/15 bg-void/70 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 font-mono text-sm">
@@ -41,10 +44,13 @@ export default function App() {
             <Link to="/#operator" className="hover:text-neon">operator</Link>
             <button
               onClick={() => setTerminalOpen(!terminalOpen)}
-              className="border border-hot px-2 py-0.5 text-hot hover:bg-hot hover:text-void"
+              className={`flex items-center gap-2 border px-3 py-1 tracking-widest transition-colors ${
+                terminalOpen ? 'border-acid bg-acid text-void' : 'border-acid text-acid hover:bg-acid hover:text-void'
+              }`}
               title="toggle terminal (` key)"
             >
-              &gt;_
+              <span className="font-bold">&gt;_</span>
+              <span className="hidden sm:inline">TERMINAL</span>
             </button>
           </div>
         </div>
@@ -72,6 +78,24 @@ export default function App() {
       <footer className="mt-20 border-t border-neon/15 py-6 text-center font-mono text-xs text-dim">
         built by janit b · react + fastapi · <span className="text-hot">EOF</span>
       </footer>
-    </>
+    </TerminalContext.Provider>
   )
+}
+
+/**
+ * The city is bright behind the hero, but text further down needs a calmer
+ * background. This dark layer fades in as you scroll.
+ */
+function ScrollScrim() {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const update = () => {
+      const amount = Math.min(1, scrollY / (innerHeight * 0.8))
+      if (ref.current) ref.current.style.opacity = String(0.25 + amount * 0.6)
+    }
+    update()
+    addEventListener('scroll', update, { passive: true })
+    return () => removeEventListener('scroll', update)
+  }, [])
+  return <div ref={ref} className="pointer-events-none fixed inset-0 -z-[5] bg-void" />
 }

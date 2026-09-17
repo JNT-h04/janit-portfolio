@@ -189,7 +189,9 @@ export default function Terminal({ onClose, active }: { onClose: () => void; act
           term.write('\x1b[H\x1b[2J')
           redraw()
           return
-        case '`': // the toggle key closes the dock instead of typing
+        case '\x1b': // Esc. xterm keeps this key to itself, so the page-level
+        //             Escape listener never sees it; close from here instead.
+        case '`': // the toggle key closes the terminal instead of typing
           closeRef.current()
           return
       }

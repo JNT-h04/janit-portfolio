@@ -12,14 +12,17 @@
   --color-dim: #6b7a90;
   --color-text: #d7e3f4;
 
-  --font-display: 'Orbitron', sans-serif;
+  --font-display: 'Tektur', sans-serif;
   --font-mono: 'Share Tech Mono', ui-monospace, monospace;
   --font-body: 'Rajdhani', sans-serif;
 }
 
-html,
-body {
+/* Background colour on <html> only: a background on <body> would paint over
+   the fixed city canvas, which sits behind the page with a negative z-index. */
+html {
   background: var(--color-void);
+}
+body {
   color: var(--color-text);
   font-family: var(--font-body);
   font-size: 18px;
@@ -38,35 +41,6 @@ body {
   color: var(--color-void);
 }
 
-/* ---------- Background: a receding neon grid ---------- */
-.backdrop-grid {
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  overflow: hidden;
-  background: radial-gradient(ellipse at 50% 120%, #0a2a3f 0%, var(--color-void) 60%);
-}
-.backdrop-grid::before {
-  content: '';
-  position: absolute;
-  left: -50%;
-  right: -50%;
-  bottom: -30%;
-  height: 80%;
-  background-image:
-    linear-gradient(var(--color-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
-  background-size: 60px 60px;
-  transform: perspective(400px) rotateX(65deg);
-  animation: grid-scroll 4s linear infinite;
-  mask-image: linear-gradient(to top, black 20%, transparent 90%);
-}
-@keyframes grid-scroll {
-  to {
-    background-position: 0 60px;
-  }
-}
-
 /* ---------- CRT overlay: scanlines + vignette ---------- */
 .crt {
   pointer-events: none;
@@ -78,37 +52,29 @@ body {
     radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.55) 100%);
 }
 
-/* ---------- Glitch text ---------- */
-.glitch {
-  position: relative;
-  display: inline-block;
+/* ---------- Glitch text (see components/GlitchText.tsx) ---------- */
+.glitch-slice {
+  text-shadow: 0 0 8px currentColor;
+  -webkit-text-fill-color: currentColor;
+  background: none;
+  filter: none;
 }
-.glitch::before,
-.glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  opacity: 0.85;
+
+/* The big hero title: bright core fading cyan to pink, with red/cyan split edges. */
+.cyber-title .glitch-base {
+  background: linear-gradient(180deg, #ffffff 0%, #bff9ff 30%, var(--color-neon) 55%, var(--color-hot) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(-3px 0 0 rgb(255 42 109 / 0.85)) drop-shadow(3px 0 0 rgb(0 240 255 / 0.6))
+    drop-shadow(0 0 18px rgb(0 240 255 / 0.55));
 }
-.glitch::before {
-  color: var(--color-hot);
-  animation: glitch-a 2.8s infinite steps(1);
-}
-.glitch::after {
-  color: var(--color-neon);
-  animation: glitch-b 3.3s infinite steps(1);
-}
-@keyframes glitch-a {
-  0%, 88%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
-  89% { clip-path: inset(10% 0 60% 0); transform: translate(-4px, -1px); }
-  92% { clip-path: inset(55% 0 20% 0); transform: translate(3px, 1px); }
-  95% { clip-path: inset(30% 0 45% 0); transform: translate(-2px, 0); }
-}
-@keyframes glitch-b {
-  0%, 84%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
-  85% { clip-path: inset(65% 0 5% 0); transform: translate(4px, 1px); }
-  88% { clip-path: inset(15% 0 70% 0); transform: translate(-3px, -1px); }
-  91% { clip-path: inset(40% 0 30% 0); transform: translate(2px, 0); }
+
+/* xterm paints its own black box; let the terminal window's panel show through. */
+.xterm,
+.xterm .xterm-viewport,
+.xterm .xterm-screen {
+  background-color: transparent !important;
 }
 
 /* ---------- HUD panel with cut corners and corner brackets ---------- */
@@ -152,9 +118,6 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .backdrop-grid::before,
-  .glitch::before,
-  .glitch::after,
   .blink {
     animation: none;
   }
