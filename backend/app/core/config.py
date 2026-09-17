@@ -22,8 +22,9 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     data_dir: Path = BASE_DIR / "data"
 
-    # Filled in later phases:
+    # LEXICON (book summarizer). Get a free key at https://aistudio.google.com/apikey
     gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
 
 
 settings = Settings()

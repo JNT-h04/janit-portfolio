@@ -20,7 +20,7 @@ export const PROJECTS: Project[] = [
     tagline: 'Upload a PDF, DOCX, EPUB or TXT book and get chapter summaries, key insights and flashcards.',
     stack: ['Gemini', 'PyMuPDF', 'FastAPI', 'Streaming'],
     threat: 'LOW',
-    online: false,
+    online: true,
   },
   {
     slug: 'crack-severity',

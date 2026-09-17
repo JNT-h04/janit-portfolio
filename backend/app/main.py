@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.routers import health, profile , terminal
+from app.routers import health, lexicon, profile, terminal
 
 app = FastAPI(title=settings.app_name, version=settings.version)
 
@@ -26,3 +26,4 @@ app.add_middleware(
 app.include_router(health.router, prefix="/api")
 app.include_router(profile.router,prefix="/api")
 app.include_router(terminal.router, prefix="/api")
+app.include_router(lexicon.router, prefix="/api")
