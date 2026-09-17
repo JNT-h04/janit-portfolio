@@ -24,7 +24,9 @@ class Settings(BaseSettings):
 
     # LEXICON (book summarizer). Get a free key at https://aistudio.google.com/apikey
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
+    # Tried in order. "-latest" names follow Google's current model, so they
+    # don't break when an old version is retired.
+    gemini_models: list[str] = ["gemini-flash-latest", "gemini-3.5-flash", "gemini-flash-lite-latest"]
 
 
 settings = Settings()

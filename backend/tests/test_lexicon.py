@@ -133,3 +133,40 @@ def test_summary_without_key_is_503(monkeypatch):
     monkeypatch.setattr(summarize, "ready", lambda: False)
     res = client.post("/api/lexicon/books/whatever/chapters/0/summary")
     assert res.status_code == 503
+
+
+def test_falls_back_to_next_model_when_one_is_busy(monkeypatch):
+    import asyncio
+
+    from google.genai import errors
+
+    from app.core.config import settings
+
+    calls = []
+
+    class FakeModels:
+        async def generate_content_stream(self, model, contents, config):
+            calls.append(model)
+            if model == "busy-model":
+                raise errors.ServerError(503, {"error": {"code": 503, "status": "UNAVAILABLE", "message": "busy"}})
+
+            async def gen():
+                class Chunk:
+                    text = "answer"
+
+                yield Chunk()
+
+            return gen()
+
+    class FakeClient:
+        class aio:
+            models = FakeModels()
+
+    monkeypatch.setattr(settings, "gemini_models", ["busy-model", "good-model"])
+    monkeypatch.setattr(summarize, "_get_client", lambda: FakeClient())
+
+    async def collect():
+        return [piece async for piece in summarize.summarize("b", "c", "text")]
+
+    assert asyncio.run(collect()) == ["answer"]
+    assert calls == ["busy-model", "good-model"]

@@ -92,7 +92,9 @@ async def summary(book_id: str, index: int) -> StreamingResponse:
         try:
             async for piece in summarize.summarize(book.title, chapter.title, chapter.text):
                 yield piece
+        except summarize.SummaryError as exc:
+            yield f"\n\n[[error]] the AI model failed: {exc}"
         except Exception as exc:
-            yield f"\n\n[[error]] the model call failed: {exc.__class__.__name__}"
+            yield f"\n\n[[error]] the AI model failed ({exc.__class__.__name__})"
 
     return StreamingResponse(stream(), media_type="text/plain; charset=utf-8")
