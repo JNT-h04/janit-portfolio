@@ -42,6 +42,14 @@ export default function Home() {
             OPERATOR FILE
           </a>
         </motion.div>
+        <motion.p
+          className="mt-6 font-mono text-sm text-dim"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.1 }}
+        >
+          tip: press <kbd className="border border-dim px-1.5 text-neon">`</kbd> to open the terminal
+        </motion.p>
       </section>
 
       <section id="missions" className="scroll-mt-20 py-16">

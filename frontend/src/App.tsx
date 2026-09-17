@@ -1,14 +1,16 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import BootScreen from './effects/BootScreen'
 import Cursor from './effects/Cursor'
 import Home from './pages/Home'
 import NotFound from './pages/NotFound'
 import ProjectPage from './pages/ProjectPage'
+import TerminalDock from './terminal/TerminalDock'
 
 export default function App() {
   const location = useLocation()
+  const [terminalOpen, setTerminalOpen] = useState(false)
 
   // React Router doesn't scroll for you. Go to the #section if there is one,
   // otherwise to the top. The wait lets the page-change animation finish first.
@@ -27,15 +29,23 @@ export default function App() {
       <div className="crt" />
       <Cursor />
       <BootScreen />
+      <TerminalDock open={terminalOpen} setOpen={setTerminalOpen} />
 
       <nav className="sticky top-0 z-40 border-b border-neon/15 bg-void/70 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 font-mono text-sm">
           <Link to="/" className="font-display font-bold tracking-widest text-neon">
             JANIT<span className="text-hot">://</span>SYS
           </Link>
-          <div className="flex gap-5">
+          <div className="flex items-center gap-5">
             <Link to="/#missions" className="hover:text-neon">missions</Link>
             <Link to="/#operator" className="hover:text-neon">operator</Link>
+            <button
+              onClick={() => setTerminalOpen(!terminalOpen)}
+              className="border border-hot px-2 py-0.5 text-hot hover:bg-hot hover:text-void"
+              title="toggle terminal (` key)"
+            >
+              &gt;_
+            </button>
           </div>
         </div>
       </nav>
