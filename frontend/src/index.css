@@ -60,14 +60,22 @@ body {
   filter: none;
 }
 
-/* The big hero title: bright core fading cyan to pink, with red/cyan split edges. */
+/* The big hero title, in the style of the Cyberpunk 2077 logo: slanted
+   yellow letters, a hard cyan offset shadow, and a thin horizontal cut through
+   the middle. The slant sits on the outer element because GlitchText animates
+   the inner text's transform, which would otherwise wipe out the skew. */
+.cyber-title {
+  transform: skewX(-12deg);
+}
 .cyber-title .glitch-base {
-  background: linear-gradient(180deg, #ffffff 0%, #bff9ff 30%, var(--color-neon) 55%, var(--color-hot) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(-3px 0 0 rgb(255 42 109 / 0.85)) drop-shadow(3px 0 0 rgb(0 240 255 / 0.6))
-    drop-shadow(0 0 18px rgb(0 240 255 / 0.55));
+  color: #fcee0a;
+  text-shadow:
+    6px 6px 0 var(--color-neon),
+    0 0 28px rgb(252 238 10 / 0.35);
+  -webkit-text-stroke: 2px var(--color-void);
+  paint-order: stroke fill;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 55%, transparent 59%, #000 59%);
+  mask-image: linear-gradient(180deg, #000 55%, transparent 55%, transparent 59%, #000 59%);
 }
 
 /* xterm paints its own black box; let the terminal window's panel show through. */
