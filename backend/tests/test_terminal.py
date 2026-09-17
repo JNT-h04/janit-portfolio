@@ -20,3 +20,13 @@ def test_unknown_command_is_404():
     res = client.post("/api/terminal", json={"command": "rm", "args": ["-rf", "/"]})
     assert res.status_code == 404
     assert "command not found" in res.json()["detail"]
+
+def test_greet_command():
+    res = client.post("/api/terminal", json={"command": "greet", "args": ["Janit"]})
+    assert res.status_code == 200
+    assert "Janit" in res.json()["output"]
+
+def test_greet_command_no_args():
+    res = client.post("/api/terminal", json={"command": "greet", "args":[]})
+    assert "usage" in res.json()["output"]
+    

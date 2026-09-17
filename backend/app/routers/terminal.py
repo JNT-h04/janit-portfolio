@@ -39,11 +39,19 @@ def uptime(args: list[str]) -> str:
 def ping(args: list[str]) -> str:
     return "pong: the backend heard you"
 
+def greet(args:list[str])->str:
+    if not args:
+        return "usage: greet <your name>"
+    name=" ".join(args)
+    return f"Access granted, Hello {name}! Welcome to my system. You can explore my portfolio and learn more about me. Enjoy your visit!"
+
+
 
 # name -> (function, help text)
 COMMANDS: dict[str, tuple[Callable[[list[str]], str], str]] = {
     "uptime": (uptime, "how long the server has been running"),
     "ping": (ping, "check the backend is alive"),
+    "greet": (greet, "say hello: greet <your name>"),
 }
 
 
