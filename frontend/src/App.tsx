@@ -23,7 +23,7 @@ export default function App() {
 
   return (
     <>
-      <div className="bg-grid" />
+      <div className="backdrop-grid" />
       <div className="crt" />
       <Cursor />
       <BootScreen />

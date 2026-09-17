@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.routers import health
+from app.routers import health, profile
 
 app = FastAPI(title=settings.app_name, version=settings.version)
 
@@ -24,4 +24,4 @@ app.add_middleware(
 
 # Every router is mounted under /api, so /health becomes /api/health.
 app.include_router(health.router, prefix="/api")
-# Mission 1: import your profile router and include it here too.
+app.include_router(profile.router,prefix="/api")

@@ -39,14 +39,14 @@ body {
 }
 
 /* ---------- Background: a receding neon grid ---------- */
-.bg-grid {
+.backdrop-grid {
   position: fixed;
   inset: 0;
   z-index: -2;
   overflow: hidden;
   background: radial-gradient(ellipse at 50% 120%, #0a2a3f 0%, var(--color-void) 60%);
 }
-.bg-grid::before {
+.backdrop-grid::before {
   content: '';
   position: absolute;
   left: -50%;
@@ -152,7 +152,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bg-grid::before,
+  .backdrop-grid::before,
   .glitch::before,
   .glitch::after,
   .blink {
