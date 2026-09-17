@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import CyberLogo from '../components/CyberLogo'
 import GlitchText from '../components/GlitchText'
 import MissionCard from '../components/MissionCard'
 import ProfilePanel from '../components/ProfilePanel'
@@ -24,7 +25,8 @@ export default function Home() {
           as="h1"
           text="JANIT B"
           intensity={1.3}
-          className="cyber-title mt-3 w-fit font-display text-7xl font-black tracking-wider sm:text-9xl"
+          className="cyber-title mt-6 mb-2 w-fit"
+          render={(variant) => <CyberLogo variant={variant} className="block h-auto w-[min(88vw,780px)] lg:w-[min(52vw,660px)]" />}
         />
         <motion.p
           className="mt-4 max-w-xl text-xl text-text/85 sm:text-2xl"

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ElementType } from 'react'
+import { useEffect, useRef, type ElementType, type ReactNode } from 'react'
 
 type Props = {
   text: string
@@ -6,6 +6,12 @@ type Props = {
   className?: string
   /** 1 = normal. Higher means more frequent, stronger bursts. */
   intensity?: number
+  /**
+   * Draw something other than plain text (e.g. the SVG logo). Called once for
+   * the main copy ('base') and once per glitch slice ('slice'). `text` is then
+   * only used as the accessible label.
+   */
+  render?: (variant: 'base' | 'slice') => ReactNode
 }
 
 const SLICES = 7
@@ -19,7 +25,7 @@ const COLORS = ['#ff2a6d', '#00f0ff', '#fcee0a', '#ffffff']
  * about 300 ms the bands jump to random heights, slide sideways and change
  * colour, while the text itself jitters and skews. Hovering triggers a burst too.
  */
-export default function GlitchText({ text, as: Tag = 'span', className = '', intensity = 1 }: Props) {
+export default function GlitchText({ text, as: Tag = 'span', className = '', intensity = 1, render }: Props) {
   const rootRef = useRef<HTMLElement>(null)
   const baseRef = useRef<HTMLSpanElement>(null)
   const sliceRefs = useRef<(HTMLSpanElement | null)[]>([])
@@ -84,9 +90,9 @@ export default function GlitchText({ text, as: Tag = 'span', className = '', int
   }, [intensity, text])
 
   return (
-    <Tag ref={rootRef} className={`relative inline-block ${className}`} data-hover>
+    <Tag ref={rootRef} className={`relative inline-block ${className}`} data-hover aria-label={render ? text : undefined}>
       <span ref={baseRef} className="glitch-base inline-block">
-        {text}
+        {render ? render('base') : text}
       </span>
       {Array.from({ length: SLICES }, (_, i) => (
         <span
@@ -97,7 +103,7 @@ export default function GlitchText({ text, as: Tag = 'span', className = '', int
           aria-hidden
           className="glitch-slice pointer-events-none absolute inset-0 opacity-0"
         >
-          {text}
+          {render ? render('slice') : text}
         </span>
       ))}
     </Tag>
