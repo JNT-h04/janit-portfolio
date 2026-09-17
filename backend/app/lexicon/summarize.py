@@ -24,7 +24,7 @@ Chapter: "{chapter}"
 Write in this exact markdown layout and nothing else:
 
 ## Summary
-One or two short paragraphs covering what happens or what is argued.
+Two short paragraphs in simple words, as if explaining to a first-year college student.
 
 ## Key insights
 - 3 to 5 bullet points, each one sentence.
@@ -32,7 +32,7 @@ One or two short paragraphs covering what happens or what is argued.
 ## Flashcards
 Q: a question testing an important idea
 A: its short answer
-(write exactly 5 Q/A pairs, each Q and A on its own line)
+(write exactly 8 Q/A pairs, like likely exam questions, each Q and A on its own line)
 
 Chapter text{note}:
 \"\"\"
