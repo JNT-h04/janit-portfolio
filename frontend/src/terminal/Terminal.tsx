@@ -39,11 +39,13 @@ export default function Terminal({ onClose, active }: { onClose: () => void; act
       cursorBlink: true,
       cursorStyle: 'block',
       allowTransparency: true,
+      // Old monochrome-monitor palette: everything is a shade of phosphor green.
       theme: {
         background: '#00000000',
-        foreground: '#d7e3f4',
-        cursor: '#ff2a6d',
-        selectionBackground: '#ff2a6d66',
+        foreground: '#39ff88',
+        cursor: '#bfffd0',
+        cursorAccent: '#02140a',
+        selectionBackground: '#39ff8855',
       },
     })
     const fit = new FitAddon()

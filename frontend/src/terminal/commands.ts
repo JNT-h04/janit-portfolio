@@ -6,12 +6,13 @@ import { PROJECTS } from '../data/projects'
 import { HOME, lookup, pretty, resolve } from './fs'
 
 // ANSI escape codes: special character sequences that terminals read as
-// "switch colour" instead of printing them.
+// "switch colour" instead of printing them. The terminal screen uses an old
+// green-phosphor palette; the rest of the site stays cyan/pink.
 export const c = {
-  neon: (s: string) => `\x1b[38;2;0;240;255m${s}\x1b[0m`,
-  hot: (s: string) => `\x1b[38;2;255;42;109m${s}\x1b[0m`,
-  acid: (s: string) => `\x1b[38;2;209;247;0m${s}\x1b[0m`,
-  dim: (s: string) => `\x1b[38;2;107;122;144m${s}\x1b[0m`,
+  neon: (s: string) => `\x1b[38;2;57;255;136m${s}\x1b[0m`, // bright phosphor green
+  hot: (s: string) => `\x1b[38;2;255;176;0m${s}\x1b[0m`, // amber: warnings and errors
+  acid: (s: string) => `\x1b[38;2;190;255;190m${s}\x1b[0m`, // pale green highlight
+  dim: (s: string) => `\x1b[38;2;39;122;72m${s}\x1b[0m`, // faded green
   bold: (s: string) => `\x1b[1m${s}\x1b[0m`,
 }
 

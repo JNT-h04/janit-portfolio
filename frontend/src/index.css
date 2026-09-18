@@ -66,6 +66,115 @@ body {
   filter: drop-shadow(0 0 6px currentColor);
 }
 
+/* ---------- Terminal: old green-phosphor CRT ---------- */
+.crt-screen {
+  position: relative;
+  background:
+    radial-gradient(ellipse at center, rgb(10 40 22 / 0.55) 0%, rgb(2 12 6 / 0.92) 100%);
+  box-shadow: inset 0 0 60px rgb(0 0 0 / 0.9), inset 0 0 12px rgb(57 255 136 / 0.12);
+  overflow: hidden;
+}
+/* scanlines + a slow bright band sweeping down, like a refreshing CRT */
+.crt-screen::before,
+.crt-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.crt-screen::before {
+  background: repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.28) 0 1px, transparent 1px 3px);
+  animation: crt-flicker 3.5s steps(2) infinite;
+}
+.crt-screen::after {
+  background: linear-gradient(to bottom, transparent 0%, rgb(57 255 136 / 0.07) 48%, transparent 60%);
+  animation: crt-sweep 7s linear infinite;
+}
+@keyframes crt-sweep {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100%); }
+}
+@keyframes crt-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.88; }
+}
+/* phosphor bloom on the text itself */
+.crt-screen .xterm-rows {
+  text-shadow: 0 0 5px rgb(57 255 136 / 0.55), 0 0 14px rgb(57 255 136 / 0.25);
+}
+
+/* The open/close burst: coloured copies of the window jump about in bands. */
+.term-glitch span {
+  position: absolute;
+  inset: 0;
+  opacity: 0; /* invisible unless the burst animation is running */
+  mix-blend-mode: screen;
+  animation-fill-mode: forwards !important;
+}
+.term-glitch span:nth-child(1) {
+  background: rgb(57 255 136 / 0.5);
+  animation: term-band-a 0.45s steps(1) 1 forwards;
+}
+.term-glitch span:nth-child(2) {
+  background: rgb(255 42 109 / 0.45);
+  animation: term-band-b 0.45s steps(1) 1 forwards;
+}
+.term-glitch span:nth-child(3) {
+  background: rgb(0 240 255 / 0.4);
+  animation: term-band-c 0.45s steps(1) 1 forwards;
+}
+@keyframes term-band-a {
+  0% { opacity: 1; clip-path: inset(6% 0 80% 0); transform: translateX(-22px); }
+  25% { clip-path: inset(62% 0 18% 0); transform: translateX(26px); }
+  50% { clip-path: inset(30% 0 52% 0); transform: translateX(-14px); }
+  75% { clip-path: inset(84% 0 4% 0); transform: translateX(10px); }
+  100% { clip-path: inset(50% 0 50% 0); transform: none; opacity: 0; }
+}
+@keyframes term-band-b {
+  0% { opacity: 1; clip-path: inset(70% 0 12% 0); transform: translateX(30px); }
+  30% { clip-path: inset(18% 0 68% 0); transform: translateX(-28px); }
+  60% { clip-path: inset(46% 0 40% 0); transform: translateX(18px); }
+  100% { clip-path: inset(50% 0 50% 0); transform: none; opacity: 0; }
+}
+@keyframes term-band-c {
+  0% { opacity: 1; clip-path: inset(40% 0 46% 0); transform: translateX(16px); }
+  35% { clip-path: inset(88% 0 2% 0); transform: translateX(-20px); }
+  70% { clip-path: inset(10% 0 74% 0); transform: translateX(24px); }
+  100% { clip-path: inset(50% 0 50% 0); transform: none; opacity: 0; }
+}
+/* the white line of an old monitor powering on */
+.term-flash {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #d8ffe8;
+  box-shadow: 0 0 24px #39ff88;
+  opacity: 0;
+  animation: term-flash 0.45s ease-out 1 forwards;
+}
+@keyframes term-flash {
+  0% { transform: scaleX(0.2); opacity: 1; }
+  1% { opacity: 1; }
+  35% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1) scaleY(90); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-screen::before,
+  .crt-screen::after,
+  .term-glitch span,
+  .term-flash {
+    animation: none;
+  }
+  .term-glitch,
+  .term-flash {
+    display: none;
+  }
+}
+
 /* xterm paints its own black box; let the terminal window's panel show through. */
 .xterm,
 .xterm .xterm-viewport,
