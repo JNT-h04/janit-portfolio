@@ -274,6 +274,13 @@ export default function CortexDemo() {
             smaller, more balanced model is the one running here.
           </li>
           <li>
+            <span className="text-neon">One slice is a hard question.</span> A radiologist reads a whole scan, not a
+            single slice. Letting every slice of a patient vote lifts accuracy from 58.0% to{' '}
+            <span className="text-acid">81.5%</span> across 54 held-out patients (macro F1 0.57 → 0.64). Worth knowing:
+            40 of those 54 are healthy, so always answering “Non Demented” would already score 74% — the voting model
+            beats that on the rarer classes, which is where it counts.
+          </li>
+          <li>
             <span className="text-neon">Dataset:</span> a balanced OASIS-derived MRI set, 1,500 images per class, 345
             patients in total.
           </li>
