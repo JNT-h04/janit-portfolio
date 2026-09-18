@@ -55,3 +55,37 @@ export async function analyze(file: Blob, filename = 'scan.jpg'): Promise<Analys
   if (!res.ok) throw new Error(await detail(res))
   return res.json()
 }
+
+export type SliceResult = { name: string; prediction: string; confidence: number }
+
+export type SeriesAnalysis = {
+  prediction: string
+  confidence: number
+  probabilities: Record<string, number>
+  agreement: number
+  slices: SliceResult[]
+  best_slice: string
+  input_image: string
+  overlay_image: string
+  focus: string
+}
+
+export type SampleSeries = { id: string; label: string; slices: string[] }
+
+export async function listSeries(): Promise<SampleSeries[]> {
+  try {
+    const res = await fetch('/api/cortex/series')
+    return res.ok ? await res.json() : []
+  } catch {
+    return []
+  }
+}
+
+/** Send several slices of one patient; the backend averages their predictions. */
+export async function analyzeSeries(files: { blob: Blob; name: string }[]): Promise<SeriesAnalysis> {
+  const form = new FormData()
+  for (const f of files) form.append('files', f.blob, f.name)
+  const res = await fetch('/api/cortex/analyze-series', { method: 'POST', body: form })
+  if (!res.ok) throw new Error(await detail(res))
+  return res.json()
+}

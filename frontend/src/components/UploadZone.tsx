@@ -9,20 +9,26 @@ type Props = {
   hint: string
   busy?: Busy
   error?: string
+  /** allow picking several files at once (e.g. all slices of one patient) */
+  multiple?: boolean
   onFile: (file: File) => void
+  onFiles?: (files: File[]) => void
   children?: ReactNode // extra controls, e.g. sample buttons
 }
 
 /** Drag-and-drop (or click-to-pick) file box, shared by the project demos. */
-export default function UploadZone({ accept, title, hint, busy, error, onFile, children }: Props) {
+export default function UploadZone({ accept, title, hint, busy, error, multiple, onFile, onFiles, children }: Props) {
   const input = useRef<HTMLInputElement>(null)
   const [hover, setHover] = useState(false)
 
   const onDrop = (e: DragEvent) => {
     e.preventDefault()
     setHover(false)
-    const file = e.dataTransfer.files[0]
-    if (file && !busy) onFile(file)
+    if (busy) return
+    const files = Array.from(e.dataTransfer.files)
+    if (!files.length) return
+    if (multiple && onFiles) onFiles(files)
+    else onFile(files[0])
   }
 
   return (
@@ -44,10 +50,14 @@ export default function UploadZone({ accept, title, hint, busy, error, onFile, c
           ref={input}
           type="file"
           accept={accept}
+          multiple={multiple}
           className="hidden"
           onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) onFile(file)
+            const files = Array.from(e.target.files ?? [])
+            if (files.length) {
+              if (multiple && onFiles) onFiles(files)
+              else onFile(files[0])
+            }
             e.target.value = '' // lets you pick the same file twice in a row
           }}
         />

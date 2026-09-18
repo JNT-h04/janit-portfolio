@@ -70,3 +70,33 @@ def test_analyze_rejects_non_images(monkeypatch):
 
 def test_sample_path_traversal_is_blocked():
     assert client.get("/api/cortex/samples/..%2F..%2Fmain.py").status_code == 404
+
+
+def test_series_averages_slices(monkeypatch):
+    loaded = model.Loaded(net=None, classes=["Non Demented", "Mild Dementia"], dropped=[], size=176,
+                          all_classes=["Non Demented", "Mild Dementia"])
+    monkeypatch.setattr(model.slot, "state", "ready")
+    monkeypatch.setattr(model.slot, "_model", loaded)
+
+    # two slices say "Mild" weakly, one says "Non Demented" strongly -> average decides
+    scores = iter([
+        {"Non Demented": 0.4, "Mild Dementia": 0.6},
+        {"Non Demented": 0.45, "Mild Dementia": 0.55},
+        {"Non Demented": 0.95, "Mild Dementia": 0.05},
+    ])
+    monkeypatch.setattr(model, "predict_with_cam", lambda img: (next(scores), np.eye(6, dtype=np.float32)))
+
+    files = [("files", (f"s{i}.jpg", scan(), "image/jpeg")) for i in range(3)]
+    res = client.post("/api/cortex/analyze-series", files=files)
+    assert res.status_code == 200
+    body = res.json()
+    assert body["prediction"] == "Non Demented"  # (0.4+0.45+0.95)/3 = 0.6 beats 0.4
+    assert body["agreement"] == round(1 / 3, 3)
+    assert [s["prediction"] for s in body["slices"]] == ["Mild Dementia", "Mild Dementia", "Non Demented"]
+    assert body["best_slice"] == "s2.jpg"  # the slice most sure about the consensus
+
+
+def test_series_rejects_too_many_slices(monkeypatch):
+    monkeypatch.setattr(model.slot, "state", "ready")
+    files = [("files", (f"s{i}.jpg", scan(), "image/jpeg")) for i in range(13)]
+    assert client.post("/api/cortex/analyze-series", files=files).status_code == 413

@@ -2,7 +2,18 @@ import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import HudPanel from '../../components/HudPanel'
 import UploadZone from '../../components/UploadZone'
-import { analyze, getStatus, listSamples, sampleUrl, type Analysis, type Status } from './api'
+import {
+  analyze,
+  analyzeSeries,
+  getStatus,
+  listSamples,
+  listSeries,
+  sampleUrl,
+  type Analysis,
+  type SampleSeries,
+  type SeriesAnalysis,
+  type Status,
+} from './api'
 
 // Sample files are named after their true label, e.g. very-mild-1.jpg.
 const TRUE_LABEL: Record<string, string> = {
@@ -27,6 +38,9 @@ export default function CortexDemo() {
   const [result, setResult] = useState<Analysis | null>(null)
   const [heat, setHeat] = useState(0.75) // how strongly the heatmap shows over the scan
   const [truth, setTruth] = useState('') // known label, when a sample was used
+  const [mode, setMode] = useState<'slice' | 'series'>('slice')
+  const [series, setSeries] = useState<SampleSeries[]>([])
+  const [seriesResult, setSeriesResult] = useState<SeriesAnalysis | null>(null)
 
   useEffect(() => {
     let timer: number
@@ -37,13 +51,37 @@ export default function CortexDemo() {
     }
     poll()
     listSamples().then(setSamples)
+    listSeries().then(setSeries)
     return () => clearTimeout(timer)
   }, [])
+
+  const runSeries = async (files: { blob: Blob; name: string }[], label = '') => {
+    setBusy(true)
+    setError('')
+    setResult(null)
+    setSeriesResult(null)
+    setTruth(label)
+    try {
+      setSeriesResult(await analyzeSeries(files))
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const onSampleSeries = async (item: SampleSeries) => {
+    const files = await Promise.all(
+      item.slices.map(async (url) => ({ blob: await (await fetch(url)).blob(), name: url.split('/').pop() ?? 'slice.jpg' })),
+    )
+    runSeries(files, item.label)
+  }
 
   const run = async (blob: Blob, name: string) => {
     setBusy(true)
     setError('')
     setResult(null)
+    setSeriesResult(null)
     try {
       setResult(await analyze(blob, name))
     } catch (err) {
@@ -53,6 +91,8 @@ export default function CortexDemo() {
     }
   }
 
+  // Both modes produce the same shape of reading, so the panel below is shared.
+  const view = result ?? seriesResult
   const onSample = async (name: string) => {
     setTruth(labelOf(name))
     run(await (await fetch(sampleUrl(name))).blob(), name)
@@ -78,8 +118,67 @@ export default function CortexDemo() {
         </div>
       )}
 
+      <div className="flex gap-2 font-mono text-sm">
+        {(['slice', 'series'] as const).map((m) => (
+          <button
+            key={m}
+            onClick={() => {
+              setMode(m)
+              setResult(null)
+              setSeriesResult(null)
+              setError('')
+              setTruth('')
+            }}
+            className={`border px-4 py-1.5 ${
+              mode === m ? 'border-hot bg-hot/15 text-hot' : 'border-neon/30 text-neon hover:bg-neon/10'
+            }`}
+          >
+            {m === 'slice' ? 'SINGLE SLICE' : 'PATIENT SERIES · more accurate'}
+          </button>
+        ))}
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         <div className="space-y-4">
+          {mode === 'series' ? (
+            <UploadZone
+              accept=".jpg,.jpeg,.png,.webp,.bmp"
+              title="DROP SEVERAL SLICES"
+              hint="all slices of ONE patient · 2-12 files · they vote on the answer"
+              multiple
+              busy={busy ? { label: 'ANALYSING SERIES' } : null}
+              error={error}
+              onFile={(file) => runSeries([{ blob: file, name: file.name }])}
+              onFiles={(files) => runSeries(files.map((f) => ({ blob: f, name: f.name })))}
+            >
+              {series.length > 0 && (
+                <div className="mt-4">
+                  <p className="font-mono text-xs tracking-widest text-dim">// OR RUN A WHOLE PATIENT FROM THE TEST SET</p>
+                  <div className="mt-2 space-y-2">
+                    {series.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => onSampleSeries(item)}
+                        disabled={busy}
+                        className="flex w-full items-center gap-3 border border-neon/25 p-2 text-left hover:border-hot disabled:opacity-40"
+                      >
+                        <span className="flex -space-x-3">
+                          {item.slices.slice(0, 4).map((url) => (
+                            <img key={url} src={url} alt="" className="h-10 w-10 border border-void object-cover" />
+                          ))}
+                        </span>
+                        <span className="font-mono text-xs">
+                          <span className="text-neon">{item.slices.length} slices</span>
+                          <span className="text-dim"> · patient {item.id.split('__')[1]} · truly </span>
+                          <span className="text-acid">{item.label}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </UploadZone>
+          ) : (
           <UploadZone
             accept=".jpg,.jpeg,.png,.webp,.bmp"
             title="DROP AN MRI SLICE"
@@ -116,13 +215,15 @@ export default function CortexDemo() {
               </div>
             )}
           </UploadZone>
+          )}
         </div>
 
         <HudPanel title="READING" tag={result ? 'COMPLETE' : busy ? 'SCANNING' : 'STANDBY'} className="min-h-[460px]">
-          {!result && !busy && (
+          {!view && !busy && (
             <p className="font-mono text-dim">
-              Upload an axial MRI slice, or pick a sample. You get a predicted stage, the model's confidence, and a
-              Grad-CAM heatmap showing which pixels drove that decision.
+              {mode === 'series'
+                ? 'Upload every slice you have of one patient, or run a test-set patient. Each slice is scored, then the scores are averaged — the same trick that takes accuracy from 58% to about 82%.'
+                : "Upload an axial MRI slice, or pick a sample. You get a predicted stage, the model's confidence, and a Grad-CAM heatmap showing which pixels drove that decision."}
             </p>
           )}
           {busy && (
@@ -131,20 +232,24 @@ export default function CortexDemo() {
             </p>
           )}
 
-          {result && (
+          {view && (
             <div className="space-y-6">
               <div>
-                <p className={`font-display text-4xl ${STAGE_COLOR[result.prediction] ?? 'text-neon'} text-glow`}>
-                  {result.prediction.toUpperCase()}
+                <p className={`font-display text-4xl ${STAGE_COLOR[view.prediction] ?? 'text-neon'} text-glow`}>
+                  {view.prediction.toUpperCase()}
                 </p>
-                <p className="mt-1 font-mono text-sm text-dim">confidence {(result.confidence * 100).toFixed(1)}%</p>
+                <p className="mt-1 font-mono text-sm text-dim">
+                  {seriesResult
+                    ? `averaged over ${seriesResult.slices.length} slices · ${(seriesResult.agreement * 100).toFixed(0)}% of them agree`
+                    : `confidence ${(view.confidence * 100).toFixed(1)}%`}
+                </p>
                 {truth && (
                   <p className="mt-2 font-mono text-sm">
-                    {truth === result.prediction ? (
-                      <span className="text-acid">✓ correct — this slice is labelled “{truth}”</span>
+                    {truth === view.prediction ? (
+                      <span className="text-acid">✓ correct — the true label is “{truth}”</span>
                     ) : (
                       <span className="text-hot">
-                        ✗ wrong — this slice is labelled “{truth}”. The model is right about 58% of the time.
+                        ✗ wrong — the true label is “{truth}”.
                       </span>
                     )}
                   </p>
@@ -152,17 +257,17 @@ export default function CortexDemo() {
               </div>
 
               <div className="space-y-2">
-                {Object.entries(result.probabilities)
+                {Object.entries(view.probabilities)
                   .sort((a, b) => b[1] - a[1])
                   .map(([name, p], i) => (
                     <div key={name}>
                       <div className="flex justify-between font-mono text-xs">
-                        <span className={name === result.prediction ? STAGE_COLOR[name] : 'text-dim'}>{name}</span>
+                        <span className={name === view.prediction ? STAGE_COLOR[name] : 'text-dim'}>{name}</span>
                         <span className="text-dim">{(p * 100).toFixed(1)}%</span>
                       </div>
                       <div className="mt-0.5 h-1 bg-grid">
                         <motion.div
-                          className={`h-full ${name === result.prediction ? 'bg-hot' : 'bg-neon/40'}`}
+                          className={`h-full ${name === view.prediction ? 'bg-hot' : 'bg-neon/40'}`}
                           initial={{ width: 0 }}
                           animate={{ width: `${p * 100}%` }}
                           transition={{ delay: i * 0.05, duration: 0.5 }}
@@ -172,16 +277,34 @@ export default function CortexDemo() {
                   ))}
               </div>
 
+              {seriesResult && (
+                <div>
+                  <p className="font-mono text-xs tracking-widest text-hot">// WHAT EACH SLICE SAID</p>
+                  <ul className="mt-2 space-y-1 font-mono text-xs">
+                    {seriesResult.slices.map((sl) => (
+                      <li key={sl.name} className="flex justify-between gap-3">
+                        <span className="truncate text-dim">{sl.name}</span>
+                        <span className={sl.prediction === seriesResult.prediction ? 'text-acid' : 'text-hot'}>
+                          {sl.prediction} · {(sl.confidence * 100).toFixed(0)}%
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div>
                 <div className="flex items-baseline justify-between font-mono text-xs tracking-widest">
-                  <span className="text-hot">// GRAD-CAM · WHAT THE MODEL LOOKED AT</span>
-                  <span className="text-dim">focus: {result.focus}</span>
+                  <span className="text-hot">
+                    // GRAD-CAM · {seriesResult ? `CLEAREST SLICE (${seriesResult.best_slice})` : 'WHAT THE MODEL LOOKED AT'}
+                  </span>
+                  <span className="text-dim">focus: {view.focus}</span>
                 </div>
                 {/* the heatmap sits on top of the scan; the slider fades it */}
                 <div className="relative mt-2 overflow-hidden border border-neon/20">
-                  <img src={result.input_image} alt="MRI slice" className="w-full" />
+                  <img src={view.input_image} alt="MRI slice" className="w-full" />
                   <img
-                    src={result.overlay_image}
+                    src={view.overlay_image}
                     alt="Grad-CAM heatmap over the scan"
                     className="absolute inset-0 h-full w-full"
                     style={{ opacity: heat }}
@@ -201,12 +324,12 @@ export default function CortexDemo() {
                   HEATMAP
                 </label>
                 <p className="mt-2 text-sm text-text/80">
-                  Red and yellow mark the pixels that pushed the model towards “{result.prediction}”. Dark areas had
+                  Red and yellow mark the pixels that pushed the model towards “{view.prediction}”. Dark areas had
                   little influence.
                 </p>
               </div>
 
-              {result.excluded.length > 0 && (
+              {result && result.excluded.length > 0 && (
                 <p className="border-l-2 border-hot/60 pl-3 font-mono text-xs text-dim">
                   {result.excluded.join(', ')} is excluded from predictions — see why below.
                 </p>
@@ -278,7 +401,8 @@ export default function CortexDemo() {
             single slice. Letting every slice of a patient vote lifts accuracy from 58.0% to{' '}
             <span className="text-acid">81.5%</span> across 54 held-out patients (macro F1 0.57 → 0.64). Worth knowing:
             40 of those 54 are healthy, so always answering “Non Demented” would already score 74% — the voting model
-            beats that on the rarer classes, which is where it counts.
+            beats that on the rarer classes, which is where it counts. Switch to <span className="text-hot">PATIENT
+            SERIES</span> above to run it that way.
           </li>
           <li>
             <span className="text-neon">Dataset:</span> a balanced OASIS-derived MRI set, 1,500 images per class, 345
