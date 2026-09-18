@@ -33,6 +33,12 @@ class Settings(BaseSettings):
     # CORTEX (Alzheimer MRI). Prefers the retrained 3-class checkpoint; the older
     # 4-class one still works (its untrained class is masked out).
     cortex_model_path: Path = BASE_DIR.parent / "models" / "cortex_resnet18_patientsplit.pt"
+    # Second opinion: the 4-class ResNet50 trained on the same patient split. Blending
+    # the two lifts slice accuracy 58.0% -> 60.2%. The weight was chosen on validation.
+    cortex_partner_path: Path = Path(
+        "D:/Projects/xai-alzheimer-early-detection/notebooks/best_resnet50_alz_patientsplit.pt"
+    )
+    cortex_partner_weight: float = 0.6  # share given to the ResNet50
     # Set LOAD_MODELS=false to skip loading the ML models (faster restarts, tests).
     load_models: bool = True
 

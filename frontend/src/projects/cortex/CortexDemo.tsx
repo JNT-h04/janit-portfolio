@@ -222,7 +222,7 @@ export default function CortexDemo() {
           {!view && !busy && (
             <p className="font-mono text-dim">
               {mode === 'series'
-                ? 'Upload every slice you have of one patient, or run a test-set patient. Each slice is scored, then the scores are averaged — the same trick that takes accuracy from 58% to about 82%.'
+                ? 'Upload every slice you have of one patient, or run a test-set patient. Each slice is scored, then the scores are averaged — the same trick that takes accuracy from 60% to about 82%.'
                 : "Upload an axial MRI slice, or pick a sample. You get a predicted stage, the model's confidence, and a Grad-CAM heatmap showing which pixels drove that decision."}
             </p>
           )}
@@ -377,7 +377,7 @@ export default function CortexDemo() {
                 <tr>
                   <td className="py-1 pr-4">by patient</td>
                   <td className="py-1 pr-4">3 (this demo)</td>
-                  <td className="py-1 text-neon">58.0%</td>
+                  <td className="py-1 text-neon">60.2%</td>
                 </tr>
               </tbody>
             </table>
@@ -391,15 +391,16 @@ export default function CortexDemo() {
             than pretending.
           </li>
           <li>
-            <span className="text-neon">This model:</span> ResNet18 fine-tuned on the patient-level split, 176px inputs.
-            Test accuracy 58.0%, macro F1 0.57 across 693 held-out slices (Non Demented 0.76 F1, Very mild 0.52, Mild
-            0.42). Retraining the bigger ResNet50 the same way scored 59.1% but barely recognised “Very mild”, so the
-            smaller, more balanced model is the one running here.
+            <span className="text-neon">This model:</span> two networks vote — a ResNet18 retrained for this site and
+            the older ResNet50, both trained on the same patient-level split. Together they score 60.2% accuracy and
+            macro F1 0.59 on 693 held-out slices (alone: 58.0% / 0.565 and 58.2% / 0.550). The blend weight was chosen
+            on the validation split, never on the test set. The heatmap comes from the ResNet18, because an explanation
+            has to belong to one network to mean anything.
           </li>
           <li>
             <span className="text-neon">One slice is a hard question.</span> A radiologist reads a whole scan, not a
             single slice. Letting every slice of a patient vote lifts accuracy from 58.0% to{' '}
-            <span className="text-acid">81.5%</span> across 54 held-out patients (macro F1 0.57 → 0.64). Worth knowing:
+            <span className="text-acid">81.5%</span> across 54 held-out patients (macro F1 0.59 → 0.66). Worth knowing:
             40 of those 54 are healthy, so always answering “Non Demented” would already score 74% — the voting model
             beats that on the rarer classes, which is where it counts. Switch to <span className="text-hot">PATIENT
             SERIES</span> above to run it that way.
