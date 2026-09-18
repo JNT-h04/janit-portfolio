@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef, useState, type DragEvent } from 'react'
+import { useEffect, useState } from 'react'
 import HudPanel from '../../components/HudPanel'
+import UploadZone from '../../components/UploadZone'
 import { getStatus, parseSummary, streamSummary, uploadBook, type BookInfo } from './api'
 
 const ACCEPT = '.pdf,.docx,.epub,.txt,.md,.html,.htm'
@@ -68,7 +69,22 @@ export default function LexiconDemo() {
       )}
 
       {!book ? (
-        <DropZone stage={stage} onFile={handleFile} />
+        <UploadZone
+          accept={ACCEPT}
+          title="DROP A BOOK HERE"
+          hint="PDF · DOCX · EPUB · TXT · MD · HTML · up to 50 MB"
+          error={stage.kind === 'error' ? stage.message : undefined}
+          busy={
+            stage.kind === 'uploading'
+              ? {
+                  label: stage.progress < 1 ? 'UPLOADING' : 'DECRYPTING CHAPTERS',
+                  detail: stage.progress < 1 ? `${Math.round(stage.progress * 100)}%` : 'finding chapter boundaries…',
+                  progress: stage.progress,
+                }
+              : null
+          }
+          onFile={handleFile}
+        />
       ) : (
         <>
           <HudPanel title="TARGET ACQUIRED" tag={`${book.chapters.length} CHAPTERS`}>
@@ -128,78 +144,6 @@ export default function LexiconDemo() {
               onGenerate={() => generate(selected)}
             />
           </div>
-        </>
-      )}
-    </div>
-  )
-}
-
-function DropZone({ stage, onFile }: { stage: Stage; onFile: (f: File) => void }) {
-  const input = useRef<HTMLInputElement>(null)
-  const [hover, setHover] = useState(false)
-  const busy = stage.kind === 'uploading'
-
-  const onDrop = (e: DragEvent) => {
-    e.preventDefault()
-    setHover(false)
-    const file = e.dataTransfer.files[0]
-    if (file && !busy) onFile(file)
-  }
-
-  return (
-    <div
-      onDragOver={(e) => {
-        e.preventDefault()
-        setHover(true)
-      }}
-      onDragLeave={() => setHover(false)}
-      onDrop={onDrop}
-      onClick={() => !busy && input.current?.click()}
-      data-hover
-      className={`hud-panel relative flex min-h-72 flex-col items-center justify-center overflow-hidden p-10 text-center transition-colors ${
-        hover ? 'bg-neon/10!' : ''
-      }`}
-    >
-      <input
-        ref={input}
-        type="file"
-        accept={ACCEPT}
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) onFile(file)
-          e.target.value = '' // allow picking the same file again
-        }}
-      />
-
-      {busy ? (
-        <>
-          {/* a scan line sweeping down the panel */}
-          <motion.div
-            className="absolute inset-x-0 h-0.5 bg-neon shadow-[0_0_16px_#00f0ff]"
-            animate={{ top: ['0%', '100%'] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: 'linear' }}
-          />
-          <p className="font-display text-2xl text-neon text-glow">
-            {stage.progress < 1 ? 'UPLOADING' : 'DECRYPTING CHAPTERS'}
-            <span className="blink">_</span>
-          </p>
-          <div className="mt-4 h-1.5 w-64 bg-grid">
-            <div
-              className={`h-full bg-gradient-to-r from-neon to-hot transition-[width] ${stage.progress >= 1 ? 'animate-pulse' : ''}`}
-              style={{ width: `${Math.round(stage.progress * 100)}%` }}
-            />
-          </div>
-          <p className="mt-2 font-mono text-sm text-dim">
-            {stage.progress < 1 ? `${Math.round(stage.progress * 100)}%` : 'finding chapter boundaries…'}
-          </p>
-        </>
-      ) : (
-        <>
-          <p className="font-display text-3xl text-neon">DROP A BOOK HERE</p>
-          <p className="mt-2 text-lg">or click to choose a file</p>
-          <p className="mt-4 font-mono text-sm text-dim">PDF · DOCX · EPUB · TXT · MD · HTML · up to 50 MB</p>
-          {stage.kind === 'error' && <p className="mt-4 font-mono text-sm text-hot">✖ {stage.message}</p>}
         </>
       )}
     </div>

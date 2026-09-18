@@ -29,7 +29,7 @@ export const PROJECTS: Project[] = [
     tagline: 'Upload a photo of a concrete crack and get its severity, probable cause and repair advice.',
     stack: ['TensorFlow', 'ResNet50', 'OpenCV'],
     threat: 'MED',
-    online: false,
+    online: true,
   },
   {
     slug: 'alzheimer-xai',

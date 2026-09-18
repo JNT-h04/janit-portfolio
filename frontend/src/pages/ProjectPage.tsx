@@ -3,12 +3,14 @@ import { Link, useParams } from 'react-router-dom'
 import GlitchText from '../components/GlitchText'
 import HudPanel from '../components/HudPanel'
 import { findProject } from '../data/projects'
+import FractureDemo from '../projects/fracture/FractureDemo'
 import LexiconDemo from '../projects/lexicon/LexiconDemo'
 import NotFound from './NotFound'
 
 // The working demo for each project. Projects missing here show "not yet deployed".
 const DEMOS: Record<string, ComponentType> = {
   'book-summarizer': LexiconDemo,
+  'crack-severity': FractureDemo,
 }
 
 export default function ProjectPage() {

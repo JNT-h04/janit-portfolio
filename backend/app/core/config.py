@@ -28,5 +28,10 @@ class Settings(BaseSettings):
     # don't break when an old version is retired.
     gemini_models: list[str] = ["gemini-flash-latest", "gemini-3.5-flash", "gemini-flash-lite-latest"]
 
+    # FRACTURE (crack severity). The weights are ~290 MB, so they stay outside the repo.
+    crack_model_path: Path = Path("D:/Projects/concrete-crack-severity-analysis/model/final_model.h5")
+    # Set LOAD_MODELS=false to skip loading the ML models (faster restarts, tests).
+    load_models: bool = True
+
 
 settings = Settings()
