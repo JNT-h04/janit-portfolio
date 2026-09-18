@@ -16,3 +16,8 @@ Thumbs.db
 *.h5
 *.pt
 *.pth
+
+# training-only environment and downloaded wheels
+.venv-train/
+.wheels/
+models/

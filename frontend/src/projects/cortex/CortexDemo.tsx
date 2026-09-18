@@ -406,6 +406,14 @@ export default function CortexDemo() {
             SERIES</span> above to run it that way.
           </li>
           <li>
+            <span className="text-neon">Tried and rejected:</span> a 15-recipe training sweep on a GPU (ResNet18/34,
+            EfficientNet-B0, two image sizes, light vs strong augmentation, class- vs patient-balanced sampling, and
+            schedule lengths from 1 to 8 epochs) produced a model that is slightly better per slice and slightly worse
+            per patient — a tie within the noise of a 54-patient test set. Flip-averaging at prediction time made
+            things worse. The recipe search lives in <span className="font-mono text-xs">scripts/train_cortex.py</span>;
+            the limit here is the number of patients, not the training.
+          </li>
+          <li>
             <span className="text-neon">Dataset:</span> a balanced OASIS-derived MRI set, 1,500 images per class, 345
             patients in total.
           </li>
