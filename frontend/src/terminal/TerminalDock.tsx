@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTerminal } from './context'
 import Terminal from './Terminal'
+import { useMicroGlitch } from './useMicroGlitch'
 
 // Opening: the window tears into slices that jump sideways and flip colour,
 // like a monitor locking onto a signal. Closing collapses it to a line, the
@@ -52,6 +53,9 @@ export default function TerminalDock() {
   const { open, setOpen } = useTerminal()
   // Counts openings, so remounting the burst replays its CSS animation.
   const [burst, setBurst] = useState(0)
+  // Random interference while the window is open.
+  const panelRef = useRef<HTMLDivElement>(null)
+  useMicroGlitch(panelRef, open)
 
   useEffect(() => {
     setBurst((n) => n + 1)
@@ -79,7 +83,7 @@ export default function TerminalDock() {
       style={{ pointerEvents: open ? 'auto' : 'none' }}
       aria-hidden={!open}
     >
-      <div className="hud-panel flex h-full flex-col bg-void/90! shadow-[0_0_40px_rgb(57_255_136/0.18)]">
+      <div ref={panelRef} className="hud-panel flex h-full flex-col bg-void/90! shadow-[0_0_40px_rgb(57_255_136/0.18)]">
         {/* The frame stays cyan/pink so the window belongs to the site... */}
         <div className="flex items-center justify-between border-b border-neon/20 px-4 py-2 font-mono text-xs tracking-widest">
           <span className="flex items-center gap-2 text-neon">
