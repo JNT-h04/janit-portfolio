@@ -2,7 +2,7 @@
   "name": "Janit B",
   "role": "AI/ML Engineer",
   "location": "Salem, Tamil Nadu, India",
-  "tagline": "Most ML projects stop at a notebook. Mine ship.",
+  "tagline": "I like the last mile: turning a trained model into something someone can actually use.",
   "about": [
     "I'm a final-year Computer Science undergraduate at VIT Chennai, specialising in Artificial Intelligence and Machine Learning. I build AI systems end to end: preparing the data, training or fine-tuning the model, wrapping it in an API, and shipping an interface people can actually use.",
     "I care about the last mile — the part where a trained model turns into something a person can open, upload their own file to, and get a useful answer from. That is what every project on this site does."
@@ -11,7 +11,7 @@
     "Trained and fine-tuned deep-learning models (ResNet50, LSTM, transformers) for vision, audio and time-series problems.",
     "Built retrieval-augmented (RAG) pipelines with LangChain, FAISS and Whisper for search over documents and meetings.",
     "Ship full-stack around the model: FastAPI services, streaming responses, React interfaces, and tests.",
-    "Report honest numbers: per-class accuracy, known weaknesses and limitations, not just the headline score.",
+    "Report results honestly: per-class accuracy, known weaknesses and limitations alongside the headline score.",
     "Industry experience building AI voice agents and automations that ran for real e-commerce customers."
   ],
   "skills": [

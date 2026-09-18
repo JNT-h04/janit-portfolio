@@ -34,7 +34,7 @@ export default function Home() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          Anyone can list projects. Mine you can run.
+          Built to be used, not just described. Open any project and try it.
         </motion.p>
         <motion.div
           className="mt-10 flex flex-wrap gap-4 font-mono"
