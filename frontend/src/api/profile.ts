@@ -6,10 +6,23 @@ export type Profile = {
   name: string
   role: string
   location: string
-  summary: string
+  tagline: string
+  about: string[]
+  highlights: string[]
+  skills: { group: string; items: string[] }[]
+  experience: {
+    company: string
+    url?: string
+    about: string
+    title: string
+    period: string
+    location?: string
+    points: string[]
+    stack: string[]
+  }[]
+  education: { school: string; degree: string; period: string; detail: string }[]
+  certifications: string[]
   links: { label: string; url: string }[]
-  skills: { name: string; level: number }[] // level 0-100 drives the stat bars
-  experience: { company: string; title: string; period: string; points: string[] }[]
 }
 
 export type ProfileState =

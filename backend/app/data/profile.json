@@ -2,30 +2,57 @@
   "name": "Janit B",
   "role": "AI/ML Engineer",
   "location": "Salem, Tamil Nadu, India",
-  "summary": "CSE (AI & ML) undergraduate at VIT Chennai. I build and ship full-stack AI applications, from training the model to the API to the interface people actually use.",
-  "links": [
-    { "label": "GITHUB", "url": "https://github.com/JNT-h04" },
-    { "label": "LINKEDIN", "url": "https://linkedin.com/in/janit2006" },
-    { "label": "EMAIL", "url": "mailto:janit.b2006@gmail.com" }
+  "tagline": "Most ML projects stop at a notebook. Mine ship.",
+  "about": [
+    "I'm a final-year Computer Science undergraduate at VIT Chennai, specialising in Artificial Intelligence and Machine Learning. I build AI systems end to end: preparing the data, training or fine-tuning the model, wrapping it in an API, and shipping an interface people can actually use.",
+    "I care about the last mile — the part where a trained model turns into something a person can open, upload their own file to, and get a useful answer from. That is what every project on this site does."
+  ],
+  "highlights": [
+    "Trained and fine-tuned deep-learning models (ResNet50, LSTM, transformers) for vision, audio and time-series problems.",
+    "Built retrieval-augmented (RAG) pipelines with LangChain, FAISS and Whisper for search over documents and meetings.",
+    "Ship full-stack around the model: FastAPI services, streaming responses, React interfaces, and tests.",
+    "Report honest numbers: per-class accuracy, known weaknesses and limitations, not just the headline score.",
+    "Industry experience building AI voice agents and automations that ran for real e-commerce customers."
   ],
   "skills": [
-    { "name": "Python", "level": 90 },
-    { "name": "PyTorch / TensorFlow", "level": 80 },
-    { "name": "LangChain / RAG", "level": 75 },
-    { "name": "FastAPI", "level": 70 },
-    { "name": "React", "level": 45 },
-    { "name": "Java / C++", "level": 65 }
+    { "group": "Languages", "items": ["Python", "TypeScript", "Java", "C++", "SQL"] },
+    { "group": "ML & AI", "items": ["PyTorch", "TensorFlow", "Keras", "Scikit-learn", "CNN / ResNet", "LSTM", "Transformers", "Hugging Face"] },
+    { "group": "LLM & RAG", "items": ["LangChain", "FAISS", "Gemini API", "Whisper", "Prompt engineering"] },
+    { "group": "Backend & Web", "items": ["FastAPI", "REST APIs", "Streamlit", "React", "Vite", "Pytest"] },
+    { "group": "Foundations", "items": ["Data structures & algorithms", "OOP", "DBMS", "Operating systems", "Computer networks"] },
+    { "group": "Tools", "items": ["Git & GitHub", "AWS", "Docker basics", "OpenCV", "Shopify", "ElevenLabs"] }
   ],
   "experience": [
     {
       "company": "Strategy Fox International Pvt. Ltd.",
+      "url": "https://strategyfox.in",
+      "about": "Software and AI-automation studio in Bangalore that builds websites, SaaS platforms, internal tools and AI agents for D2C and retail brands.",
       "title": "AI & Software Engineering Intern",
-      "period": "May 2026 – Jun 2026",
+      "period": "May 2026 – June 2026",
+      "location": "Remote / Bangalore",
       "points": [
-        "Built a real-time AI voice agent with ElevenLabs for customer support workflows.",
-        "Automated business processes with conversational flows wired to REST APIs.",
-        "Customised and maintained client Shopify stores."
-      ]
+        "Built a real-time AI voice agent with ElevenLabs that handled customer conversations, cutting the manual follow-up work the team did by hand.",
+        "Wired conversational flows to REST APIs with dynamic variables, so an agent could look up live order and customer data mid-call.",
+        "Customised and maintained client Shopify storefronts: new features, bug fixes and ongoing store upkeep.",
+        "Worked with a cross-functional team on production client work, from first requirement to deployed feature."
+      ],
+      "stack": ["ElevenLabs", "REST APIs", "Python", "Shopify"]
     }
+  ],
+  "education": [
+    {
+      "school": "Vellore Institute of Technology, Chennai",
+      "degree": "B.Tech, Computer Science and Engineering (AI & ML)",
+      "period": "2023 – 2027",
+      "detail": "CGPA 8.24 / 10 · Coursework: DSA, OOP, DBMS, operating systems, computer networks, system design"
+    }
+  ],
+  "certifications": [
+    "IBM Generative AI with watsonx — VIT (2025)"
+  ],
+  "links": [
+    { "label": "GITHUB", "url": "https://github.com/JNT-h04" },
+    { "label": "LINKEDIN", "url": "https://linkedin.com/in/janit2006" },
+    { "label": "EMAIL", "url": "mailto:janit.b2006@gmail.com" }
   ]
 }

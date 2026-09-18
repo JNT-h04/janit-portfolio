@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import CyberLogo from '../components/CyberLogo'
 import GlitchText from '../components/GlitchText'
 import MissionCard from '../components/MissionCard'
-import ProfilePanel from '../components/ProfilePanel'
+import OperatorFile from '../components/OperatorFile'
 import { PROJECTS } from '../data/projects'
 import { useTerminal } from '../terminal/context'
 
@@ -29,12 +29,12 @@ export default function Home() {
           render={(variant) => <CyberLogo variant={variant} className="block h-auto w-[min(88vw,780px)] lg:w-[min(52vw,660px)]" />}
         />
         <motion.p
-          className="mt-4 max-w-xl text-xl text-text/85 sm:text-2xl"
+          className="mt-4 max-w-xl border-l-2 border-hot pl-4 text-xl text-text/90 sm:text-2xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          Every project below actually runs, so pick one and try it.
+          Anyone can list projects. Mine you can run.
         </motion.p>
         <motion.div
           className="mt-10 flex flex-wrap gap-4 font-mono"
@@ -77,12 +77,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="operator" className="scroll-mt-20 py-16">
-        <h2 className="mb-8 font-display text-3xl font-bold tracking-widest">
-          <span className="text-hot">02.</span> OPERATOR
-        </h2>
-        <ProfilePanel />
-      </section>
+      <OperatorFile />
     </>
   )
 }

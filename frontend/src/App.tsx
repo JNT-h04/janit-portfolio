@@ -42,6 +42,7 @@ export default function App() {
           <div className="flex items-center gap-5">
             <Link to="/#missions" className="hover:text-neon">missions</Link>
             <Link to="/#operator" className="hover:text-neon">operator</Link>
+            <Link to="/#experience" className="hidden hover:text-neon sm:inline">experience</Link>
             <button
               onClick={() => setTerminalOpen(!terminalOpen)}
               className={`flex items-center gap-2 border px-3 py-1 tracking-widest transition-colors ${
