@@ -5,24 +5,13 @@ These are rule-of-thumb heuristics (thresholds on edge density and line
 angles), not trained models, and the page says so.
 """
 
-import base64
-
 import cv2
 import numpy as np
 
-MAX_SIDE = 640  # images sent back to the browser are shrunk to this
+# decode() and to_data_url() live in app/core/images.py: CORTEX needs them too.
+from app.core.images import MAX_SIDE, decode, to_data_url
 
-
-def decode(data: bytes) -> np.ndarray:
-    """Uploaded bytes -> RGB array. Raises ValueError if it isn't an image."""
-    img = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
-    if img is None:
-        raise ValueError("that file isn't a readable image")
-    h, w = img.shape[:2]
-    scale = MAX_SIDE / max(h, w)
-    if scale < 1:
-        img = cv2.resize(img, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA)
-    return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+__all__ = ["MAX_SIDE", "decode", "to_data_url", "edges", "intensity", "age", "cause_and_overlay", "edges_as_neon", "ADVICE"]
 
 
 def edges(img_rgb: np.ndarray) -> np.ndarray:
@@ -75,15 +64,6 @@ def edges_as_neon(edge_map: np.ndarray) -> np.ndarray:
     out = np.zeros((*edge_map.shape, 3), np.uint8)
     out[edge_map > 0] = (255, 42, 109)
     return cv2.dilate(out, np.ones((2, 2), np.uint8))
-
-
-def to_data_url(img_rgb: np.ndarray) -> str:
-    """Encode an image as a data URL, so it can travel inside the JSON reply
-    and be used directly as <img src=...> in the browser."""
-    ok, png = cv2.imencode(".png", cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR))
-    if not ok:
-        raise ValueError("could not encode image")
-    return "data:image/png;base64," + base64.b64encode(png.tobytes()).decode()
 
 
 ADVICE = {

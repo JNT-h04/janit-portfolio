@@ -35,10 +35,10 @@ export const PROJECTS: Project[] = [
     slug: 'alzheimer-xai',
     codename: 'CORTEX',
     title: 'XAI Alzheimer Detection',
-    tagline: 'Upload a brain MRI scan and get the dementia stage plus a Grad-CAM heatmap of what the model looked at.',
-    stack: ['PyTorch', 'ResNet50', 'Grad-CAM'],
+    tagline: 'Upload a brain MRI slice and get the dementia stage plus a Grad-CAM heatmap of what the model looked at.',
+    stack: ['PyTorch', 'ResNet18', 'Grad-CAM'],
     threat: 'MED',
-    online: false,
+    online: true,
   },
   {
     slug: 'meeting-assistant',

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import GlitchText from '../components/GlitchText'
 import HudPanel from '../components/HudPanel'
 import { findProject } from '../data/projects'
+import CortexDemo from '../projects/cortex/CortexDemo'
 import FractureDemo from '../projects/fracture/FractureDemo'
 import LexiconDemo from '../projects/lexicon/LexiconDemo'
 import NotFound from './NotFound'
@@ -11,6 +12,7 @@ import NotFound from './NotFound'
 const DEMOS: Record<string, ComponentType> = {
   'book-summarizer': LexiconDemo,
   'crack-severity': FractureDemo,
+  'alzheimer-xai': CortexDemo,
 }
 
 export default function ProjectPage() {

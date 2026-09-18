@@ -30,6 +30,9 @@ class Settings(BaseSettings):
 
     # FRACTURE (crack severity). The weights are ~290 MB, so they stay outside the repo.
     crack_model_path: Path = Path("D:/Projects/concrete-crack-severity-analysis/model/final_model.h5")
+    # CORTEX (Alzheimer MRI). Prefers the retrained 3-class checkpoint; the older
+    # 4-class one still works (its untrained class is masked out).
+    cortex_model_path: Path = BASE_DIR.parent / "models" / "cortex_resnet18_patientsplit.pt"
     # Set LOAD_MODELS=false to skip loading the ML models (faster restarts, tests).
     load_models: bool = True
 
