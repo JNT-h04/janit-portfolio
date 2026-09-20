@@ -30,3 +30,10 @@ def test_greet_command_no_args():
     res = client.post("/api/terminal", json={"command": "greet", "args":[]})
     assert "usage" in res.json()["output"]
     
+
+def test_models_command_reports_both_models():
+    res = client.post("/api/terminal", json={"command": "models", "args": []})
+    assert res.status_code == 200
+    out = res.json()["output"]
+    assert "fracture" in out
+    assert "cortex" in out

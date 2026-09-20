@@ -13,6 +13,9 @@ from collections.abc import Callable
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from app.cortex import model as cortex_model
+from app.fracture import model as fracture_model
+
 router = APIRouter(tags=["terminal"])
 
 STARTED_AT = time.time()
@@ -46,12 +49,22 @@ def greet(args:list[str])->str:
     return f"Access granted, Hello {name}! Welcome to my system. You can explore my portfolio and learn more about me. Enjoy your visit!"
 
 
+def models(args: list[str]) -> str:
+    # Reads state that app/core/model_slot.py writes as each ML model loads
+    # in the background — see FRACTURE and CORTEX's model.py files.
+    lines = []
+    for label, slot in [("fracture (crack severity)", fracture_model.slot), ("cortex (alzheimer mri)", cortex_model.slot)]:
+        seconds = f" in {slot.load_seconds}s" if slot.load_seconds else ""
+        lines.append(f"{label}: {slot.state}{seconds}")
+    return "\n".join(lines)
+
 
 # name -> (function, help text)
 COMMANDS: dict[str, tuple[Callable[[list[str]], str], str]] = {
     "uptime": (uptime, "how long the server has been running"),
     "ping": (ping, "check the backend is alive"),
     "greet": (greet, "say hello: greet <your name>"),
+    "models": (models, "show which ML models are loaded"),
 }
 
 
