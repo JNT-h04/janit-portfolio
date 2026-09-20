@@ -44,10 +44,10 @@ export const PROJECTS: Project[] = [
     slug: 'meeting-assistant',
     codename: 'ECHO',
     title: 'AI Meeting Assistant',
-    tagline: 'Upload a meeting recording to get a transcript with speakers, a summary, and answers to questions about it.',
-    stack: ['Whisper', 'pyannote', 'BART', 'FAISS'],
+    tagline: 'Upload a meeting recording and get speaker-labelled minutes: summary, decisions and action items.',
+    stack: ['Gemini', 'FastAPI', 'background jobs'],
     threat: 'HIGH',
-    online: false,
+    online: true,
   },
 ]
 
