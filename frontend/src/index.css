@@ -15,6 +15,30 @@
   --font-display: 'Tektur', sans-serif;
   --font-mono: 'Share Tech Mono', ui-monospace, monospace;
   --font-body: 'Rajdhani', sans-serif;
+
+  /* ---- Professional skin: "Paper & Ink". Light, restrained, one accent. ----
+     Deliberately separate names from the cyberpunk tokens above, so the two
+     skins can never bleed into each other: a component is either bg-void or
+     bg-paper, never something that changes meaning depending on the mode. */
+  --color-paper: #fff9f3; /* warm cream */
+  --color-card: #ffffff;
+  --color-ink: #1b1726; /* plum-black: warmer than a neutral charcoal */
+  --color-coral: #ff6b5a; /* accent 1: the primary, for actions and highlights */
+  --color-coral-soft: #ffeeea;
+  --color-amber: #ffb347; /* accent 2: the warm middle of every gradient */
+  --color-amber-soft: #fff3e0;
+  --color-violet: #7c5cff; /* accent 3: the cool end, for codenames and depth */
+  --color-violet-soft: #efeaff;
+  --color-jade: #14b88a; /* reserved for "this is live" and "this was right" */
+  --color-mist: #fdf1ea;
+  --color-quiet: #7a7288; /* warm grey */
+  --color-rule: #f2e3d8; /* warm hairline */
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+  /* Flowing winter-calligraphy script, used only for the name in the hero. */
+  --font-script: 'Great Vibes', 'Pinyon Script', cursive;
+  --font-code: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 /* Background colour on <html> only: a background on <body> would paint over
@@ -26,6 +50,366 @@ body {
   color: var(--color-text);
   font-family: var(--font-body);
   font-size: 18px;
+}
+
+/* The skin provider puts one of these classes on <html>, which is what flips
+   the page background before React has painted anything. */
+html.skin-pro {
+  background: var(--color-paper);
+}
+html.skin-pro body {
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+}
+html.skin-pro ::selection {
+  background: var(--color-coral);
+  color: #fff;
+}
+
+/* ---------- Professional surfaces ----------
+   Cards are white glass: a translucent pane with a blur, so the colour mesh
+   behind the page shows through and every card picks up a different part of
+   the gradient. */
+.paper-card {
+  position: relative;
+  background: color-mix(in srgb, var(--color-card) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 7%, transparent);
+  border-radius: 1rem;
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--color-ink) 5%, transparent),
+    0 12px 32px -18px color-mix(in srgb, var(--color-violet) 30%, transparent);
+}
+
+/* A gradient hairline riding on top of the card's own border. */
+.paper-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-coral) 40%, transparent),
+    color-mix(in srgb, var(--color-amber) 28%, transparent) 40%,
+    transparent 65%,
+    color-mix(in srgb, var(--color-violet) 32%, transparent)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.paper-card-hover {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease,
+    background 0.35s ease;
+}
+.paper-card-hover:hover {
+  transform: translateY(-6px);
+  background: color-mix(in srgb, var(--color-card) 88%, transparent);
+  box-shadow:
+    0 2px 4px color-mix(in srgb, var(--color-ink) 6%, transparent),
+    0 26px 50px -22px color-mix(in srgb, var(--color-coral) 55%, transparent),
+    0 16px 40px -28px color-mix(in srgb, var(--color-violet) 60%, transparent);
+}
+.paper-card-hover:hover::before {
+  opacity: 1;
+}
+
+/* Text filled with the sunrise gradient, slowly sliding across itself. */
+.gradient-text {
+  background: linear-gradient(
+    100deg,
+    var(--color-coral),
+    var(--color-amber) 28%,
+    var(--color-violet) 62%,
+    var(--color-coral)
+  );
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-slide 9s ease-in-out infinite;
+}
+@keyframes gradient-slide {
+  0%,
+  100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ---------- Hero portrait (professional skin) ----------
+   The photo was shot on near-black. On a cream page that cannot be masked
+   away — his suit is black too, so any luminance key would delete him along
+   with the backdrop. So the darkness is made deliberate instead: the picture
+   sits in an arched frame with a gradient rim, like a framed print on a wall,
+   and is warmed towards the page's palette from the inside. */
+.portrait-frame {
+  border-radius: 999px 999px 1.75rem 1.75rem;
+  background: linear-gradient(150deg, var(--color-coral), var(--color-amber) 42%, var(--color-violet));
+  padding: 2px;
+  box-shadow:
+    0 30px 70px -30px color-mix(in srgb, var(--color-violet) 70%, transparent),
+    0 18px 40px -24px color-mix(in srgb, var(--color-coral) 70%, transparent);
+  animation: portrait-float 9s ease-in-out infinite;
+}
+.portrait-inner {
+  border-radius: 999px 999px 1.65rem 1.65rem;
+  background: #100d16;
+}
+@keyframes portrait-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* A warm wash over the photo, so it belongs to the sunrise palette rather
+   than staying a cold black-and-white cut-out. */
+.portrait-wash {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--color-coral) 55%, transparent),
+    transparent 42%,
+    color-mix(in srgb, var(--color-violet) 62%, transparent)
+  );
+  mix-blend-mode: soft-light;
+}
+
+/* The halo the portrait stands in. */
+.portrait-halo {
+  background: radial-gradient(
+    ellipse 60% 55% at 50% 45%,
+    color-mix(in srgb, var(--color-amber) 62%, transparent),
+    color-mix(in srgb, var(--color-coral) 34%, transparent) 46%,
+    transparent 74%
+  );
+  filter: blur(40px);
+  animation: portrait-breathe 11s ease-in-out infinite;
+}
+@keyframes portrait-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-halo,
+  .portrait-frame { animation: none; }
+}
+
+/* A tinted pill. `data-tone` picks which accent it borrows. */
+.tone-chip {
+  border: 1px solid color-mix(in srgb, var(--tone, var(--color-violet)) 28%, transparent);
+  background: color-mix(in srgb, var(--tone, var(--color-violet)) 9%, transparent);
+  color: color-mix(in srgb, var(--tone, var(--color-violet)) 78%, var(--color-ink));
+}
+
+/* Section numbers: a small gradient badge instead of a plain figure. */
+.num-badge {
+  background: linear-gradient(135deg, var(--color-coral), var(--color-violet));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* A light sweeping across a surface, used on buttons and the hero portrait. */
+.shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.55) 50%, transparent 70%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+.shimmer:hover::after {
+  animation: shimmer-run 0.9s ease;
+}
+@keyframes shimmer-run {
+  to { transform: translateX(120%); }
+}
+
+/* The marquee of tools, scrolling forever under the hero. */
+.marquee-track {
+  animation: marquee 38s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ---------- Professional backdrop (skins/pro/effects/ProBackdrop.tsx) ----------
+   The calm counterpart of the cyberpunk city: three slow-drifting pools of
+   colour, a grid that fades out downwards, a line-art skyline and a little
+   grain. Everything here is decoration, so it all sits behind the content and
+   switches off for anyone who asks for reduced motion. */
+
+.pro-aurora {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  will-change: transform;
+  mix-blend-mode: multiply;
+}
+.pro-aurora-a {
+  top: -18vh;
+  left: -12vw;
+  width: 52vw;
+  height: 52vw;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-coral) 42%, transparent), transparent 66%);
+  animation: pro-drift-a 26s ease-in-out infinite alternate;
+}
+.pro-aurora-b {
+  top: -10vh;
+  right: -16vw;
+  width: 48vw;
+  height: 48vw;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-amber) 46%, transparent), transparent 66%);
+  animation: pro-drift-b 32s ease-in-out infinite alternate;
+}
+.pro-aurora-c {
+  top: 26vh;
+  left: 26vw;
+  width: 46vw;
+  height: 46vw;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-violet) 38%, transparent), transparent 68%);
+  animation: pro-drift-c 30s ease-in-out infinite alternate;
+}
+.pro-aurora-d {
+  bottom: -20vh;
+  right: 8vw;
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-coral) 30%, transparent), transparent 68%);
+  animation: pro-drift-a 36s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes pro-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(9vw, 7vh, 0) scale(1.18); }
+}
+@keyframes pro-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.12); }
+  to { transform: translate3d(-10vw, 9vh, 0) scale(1); }
+}
+@keyframes pro-drift-c {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-8vw, -8vh, 0) scale(1.2); }
+}
+
+/* A faint plan-drawing grid that dissolves as the page goes down. */
+.pro-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-ink) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-ink) 7%, transparent) 1px, transparent 1px);
+  background-size: 68px 68px;
+  -webkit-mask-image: radial-gradient(ellipse 85% 55% at 50% 0%, #000 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 85% 55% at 50% 0%, #000 25%, transparent 78%);
+}
+
+/* Lit windows: small warm squares that fade up after the outline is drawn,
+   a few of them breathing so the city looks inhabited. */
+.pro-window {
+  opacity: 0;
+  animation: pro-light-on 1.4s ease forwards;
+}
+.pro-window-blink {
+  animation:
+    pro-light-on 1.4s ease forwards,
+    pro-flicker 7s ease-in-out infinite;
+}
+@keyframes pro-light-on {
+  to { opacity: 1; }
+}
+@keyframes pro-flicker {
+  0%, 100% { opacity: 1; }
+  45% { opacity: 0.28; }
+  55% { opacity: 0.9; }
+}
+
+/* The skyline draws itself once, like a pen going over the horizon. */
+.pro-skyline path,
+.pro-skyline line,
+.pro-skyline polyline {
+  stroke-dasharray: var(--len, 1200);
+  stroke-dashoffset: var(--len, 1200);
+  animation: pro-draw 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes pro-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* A slow band of light crossing the skyline, the way a train window does. */
+.pro-sweep {
+  position: absolute;
+  inset-block: 0;
+  width: 36vw;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-amber) 30%, transparent),
+    transparent
+  );
+  filter: blur(26px);
+  animation: pro-sweep 19s linear infinite;
+}
+@keyframes pro-sweep {
+  from { transform: translateX(-40vw); }
+  to { transform: translateX(140vw); }
+}
+
+/* Grain keeps a very light page from looking flat and digital. */
+.pro-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Reading progress, under the professional header. */
+.pro-progress {
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--color-coral), var(--color-amber) 45%, var(--color-violet));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pro-aurora,
+  .pro-sweep,
+  .pro-skyline path,
+  .pro-skyline line,
+  .pro-skyline polyline {
+    animation: none;
+  }
+  .pro-skyline path,
+  .pro-skyline line,
+  .pro-skyline polyline {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Underline that grows from the left on hover: the pro side's one flourish. */
+.rule-grow {
+  background-image: linear-gradient(var(--color-coral), var(--color-coral));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0 1.5px;
+  transition: background-size 0.3s ease;
+}
+.rule-grow:hover {
+  background-size: 100% 1.5px;
 }
 
 /* The custom cursor replaces the system one, but only for a real mouse. */

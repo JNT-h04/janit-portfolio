@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { useTerminal } from './context'
 import Terminal from './Terminal'
+import { useTerminalHotkeys } from './useHotkeys'
 import { useMicroGlitch } from './useMicroGlitch'
 
 // Opening: the window tears into slices that jump sideways and flip colour,
@@ -61,19 +62,7 @@ export default function TerminalDock() {
     setBurst((n) => n + 1)
   }, [open])
 
-  // ` toggles it (unless you're typing in a text box); Esc closes it.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const typing = (e.target as Element).closest('input, textarea, [contenteditable]')
-      if (e.key === '`' && !typing) {
-        e.preventDefault()
-        setOpen(!open)
-      }
-      if (e.key === 'Escape' && open) setOpen(false)
-    }
-    addEventListener('keydown', onKey)
-    return () => removeEventListener('keydown', onKey)
-  }, [open, setOpen])
+  useTerminalHotkeys()
 
   return (
     <motion.div

@@ -4,6 +4,7 @@ import GlitchText from '../components/GlitchText'
 import MissionCard from '../components/MissionCard'
 import OperatorFile from '../components/OperatorFile'
 import { PROJECTS } from '../data/projects'
+import { RESUME_FILE, RESUME_URL } from '../data/resume'
 import { useTerminal } from '../terminal/context'
 
 export default function Home() {
@@ -54,6 +55,13 @@ export default function Home() {
           >
             &gt;_ {terminal.open ? 'CLOSE' : 'OPEN'} TERMINAL
           </button>
+          <a
+            href={RESUME_URL}
+            download={RESUME_FILE}
+            className="border border-neon px-5 py-2 text-neon hover:bg-neon hover:text-void"
+          >
+            DOWNLOAD DOSSIER
+          </a>
         </motion.div>
         <motion.p
           className="mt-6 font-mono text-sm text-dim"

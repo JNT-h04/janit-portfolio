@@ -3,16 +3,50 @@
 // backend can add commands without touching this file.
 
 import { PROJECTS } from '../data/projects'
+import { RESUME_FILE, RESUME_URL } from '../data/resume'
 import { HOME, lookup, pretty, resolve } from './fs'
 
 // ANSI escape codes: special character sequences that terminals read as
-// "switch colour" instead of printing them. The terminal screen uses an old
-// green-phosphor palette; the rest of the site stays cyan/pink.
+// "switch colour" instead of printing them.
+//
+// Two palettes, because the same shell runs in both skins: phosphor green on
+// the cyberpunk CRT, and dark ink on the professional side, where bright green
+// on white would be unreadable. Only one skin is mounted at a time, so a single
+// active palette is enough.
+type Ink = 'neon' | 'hot' | 'acid' | 'dim' | 'user'
+
+const PALETTES: Record<'crt' | 'paper', Record<Ink, string>> = {
+  crt: {
+    neon: '57;255;136', // bright phosphor green
+    hot: '255;176;0', // amber: warnings and errors
+    acid: '190;255;190', // pale green highlight
+    dim: '39;122;72', // faded green
+    user: '255;176;0', // the prompt's user@host, amber like the rest of the CRT
+  },
+  paper: {
+    neon: '14;124;123', // teal, the professional accent
+    hot: '185;28;28', // red: warnings and errors
+    acid: '17;94;89', // deeper teal highlight
+    dim: '107;114;128', // grey
+    user: '17;94;89', // the prompt: teal, because red here would read as an error
+  },
+}
+
+let active: keyof typeof PALETTES = 'crt'
+
+/** Called by the terminal window as it mounts, before anything is printed. */
+export const setTerminalPalette = (name: keyof typeof PALETTES) => {
+  active = name
+}
+
+const paint = (ink: Ink) => (s: string) => `\x1b[38;2;${PALETTES[active][ink]}m${s}\x1b[0m`
+
 export const c = {
-  neon: (s: string) => `\x1b[38;2;57;255;136m${s}\x1b[0m`, // bright phosphor green
-  hot: (s: string) => `\x1b[38;2;255;176;0m${s}\x1b[0m`, // amber: warnings and errors
-  acid: (s: string) => `\x1b[38;2;190;255;190m${s}\x1b[0m`, // pale green highlight
-  dim: (s: string) => `\x1b[38;2;39;122;72m${s}\x1b[0m`, // faded green
+  neon: paint('neon'),
+  hot: paint('hot'),
+  acid: paint('acid'),
+  dim: paint('dim'),
+  user: paint('user'),
   bold: (s: string) => `\x1b[1m${s}\x1b[0m`,
 }
 
@@ -62,6 +96,16 @@ export const COMMANDS: Record<string, Command> = {
     },
   },
 
+  resume: {
+    help: 'download my resume (pdf)',
+    run: () => {
+      const a = document.createElement('a')
+      a.href = RESUME_URL
+      a.download = RESUME_FILE
+      a.click()
+      return `${c.acid('downloading')} ${RESUME_FILE} ${c.dim('· one page, plain text, ATS-readable')}`
+    },
+  },
   whoami: { help: 'who is behind this system', run: () => `${c.neon('janit')}: AI/ML engineer. try ${c.hot('cat about.txt')}` },
 
   pwd: { help: 'print working directory', run: (_, ctx) => ctx.cwd },
@@ -226,4 +270,4 @@ export function completions(words: string[], cwd: string): string[] {
   return []
 }
 
-export const prompt = (cwd: string) => `${c.hot('janit@sys')}:${c.neon(pretty(cwd))}$ `
+export const prompt = (cwd: string) => `${c.user('janit@sys')}:${c.neon(pretty(cwd))}$ `

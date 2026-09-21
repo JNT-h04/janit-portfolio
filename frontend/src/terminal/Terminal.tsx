@@ -4,24 +4,67 @@ import { Terminal as XTerm } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { c, COMMANDS, completions, prompt, runRemote, type Ctx } from './commands'
+import { c, COMMANDS, completions, prompt, runRemote, setTerminalPalette, type Ctx } from './commands'
 import { HOME } from './fs'
 
-const BANNER = [
-  c.neon('╔════════════════════════╗'),
-  c.neon('║  ') + c.bold('J A N I T ') + c.hot('://') + c.bold(' S Y S') + c.neon('  ║'),
-  c.neon('╚════════════════════════╝'),
-  '',
-  `welcome, guest. type ${c.acid('help')} to begin.`,
-  '',
-].join('\r\n')
+// Built after the palette is set, rather than at module load, so it picks up
+// the colours of whichever skin opened the terminal. The border is measured
+// from the title so the box can never end up one character out of line.
+const RULE = '═'.repeat(23)
+
+const banner = () =>
+  [
+    c.neon('╔' + RULE + '╗'),
+    c.neon('║  ') + c.bold('J A N I T ') + c.hot('://') + c.bold(' S Y S') + c.neon('  ║'),
+    c.neon('╚' + RULE + '╝'),
+    '',
+    `welcome, guest. type ${c.acid('help')} to begin.`,
+    '',
+  ].join('\r\n')
 
 /**
  * xterm.js only draws characters and reports keys. It is not a shell. So this
  * component is the shell: it keeps the line being typed, handles editing keys,
  * and runs commands when you press Enter.
  */
-export default function Terminal({ onClose, active }: { onClose: () => void; active: boolean }) {
+/** Two looks for the same shell: a green CRT, or ink on paper for the professional skin. */
+export const TERMINAL_THEMES = {
+  crt: {
+    fontFamily: '"Share Tech Mono", ui-monospace, monospace',
+    fontSize: 15,
+    // Old monochrome-monitor palette: everything is a shade of phosphor green.
+    colors: {
+      background: '#00000000',
+      foreground: '#39ff88',
+      cursor: '#bfffd0',
+      cursorAccent: '#02140a',
+      selectionBackground: '#39ff8855',
+    },
+  },
+  paper: {
+    fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+    fontSize: 13,
+    colors: {
+      background: '#00000000',
+      foreground: '#2a2f38',
+      cursor: '#0e7c7b',
+      cursorAccent: '#ffffff',
+      selectionBackground: '#0e7c7b33',
+    },
+  },
+} as const
+
+export type TerminalTheme = keyof typeof TERMINAL_THEMES
+
+export default function Terminal({
+  onClose,
+  active,
+  theme = 'crt',
+}: {
+  onClose: () => void
+  active: boolean
+  theme?: TerminalTheme
+}) {
   const hostRef = useRef<HTMLDivElement>(null)
   const termRef = useRef<XTerm | null>(null)
   const fitRef = useRef<FitAddon | null>(null)
@@ -33,20 +76,15 @@ export default function Terminal({ onClose, active }: { onClose: () => void; act
   closeRef.current = onClose
 
   useEffect(() => {
+    setTerminalPalette(theme)
+    const look = TERMINAL_THEMES[theme]
     const term = new XTerm({
-      fontFamily: '"Share Tech Mono", ui-monospace, monospace',
-      fontSize: 15,
+      fontFamily: look.fontFamily,
+      fontSize: look.fontSize,
       cursorBlink: true,
       cursorStyle: 'block',
       allowTransparency: true,
-      // Old monochrome-monitor palette: everything is a shade of phosphor green.
-      theme: {
-        background: '#00000000',
-        foreground: '#39ff88',
-        cursor: '#bfffd0',
-        cursorAccent: '#02140a',
-        selectionBackground: '#39ff8855',
-      },
+      theme: { ...look.colors },
     })
     const fit = new FitAddon()
     term.loadAddon(fit)
@@ -202,7 +240,7 @@ export default function Terminal({ onClose, active }: { onClose: () => void; act
       if (printable) insert(printable)
     })
 
-    term.write(BANNER + prompt(cwd))
+    term.write(banner() + prompt(cwd))
 
     const onResize = () => fit.fit()
     addEventListener('resize', onResize)
