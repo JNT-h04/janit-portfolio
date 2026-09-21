@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Janit B — Resume</title>
+    <!--
+      Source for Janit_B_Resume.pdf. Rebuild with:  npm run resume  (from frontend/)
+
+      Deliberately plain: one column, real selectable text, standard section
+      headings, no tables, no graphics, no text inside images. Applicant
+      tracking systems parse this cleanly, which a two-column designed CV
+      often fails to do.
+    -->
+    <style>
+      @page {
+        size: A4;
+        margin: 11mm 13mm;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      body {
+        margin: 0;
+        font-family: 'Calibri', 'Carlito', 'Segoe UI', system-ui, sans-serif;
+        font-size: 9.4pt;
+        line-height: 1.23;
+        color: #14181f;
+      }
+
+      a {
+        color: #0b4f9c;
+        text-decoration: none;
+      }
+
+      header {
+        text-align: center;
+        padding-bottom: 5pt;
+        border-bottom: 1.1pt solid #14181f;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 19.5pt;
+        font-weight: 700;
+        letter-spacing: 2.2pt;
+        text-transform: uppercase;
+      }
+
+      .contact {
+        margin-top: 3pt;
+        font-size: 9.1pt;
+        color: #2c333d;
+      }
+
+      .contact span {
+        white-space: nowrap;
+      }
+
+      .sep {
+        color: #9aa1ab;
+        padding: 0 4pt;
+      }
+
+      h2 {
+        margin: 6pt 0 2.5pt;
+        padding-bottom: 1.5pt;
+        border-bottom: 0.7pt solid #b9bfc7;
+        font-size: 10.2pt;
+        font-weight: 700;
+        letter-spacing: 1.3pt;
+        text-transform: uppercase;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      .summary {
+        margin-top: 2pt;
+        text-align: justify;
+      }
+
+      .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 10pt;
+      }
+
+      .role {
+        font-weight: 700;
+      }
+
+      .where {
+        font-style: italic;
+        color: #2c333d;
+      }
+
+      .when {
+        white-space: nowrap;
+        font-size: 9.2pt;
+        color: #2c333d;
+      }
+
+      .entry {
+        margin-top: 3.4pt;
+      }
+
+      .entry:first-of-type {
+        margin-top: 2pt;
+      }
+
+      .stack {
+        font-size: 9pt;
+        color: #3c434d;
+      }
+
+      ul {
+        margin: 2pt 0 0;
+        padding-left: 13pt;
+      }
+
+      li {
+        margin-top: 1pt;
+      }
+
+      li::marker {
+        color: #6b7280;
+      }
+
+      .skills p {
+        margin-top: 1.8pt;
+      }
+
+      .skills b {
+        display: inline-block;
+        min-width: 86pt;
+      }
+
+      strong {
+        font-weight: 700;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>Janit B</h1>
+      <p class="contact">
+        <span>Salem, Tamil Nadu, India</span><span class="sep">|</span>
+        <span>+91 63802 86204</span><span class="sep">|</span>
+        <span><a href="mailto:janit.b2006@gmail.com">janit.b2006@gmail.com</a></span><span class="sep">|</span>
+        <span><a href="https://linkedin.com/in/janit2006">linkedin.com/in/janit2006</a></span><span class="sep">|</span>
+        <span><a href="https://github.com/JNT-h04">github.com/JNT-h04</a></span>
+      </p>
+    </header>
+
+    <h2>Summary</h2>
+    <p class="summary">
+      Final-year B.Tech CSE (AI &amp; ML) student who takes machine-learning systems the whole way: data, training,
+      honest evaluation, API and interface. Four models shipped as working web demos behind one tested FastAPI
+      service, each reported with its per-class accuracy, failure modes and leakage checks &mdash; not just a headline
+      number.
+    </p>
+
+    <h2>Education</h2>
+    <div class="entry">
+      <div class="row">
+        <span class="role">Vellore Institute of Technology, Chennai &mdash; B.Tech CSE (AI &amp; ML)</span>
+        <span class="when">2023 &ndash; 2027</span>
+      </div>
+      <p>CGPA 8.24 / 10</p>
+    </div>
+    <div class="entry">
+      <div class="row">
+        <span class="role">Sri Chaitanya School, Salem</span>
+        <span class="when">Till 2023</span>
+      </div>
+      <p>Class 12: 83.8% &nbsp;|&nbsp; Class 10: 86.2%</p>
+    </div>
+
+    <h2>Experience</h2>
+    <div class="entry">
+      <div class="row">
+        <span class="role">AI &amp; Software Engineering Intern &mdash; Strategy Fox International Pvt. Ltd.</span>
+        <span class="when">May &ndash; June 2026</span>
+      </div>
+      <p class="where">Remote / Bangalore &mdash; AI-automation studio for D2C and retail brands</p>
+      <ul>
+        <li>
+          Built a real-time AI voice agent with ElevenLabs that handled live customer conversations for client
+          brands, removing manual follow-up the team had done by hand.
+        </li>
+        <li>
+          Wired conversational flows to REST APIs with dynamic variables, so the agent could look up live order and
+          customer records mid-call rather than read a fixed script.
+        </li>
+        <li>
+          Shipped features and fixes on client Shopify storefronts, working with engineering and business
+          stakeholders from requirement to deployed feature.
+        </li>
+      </ul>
+    </div>
+
+    <h2>Projects</h2>
+
+    <div class="entry">
+      <div class="row">
+        <span class="role">Explainable Alzheimer&rsquo;s MRI Staging</span>
+        <span class="when">PyTorch, ResNet18/50, Grad-CAM, FastAPI</span>
+      </div>
+      <ul>
+        <li>
+          Found a data-leakage flaw in the original approach: random slice splits scored <strong>~99%</strong> but
+          put the same patients in train and test. Re-splitting by patient gave the true 4-class baseline,
+          <strong>28.7%</strong>.
+        </li>
+        <li>
+          Shipped a validation-weighted ResNet18 + ResNet50 ensemble: <strong>60.2%</strong> accuracy (macro F1
+          0.59) on 693 held-out slices, and <strong>81.5%</strong> per patient across 54 held-out patients by
+          voting a patient&rsquo;s slices.
+        </li>
+        <li>
+          Excluded a class holding only two patients rather than report an unsupportable number, and exposed
+          Grad-CAM heatmaps so every prediction can be inspected.
+        </li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="row">
+        <span class="role">AI Meeting Assistant</span>
+        <span class="when">Gemini, FastAPI, background jobs, React</span>
+      </div>
+      <ul>
+        <li>
+          Designed an upload-and-poll pipeline (HTTP 202 with a job id, background worker, status polling) so
+          transcribing a long recording outlives a browser request timeout.
+        </li>
+        <li>
+          Constrained the model to a typed JSON schema to return structured minutes &mdash; summary, decisions,
+          owner-tagged actions and a speaker-labelled transcript &mdash; with rate limiting and deletion of the
+          upload once the job ends.
+        </li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="row">
+        <span class="role">Structural Crack Severity Detection</span>
+        <span class="when">TensorFlow, ResNet50, OpenCV, FastAPI</span>
+      </div>
+      <ul>
+        <li>
+          Fine-tuned ResNet50 on <strong>30,015</strong> concrete images: <strong>96.9%</strong> validation
+          accuracy, 92 of 100 correct on a random held-out sample.
+        </li>
+        <li>
+          Paired the classifier with classical computer vision (Canny edge density, Hough line angles) to report
+          crack intensity, likely cause and maintenance guidance, documenting the weakest class rather than quoting
+          one figure.
+        </li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="row">
+        <span class="role">Book Summariser with Streaming Output</span>
+        <span class="when">Gemini, PyMuPDF, FastAPI, React</span>
+      </div>
+      <ul>
+        <li>
+          Parses PDF, DOCX, EPUB and text, detecting chapters from document headings rather than a fixed page count,
+          and streams each summary, key insight and flashcard token by token with model fallback.
+        </li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="row">
+        <span class="role">Cloud Resource Optimisation with Reinforcement Learning</span>
+        <span class="when">PyTorch, LSTM, PPO, AWS</span>
+      </div>
+      <ul>
+        <li>
+          Paired LSTM workload forecasting with a PPO agent that learns scaling actions from reward instead of fixed
+          thresholds, benchmarked against reactive and predictive strategies on cost versus SLA compliance.
+        </li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="row">
+        <span class="role">Portfolio Platform hosting the demos above</span>
+        <span class="when">React, TypeScript, FastAPI, Pytest</span>
+      </div>
+      <ul>
+        <li>
+          One FastAPI service serving all four models with background model loading, per-visitor rate limiting and
+          <strong>46 passing tests</strong>, behind two interchangeable front-end themes that share one logic layer.
+        </li>
+      </ul>
+    </div>
+
+    <h2>Technical Skills</h2>
+    <div class="skills">
+      <p><b>Languages</b> Python, TypeScript, Java, C++, SQL</p>
+      <p><b>ML &amp; Deep Learning</b> PyTorch, TensorFlow / Keras, scikit-learn, CNN / ResNet, LSTM, Transformers, Hugging Face, Grad-CAM</p>
+      <p><b>LLM &amp; RAG</b> Gemini API, LangChain, FAISS, Whisper, prompt engineering, structured JSON output</p>
+      <p><b>Backend &amp; Web</b> FastAPI, REST APIs, streaming responses, background jobs, Pytest, React, Vite, Streamlit</p>
+      <p><b>Tools &amp; Platforms</b> Git &amp; GitHub, AWS, Docker (basics), OpenCV, Linux, ElevenLabs, Shopify</p>
+      <p><b>Foundations</b> Data Structures &amp; Algorithms, OOP, DBMS, Operating Systems, Computer Networks</p>
+    </div>
+
+    <h2>Certifications</h2>
+    <p>IBM Generative AI with watsonx &mdash; VIT (2025)</p>
+  </body>
+</html>
