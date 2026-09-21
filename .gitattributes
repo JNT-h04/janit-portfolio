@@ -1,0 +1,15 @@
+# core.autocrlf is on for this machine, and git guessed BUILD_LOG.pdf was text,
+# which means a future checkout would rewrite its line endings and corrupt it.
+# Naming the binary formats explicitly stops that for good.
+* text=auto
+
+*.pdf  binary
+*.docx binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.ico  binary
+*.h5   binary
+*.pt   binary
+*.pth  binary
