@@ -1,27 +1,10 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import HonestNotes from '../../components/HonestNotes'
 import HudPanel from '../../components/HudPanel'
 import UploadZone from '../../components/UploadZone'
-import {
-  analyze,
-  analyzeSeries,
-  getStatus,
-  listSamples,
-  listSeries,
-  sampleUrl,
-  type Analysis,
-  type SampleSeries,
-  type SeriesAnalysis,
-  type Status,
-} from './api'
-
-// Sample files are named after their true label, e.g. very-mild-1.jpg.
-const TRUE_LABEL: Record<string, string> = {
-  mild: 'Mild Dementia',
-  'non-demented': 'Non Demented',
-  'very-mild': 'Very mild Dementia',
-}
-const labelOf = (file: string) => TRUE_LABEL[file.replace(/-\d+\.jpg$/, '')] ?? ''
+import { CORTEX_NOTES } from '../notes'
+import { sampleUrl } from './api'
+import { labelOf, useCortex } from './useCortex'
 
 const STAGE_COLOR: Record<string, string> = {
   'Non Demented': 'text-acid',
@@ -31,73 +14,11 @@ const STAGE_COLOR: Record<string, string> = {
 }
 
 export default function CortexDemo() {
-  const [status, setStatus] = useState<Status | null>(null)
-  const [samples, setSamples] = useState<string[]>([])
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
-  const [result, setResult] = useState<Analysis | null>(null)
-  const [heat, setHeat] = useState(0.75) // how strongly the heatmap shows over the scan
-  const [truth, setTruth] = useState('') // known label, when a sample was used
-  const [mode, setMode] = useState<'slice' | 'series'>('slice')
-  const [series, setSeries] = useState<SampleSeries[]>([])
-  const [seriesResult, setSeriesResult] = useState<SeriesAnalysis | null>(null)
-
-  useEffect(() => {
-    let timer: number
-    const poll = async () => {
-      const s = await getStatus()
-      setStatus(s)
-      if (s.state === 'loading' || s.state === 'idle') timer = window.setTimeout(poll, 1500)
-    }
-    poll()
-    listSamples().then(setSamples)
-    listSeries().then(setSeries)
-    return () => clearTimeout(timer)
-  }, [])
-
-  const runSeries = async (files: { blob: Blob; name: string }[], label = '') => {
-    setBusy(true)
-    setError('')
-    setResult(null)
-    setSeriesResult(null)
-    setTruth(label)
-    try {
-      setSeriesResult(await analyzeSeries(files))
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const onSampleSeries = async (item: SampleSeries) => {
-    const files = await Promise.all(
-      item.slices.map(async (url) => ({ blob: await (await fetch(url)).blob(), name: url.split('/').pop() ?? 'slice.jpg' })),
-    )
-    runSeries(files, item.label)
-  }
-
-  const run = async (blob: Blob, name: string) => {
-    setBusy(true)
-    setError('')
-    setResult(null)
-    setSeriesResult(null)
-    try {
-      setResult(await analyze(blob, name))
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  // Both modes produce the same shape of reading, so the panel below is shared.
-  const view = result ?? seriesResult
-  const onSample = async (name: string) => {
-    setTruth(labelOf(name))
-    run(await (await fetch(sampleUrl(name))).blob(), name)
-  }
-  const warming = status?.state === 'loading' || status?.state === 'idle'
+  // All the behaviour lives in useCortex, shared with the professional skin.
+  const {
+    status, samples, series, busy, error, result, seriesResult, view, heat, setHeat,
+    truth, mode, switchMode, warming, onFile, onFiles, onSample, onSampleSeries,
+  } = useCortex()
 
   return (
     <div className="mt-10 space-y-6">
@@ -122,13 +43,7 @@ export default function CortexDemo() {
         {(['slice', 'series'] as const).map((m) => (
           <button
             key={m}
-            onClick={() => {
-              setMode(m)
-              setResult(null)
-              setSeriesResult(null)
-              setError('')
-              setTruth('')
-            }}
+            onClick={() => switchMode(m)}
             className={`border px-4 py-1.5 ${
               mode === m ? 'border-hot bg-hot/15 text-hot' : 'border-neon/30 text-neon hover:bg-neon/10'
             }`}
@@ -148,8 +63,8 @@ export default function CortexDemo() {
               multiple
               busy={busy ? { label: 'ANALYSING SERIES' } : null}
               error={error}
-              onFile={(file) => runSeries([{ blob: file, name: file.name }])}
-              onFiles={(files) => runSeries(files.map((f) => ({ blob: f, name: f.name })))}
+              onFile={(file) => onFiles([file])}
+              onFiles={onFiles}
             >
               {series.length > 0 && (
                 <div className="mt-4">
@@ -185,10 +100,7 @@ export default function CortexDemo() {
             hint="JPG · PNG · axial brain slice · up to 10 MB"
             busy={busy ? { label: 'ANALYSING SCAN' } : null}
             error={error}
-            onFile={(file) => {
-              setTruth('')
-              run(file, file.name)
-            }}
+            onFile={onFile}
           >
             {samples.length > 0 && (
               <div className="mt-4">
@@ -339,90 +251,8 @@ export default function CortexDemo() {
         </HudPanel>
       </div>
 
-      <HudPanel title="HOW IT WORKS" tag="HONEST NOTES">
-        <p className="text-text/85">
-          <span className="text-neon">Grad-CAM</span> takes the last convolutional block of the network, checks how much
-          each of its feature maps would change the winning score, and adds the maps up with those weights. The result
-          is a coarse map of the pixels that mattered, which is why the heat looks blocky rather than pixel-sharp.
-        </p>
+      <HonestNotes notes={CORTEX_NOTES} />
 
-        <div className="mt-5">
-          <p className="font-mono text-xs tracking-widest text-hot">// THE LEAKAGE STORY</p>
-          <p className="mt-2 text-text/85">
-            The first version of this project scored about <span className="text-acid">99%</span> — because the dataset
-            was split by image. An MRI volume gives many slices per patient, so nearly every patient appeared in both the
-            training and the test set, and the network could recognise the person instead of the disease. Splitting by{' '}
-            <span className="text-neon">patient</span> instead, so no one appears twice, tells the real story:
-          </p>
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full min-w-100 border-collapse font-mono text-sm">
-              <thead>
-                <tr className="border-b border-neon/20 text-left text-dim">
-                  <th className="py-1 pr-4 font-normal">SPLIT</th>
-                  <th className="py-1 pr-4 font-normal">CLASSES</th>
-                  <th className="py-1 font-normal">TEST ACCURACY</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-neon/10">
-                  <td className="py-1 pr-4">by image (leaky)</td>
-                  <td className="py-1 pr-4">4</td>
-                  <td className="py-1 text-acid">~99%</td>
-                </tr>
-                <tr className="border-b border-neon/10">
-                  <td className="py-1 pr-4">by patient</td>
-                  <td className="py-1 pr-4">4</td>
-                  <td className="py-1 text-hot">28.7%</td>
-                </tr>
-                <tr>
-                  <td className="py-1 pr-4">by patient</td>
-                  <td className="py-1 pr-4">3 (this demo)</td>
-                  <td className="py-1 text-neon">60.2%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <ul className="mt-5 space-y-2 text-text/85">
-          <li>
-            <span className="text-neon">Why 3 classes:</span> the dataset has only 2 patients with “Moderate Dementia”.
-            Split by patient, that class ends up with zero training images, so the demo refuses to predict it rather
-            than pretending.
-          </li>
-          <li>
-            <span className="text-neon">This model:</span> two networks vote — a ResNet18 retrained for this site and
-            the older ResNet50, both trained on the same patient-level split. Together they score 60.2% accuracy and
-            macro F1 0.59 on 693 held-out slices (alone: 58.0% / 0.565 and 58.2% / 0.550). The blend weight was chosen
-            on the validation split, never on the test set. The heatmap comes from the ResNet18, because an explanation
-            has to belong to one network to mean anything.
-          </li>
-          <li>
-            <span className="text-neon">One slice is a hard question.</span> A radiologist reads a whole scan, not a
-            single slice. Letting every slice of a patient vote lifts accuracy from 58.0% to{' '}
-            <span className="text-acid">81.5%</span> across 54 held-out patients (macro F1 0.59 → 0.66). Worth knowing:
-            40 of those 54 are healthy, so always answering “Non Demented” would already score 74% — the voting model
-            beats that on the rarer classes, which is where it counts. Switch to <span className="text-hot">PATIENT
-            SERIES</span> above to run it that way.
-          </li>
-          <li>
-            <span className="text-neon">Tried and rejected:</span> a 15-recipe training sweep on a GPU (ResNet18/34,
-            EfficientNet-B0, two image sizes, light vs strong augmentation, class- vs patient-balanced sampling, and
-            schedule lengths from 1 to 8 epochs) produced a model that is slightly better per slice and slightly worse
-            per patient — a tie within the noise of a 54-patient test set. Flip-averaging at prediction time made
-            things worse. The recipe search lives in <span className="font-mono text-xs">scripts/train_cortex.py</span>;
-            the limit here is the number of patients, not the training.
-          </li>
-          <li>
-            <span className="text-neon">Dataset:</span> a balanced OASIS-derived MRI set, 1,500 images per class, 345
-            patients in total.
-          </li>
-          <li>
-            <span className="text-hot">Not a diagnosis.</span> Real dementia assessment uses clinical history, cognitive
-            testing and a radiologist. This is a student research demo.
-          </li>
-        </ul>
-      </HudPanel>
     </div>
   )
 }

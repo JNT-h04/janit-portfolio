@@ -1,7 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import HonestNotes from '../../components/HonestNotes'
 import UploadZone from '../../components/UploadZone'
-import { POLL_MS, getStatus, pollJob, submitRecording, type Job, type Minutes, type Stage } from './api'
+import { ECHO_NOTES } from '../notes'
+import { POLL_MS, type Job, type Minutes, type Stage } from './api'
+import { useEcho } from './useEcho'
 
 const STAGE_LABEL: Record<Stage, string> = {
   queued: 'QUEUED',
@@ -15,45 +18,9 @@ const STAGE_LABEL: Record<Stage, string> = {
 const SPEAKER_COLORS = ['text-neon', 'text-hot', 'text-acid', 'text-amber-300', 'text-violet-300']
 
 export default function EchoDemo() {
-  const [online, setOnline] = useState<boolean | null>(null)
-  const [job, setJob] = useState<Job | null>(null)
-  const [uploadFraction, setUploadFraction] = useState(0)
-  const [error, setError] = useState('')
-  const [filename, setFilename] = useState('')
-  // A ref, not state: the polling loop reads it without being restarted.
-  const left = useRef(false)
+  // All the behaviour lives in useEcho, shared with the professional skin.
+  const { online, job, uploadFraction, error, filename, minutes, running, busy, onFile } = useEcho()
 
-  useEffect(() => {
-    // React runs this twice in development (mount, clean up, mount again). Without
-    // resetting the flag here, the first clean-up would cancel every future poll.
-    left.current = false
-    getStatus().then(setOnline)
-    // The visitor navigating away must stop the polling loop.
-    return () => {
-      left.current = true
-    }
-  }, [])
-
-  const running = job !== null && job.stage !== 'done' && job.stage !== 'error'
-  const busy = Boolean(filename) && !job?.minutes && !error
-
-  async function onFile(file: File) {
-    setError('')
-    setJob(null)
-    setUploadFraction(0)
-    setFilename(file.name)
-    try {
-      const id = await submitRecording(file, setUploadFraction)
-      setJob({ id, filename: file.name, stage: 'queued', percent: 5, seconds: 0, error: '', minutes: null })
-      const finished = await pollJob(id, setJob, () => left.current)
-      if (finished?.stage === 'error') setError(finished.error)
-    } catch (err) {
-      setError(String(err instanceof Error ? err.message : err))
-      setFilename('')
-    }
-  }
-
-  const minutes = job?.minutes ?? null
 
   return (
     <div className="mt-8 space-y-6">
@@ -97,6 +64,8 @@ export default function EchoDemo() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <HonestNotes notes={ECHO_NOTES} />
     </div>
   )
 }

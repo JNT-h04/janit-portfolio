@@ -21,3 +21,9 @@ Thumbs.db
 .venv-train/
 .wheels/
 models/
+
+# original photos and reference material, kept locally; the copies the site
+# actually uses live in frontend/src/assets/
+/Professional_page_image.png
+/Causal_page_image.jpeg
+/sample_hydra_virus_image.png

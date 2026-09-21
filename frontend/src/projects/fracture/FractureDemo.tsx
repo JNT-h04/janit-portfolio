@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import HonestNotes from '../../components/HonestNotes'
 import HudPanel from '../../components/HudPanel'
 import UploadZone from '../../components/UploadZone'
-import { analyze, getStatus, listSamples, sampleUrl, type Analysis, type Status } from './api'
+import { FRACTURE_NOTES } from '../notes'
+import { sampleUrl } from './api'
+import { useFracture } from './useFracture'
 
 const COLORS: Record<string, string> = {
   No_Crack: 'text-acid',
@@ -13,48 +15,8 @@ const COLORS: Record<string, string> = {
 const LABELS: Record<string, string> = { No_Crack: 'NO CRACK', Minor: 'MINOR', Moderate: 'MODERATE', Severe: 'SEVERE' }
 
 export default function FractureDemo() {
-  const [status, setStatus] = useState<Status | null>(null)
-  const [samples, setSamples] = useState<string[]>([])
-  const [preview, setPreview] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
-  const [result, setResult] = useState<Analysis | null>(null)
-
-  // Ask how the model is doing, and keep asking while it warms up.
-  useEffect(() => {
-    let timer: number
-    const poll = async () => {
-      const s = await getStatus()
-      setStatus(s)
-      if (s.state === 'loading' || s.state === 'idle') timer = window.setTimeout(poll, 1500)
-    }
-    poll()
-    listSamples().then(setSamples)
-    return () => clearTimeout(timer)
-  }, [])
-
-  const run = async (blob: Blob, name: string, previewUrl: string) => {
-    setBusy(true)
-    setError('')
-    setResult(null)
-    setPreview(previewUrl)
-    try {
-      setResult(await analyze(blob, name))
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const onFile = (file: File) => run(file, file.name, URL.createObjectURL(file))
-
-  const onSample = async (name: string) => {
-    const blob = await (await fetch(sampleUrl(name))).blob()
-    run(blob, name, sampleUrl(name))
-  }
-
-  const warming = status?.state === 'loading' || status?.state === 'idle'
+  // All the behaviour lives in useFracture, shared with the professional skin.
+  const { status, samples, preview, busy, error, result, onFile, onSample, warming } = useFracture()
 
   return (
     <div className="mt-10 space-y-6">
@@ -175,27 +137,8 @@ export default function FractureDemo() {
         </HudPanel>
       </div>
 
-      <HudPanel title="HOW IT WORKS" tag="HONEST NOTES">
-        <ul className="space-y-2 text-text/85">
-          <li>
-            <span className="text-neon">Model:</span> ResNet50 pretrained on ImageNet, last 30 layers fine-tuned on
-            30,015 concrete photos. Validation accuracy 96.9%. On 100 random test photos it got 92 right; Minor is the
-            weakest class because it had ~10x fewer training images.
-          </li>
-          <li>
-            <span className="text-neon">Severity labels</span> were not written by engineers: they come from clustering
-            image features into 3 tiers, so the Minor/Moderate boundary is approximate.
-          </li>
-          <li>
-            <span className="text-neon">Intensity, age and cause</span> are classical CV heuristics (Canny edges, edge
-            density, Hough line angles), not learned. They are indicative only.
-          </li>
-          <li>
-            <span className="text-hot">Not structural advice.</span> Trained on bare concrete; painted walls, asphalt or
-            odd lighting can fool it. For a real crack, ask a civil engineer.
-          </li>
-        </ul>
-      </HudPanel>
+      <HonestNotes notes={FRACTURE_NOTES} />
+
     </div>
   )
 }
