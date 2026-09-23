@@ -27,3 +27,7 @@ models/
 /Professional_page_image.png
 /Causal_page_image.jpeg
 /sample_hydra_virus_image.png
+
+# personal build notes and the learning plan: kept locally, not part of the project
+/LEARNING.md
+/build-notes/

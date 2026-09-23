@@ -59,8 +59,21 @@ class Analysis(BaseModel):
     focus: str  # where in the scan the heat is concentrated
 
 
+def _require_enabled() -> None:
+    """CORTEX can be switched off in settings; say so instead of half-working."""
+    if not settings.cortex_enabled:
+        raise HTTPException(503, "CORTEX is temporarily offline.")
+
+
 @router.get("/status", response_model=Status)
 def status() -> Status:
+    if not settings.cortex_enabled:
+        # Both skins render any non-ready state as "MODEL OFFLINE: <detail>".
+        return Status(
+            state="offline",
+            detail="temporarily offline — the notes and results below are still accurate",
+            load_seconds=None,
+        )
     s = model.slot
     loaded = s.state == "ready"
     return Status(
@@ -138,6 +151,7 @@ def _colourise(cam: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
 
 @router.post("/analyze", response_model=Analysis, dependencies=[Depends(RateLimit(limit=60, window=3600))])
 def analyze(file: UploadFile) -> Analysis:
+    _require_enabled()
     if model.slot.state != "ready":
         message = {
             "loading": "model is warming up, try again in a few seconds",
@@ -180,6 +194,7 @@ def analyze_series(files: list[UploadFile] = File(...)) -> SeriesAnalysis:
     On the held-out test set this lifts accuracy from 58% (single slice) to
     ~82% (all slices of a patient), so it is worth the extra upload.
     """
+    _require_enabled()
     if model.slot.state != "ready":
         raise HTTPException(503, "model is warming up, try again in a few seconds")
     if not files:

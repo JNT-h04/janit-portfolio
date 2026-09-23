@@ -1,12 +1,41 @@
 import cv2
 import numpy as np
+import pytest
 from fastapi.testclient import TestClient
 
+from app.core.config import settings
 from app.cortex import model
 from app.main import app
 from app.routers import cortex
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def cortex_enabled():
+    """CORTEX ships switched off, but its behaviour still has to be tested.
+
+    Every test here runs with the feature on; the two tests for the off state
+    turn it back off explicitly.
+    """
+    was = settings.cortex_enabled
+    settings.cortex_enabled = True
+    yield
+    settings.cortex_enabled = was
+
+
+def test_status_reports_offline_when_switched_off():
+    settings.cortex_enabled = False
+    body = client.get("/api/cortex/status").json()
+    assert body["state"] == "offline"
+    assert "offline" in body["detail"]
+
+
+def test_analyze_refuses_when_switched_off():
+    settings.cortex_enabled = False
+    r = client.post("/api/cortex/analyze", files={"file": ("scan.jpg", scan(), "image/jpeg")})
+    assert r.status_code == 503
+    assert "offline" in r.json()["detail"].lower()
 
 
 def scan() -> bytes:

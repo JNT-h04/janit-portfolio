@@ -23,7 +23,8 @@ from app.routers import cortex, echo, fracture, health, lexicon, profile, termin
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     if settings.load_models:
         fracture_model.slot.start()
-        cortex_model.slot.start()
+        if settings.cortex_enabled:
+            cortex_model.slot.start()
     yield
 
 

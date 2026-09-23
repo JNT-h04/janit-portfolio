@@ -39,6 +39,10 @@ class Settings(BaseSettings):
         "D:/Projects/xai-alzheimer-early-detection/notebooks/best_resnet50_alz_patientsplit.pt"
     )
     cortex_partner_weight: float = 0.6  # share given to the ResNet50
+    # CORTEX is switched off for now: its weights live outside the repo and it
+    # is the heaviest model to host, so the demo reports itself offline rather
+    # than pretending to work. Set CORTEX_ENABLED=true to bring it back.
+    cortex_enabled: bool = False
     # Set LOAD_MODELS=false to skip loading the ML models (faster restarts, tests).
     load_models: bool = True
 

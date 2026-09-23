@@ -2,6 +2,8 @@
 // backend; this file only drives cards and page headers, so it stays in the
 // frontend where it loads instantly.
 
+import { STATIC_BUILD } from '../config'
+
 export type Project = {
   slug: string
   codename: string
@@ -9,7 +11,20 @@ export type Project = {
   tagline: string
   stack: string[]
   threat: 'LOW' | 'MED' | 'HIGH' // how heavy the model is; shown on the card
-  online: boolean // becomes true once the demo is wired to the backend
+  online: boolean // false while a demo is switched off at the backend
+}
+
+/**
+ * What a card or page header may honestly say about a demo right now.
+ *  - 'live'       the backend is there and this demo is switched on
+ *  - 'offline'    the demo exists but is switched off at the moment (CORTEX)
+ *  - 'local-only' this build has no backend at all (the GitHub Pages copy)
+ */
+export type DemoState = 'live' | 'offline' | 'local-only'
+
+export function demoState(project: Project): DemoState {
+  if (STATIC_BUILD) return 'local-only'
+  return project.online ? 'live' : 'offline'
 }
 
 export const PROJECTS: Project[] = [
@@ -38,7 +53,9 @@ export const PROJECTS: Project[] = [
     tagline: 'Upload a brain MRI slice and get the dementia stage plus a Grad-CAM heatmap of what the model looked at.',
     stack: ['PyTorch', 'ResNet18', 'Grad-CAM'],
     threat: 'MED',
-    online: true,
+    // Switched off for now (CORTEX_ENABLED in the backend settings): its
+    // weights live outside the repo and it is the heaviest model to host.
+    online: false,
   },
   {
     slug: 'meeting-assistant',

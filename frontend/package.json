@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "resume": "node scripts/build-resume.mjs"
+    "resume": "node scripts/build-resume.mjs",
+    "build:static": "node scripts/build-static.mjs"
   },
   "dependencies": {
     "@xterm/addon-fit": "^0.11.0",
