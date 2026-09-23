@@ -1,9 +1,12 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef } from 'react'
-import { Link, Route, Routes, useLocation } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link, Route, Routes } from 'react-router-dom'
 import BootScreen from '../../effects/BootScreen'
 import Cursor from '../../effects/Cursor'
 import CyberCity from '../../effects/CyberCity'
+import { BLOCKS } from '../../effects/transitions'
+import { useRouteSwap } from '../../effects/useRouteSwap'
+import BlockWaterfall from './effects/BlockWaterfall'
 import Home from '../../pages/Home'
 import NotFound from '../../pages/NotFound'
 import ProjectPage from '../../pages/ProjectPage'
@@ -13,20 +16,30 @@ import TerminalDock from '../../terminal/TerminalDock'
 
 /** The cyberpunk face of the site: neon city, CRT overlay, glitch and a terminal. */
 export default function CyberLayout() {
-  const location = useLocation()
   const terminal = useTerminal()
-  const { toggle } = useSkin()
+  const { reset } = useSkin()
+
+  // The boot log is the arrival on a first visit, so the blocks wait for it and
+  // then play as the load itself: ACCESS GRANTED, then the screen builds.
+  const [bootLoad, setBootLoad] = useState(0)
+  const onBooted = useCallback(() => {
+    setBootLoad((n) => n + 1)
+    setTimeout(() => setBootLoad(0), BLOCKS.total)
+  }, [])
+  // The new page mounts behind the closed block stack, so the reveal uncovers
+  // a page that is already scrolled and settled.
+  const { shown, phase, runId } = useRouteSwap(BLOCKS.cover, BLOCKS.total)
 
   // React Router doesn't scroll for you. Go to the #section if there is one,
-  // otherwise to the top. The wait lets the page-change animation finish first.
+  // otherwise to the top — while the blocks still cover the screen.
   useEffect(() => {
     const t = setTimeout(() => {
-      const target = location.hash && document.querySelector(location.hash)
+      const target = shown.hash && document.querySelector(shown.hash)
       if (target) target.scrollIntoView({ behavior: 'smooth' })
       else window.scrollTo(0, 0)
-    }, 350)
+    }, 60)
     return () => clearTimeout(t)
-  }, [location.pathname, location.hash])
+  }, [shown.pathname, shown.hash])
 
   return (
     <>
@@ -34,7 +47,7 @@ export default function CyberLayout() {
       <ScrollScrim />
       <div className="crt" />
       <Cursor />
-      <BootScreen />
+      <BootScreen onDone={onBooted} />
       <TerminalDock />
 
       <nav className="sticky top-0 z-40 border-b border-neon/15 bg-void/70 backdrop-blur">
@@ -47,12 +60,14 @@ export default function CyberLayout() {
             <Link to="/#operator" className="hover:text-neon">operator</Link>
             <Link to="/#experience" className="hidden hover:text-neon lg:inline">experience</Link>
             <Link to="/#contact" className="hover:text-neon">contact</Link>
+            {/* No link to the professional side from here on purpose: the two
+                versions are offered together at the front door. */}
             <button
-              onClick={toggle}
-              className="hidden text-dim transition-colors hover:text-text sm:inline"
-              title="switch to the professional layout"
+              onClick={reset}
+              className="hidden text-dim transition-colors hover:text-hot sm:inline"
+              title="back to the front door, where both versions are offered"
             >
-              [recruiter view]
+              [front door]
             </button>
             <button
               onClick={() => terminal.setOpen(!terminal.open)}
@@ -69,28 +84,37 @@ export default function CyberLayout() {
       </nav>
 
       <main className="mx-auto max-w-6xl px-4">
-        {/* Keying on the path makes every route change play the exit/enter animation. */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, filter: 'blur(6px)' }}
-            animate={{ opacity: 1, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, filter: 'blur(6px)' }}
-            transition={{ duration: 0.3 }}
-          >
-            <Routes location={location}>
-              <Route path="/" element={<Home />} />
-              <Route path="/projects/:slug" element={<ProjectPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </motion.div>
-        </AnimatePresence>
+        {/* The blocks do the covering; the page underneath only has to steady
+            itself as the stack clears. */}
+        <motion.div
+          key={shown.pathname}
+          initial={{ opacity: 0, filter: 'blur(7px)' }}
+          animate={
+            phase === 'out'
+              ? { opacity: 0.4, filter: 'blur(5px)' }
+              : { opacity: 1, filter: 'blur(0px)' }
+          }
+          transition={{ duration: phase === 'out' ? BLOCKS.cover / 1000 : 0.45 }}
+        >
+          <Routes location={shown}>
+            <Route path="/" element={<Home />} />
+            <Route path="/projects/:slug" element={<ProjectPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </motion.div>
       </main>
+
+      {phase !== 'idle' && (
+        <BlockWaterfall key={runId} coverMs={BLOCKS.cover} totalMs={BLOCKS.total} />
+      )}
+      {bootLoad > 0 && (
+        <BlockWaterfall key={`boot-${bootLoad}`} coverMs={BLOCKS.cover} totalMs={BLOCKS.total} />
+      )}
 
       <footer className="mt-20 border-t border-neon/15 py-6 text-center font-mono text-xs text-dim">
         built by janit b · react + fastapi ·{' '}
-        <button onClick={toggle} className="text-dim underline decoration-dotted hover:text-neon">
-          professional layout
+        <button onClick={reset} className="text-dim underline decoration-dotted hover:text-hot">
+          front door
         </button>{' '}
         · <span className="text-hot">EOF</span>
       </footer>

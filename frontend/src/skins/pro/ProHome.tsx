@@ -4,7 +4,8 @@ import portraitPro from '../../assets/portrait-pro.png'
 import { RESUME_FILE, RESUME_URL } from '../../data/resume'
 import { useProfile, type Profile } from '../../api/profile'
 import { useContactForm } from '../../contact/useContactForm'
-import { PROJECTS } from '../../data/projects'
+import { STATIC_BUILD } from '../../config'
+import { PROJECTS, demoState } from '../../data/projects'
 import { useTerminal } from '../../terminal/context'
 import CountUp from './components/CountUp'
 import Magnetic from './components/Magnetic'
@@ -20,16 +21,20 @@ export default function ProHome() {
     <>
       <Hero profile={profile} />
 
+      {/* No negative margin on the band: the hero is a full viewport tall and
+          the skyline is fixed to the bottom of the viewport, so pulling the
+          band up landed the chips on top of the buildings at scroll 0. */}
       {profile && (
-        <Reveal className="-mt-6 mb-4">
+        <Reveal className="mt-8 mb-6">
           <Marquee items={profile.skills.flatMap((g) => g.items)} />
         </Reveal>
       )}
 
       <Section id="work" title="Selected work" number="01">
         <p className="-mt-2 mb-8 max-w-2xl font-sans text-[15px] leading-relaxed text-quiet">
-          Every project below has a demo you can use right now — upload your own file and see what the model
-          says. Results are reported honestly, including where they fall short.
+          {STATIC_BUILD
+            ? 'Every project below is a working system with an interactive demo — this published copy is the frontend, so the demos run when the API is started alongside it. Results are reported honestly, including where they fall short.'
+            : 'Every project below has a demo you can use right now — upload your own file and see what the model says. Results are reported honestly, including where they fall short.'}
         </p>
         <div className="grid gap-5 md:grid-cols-2">
           {PROJECTS.map((p, i) => (
@@ -61,9 +66,12 @@ export default function ProHome() {
                 <Reveal delay={0.18}>
                   <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <Stat n={PROJECTS.length} label="Projects" tone="var(--color-coral)" />
+                    {/* On a build with a backend this counts the demos actually
+                        answering; on the frontend-only copy it counts the demos
+                        that exist and says where they run. */}
                     <Stat
-                      n={PROJECTS.filter((p) => p.online).length}
-                      label="Live demos"
+                      n={STATIC_BUILD ? PROJECTS.length : PROJECTS.filter((p) => demoState(p) === 'live').length}
+                      label={STATIC_BUILD ? 'Demos (run locally)' : 'Live demos'}
                       tone="var(--color-amber)"
                     />
                     <Stat
@@ -278,7 +286,7 @@ function ContactForm({ profile }: { profile: Profile }) {
             className={`${field} mt-1.5`}
             value={f.name}
             onChange={(e) => f.setName(e.target.value)}
-            placeholder="Jane Doe"
+            placeholder="your name"
           />
           {f.touched && f.problems.name && (
             <span className="mt-1 block font-sans text-xs text-red-700">{f.problems.name}</span>
@@ -290,7 +298,7 @@ function ContactForm({ profile }: { profile: Profile }) {
             className={`${field} mt-1.5`}
             value={f.from}
             onChange={(e) => f.setFrom(e.target.value)}
-            placeholder="jane@company.com"
+            placeholder="you@company.com"
           />
           {f.touched && f.problems.from && (
             <span className="mt-1 block font-sans text-xs text-red-700">{f.problems.from}</span>
@@ -305,7 +313,7 @@ function ContactForm({ profile }: { profile: Profile }) {
           className={`${field} mt-1.5 resize-y`}
           value={f.message}
           onChange={(e) => f.setMessage(e.target.value)}
-          placeholder="What would you like to talk about?"
+          placeholder="what would you like to talk about?"
         />
         {f.touched && f.problems.message && (
           <span className="mt-1 block font-sans text-xs text-red-700">{f.problems.message}</span>

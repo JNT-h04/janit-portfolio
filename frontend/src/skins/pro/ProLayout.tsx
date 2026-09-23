@@ -1,11 +1,15 @@
-import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
+import { motion, useScroll, useSpring } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, NavLink, Route, Routes } from 'react-router-dom'
+import { WARP } from '../../effects/transitions'
+import { useRouteSwap } from '../../effects/useRouteSwap'
 import { useSkin } from '../../skin/context'
 import { useTerminal } from '../../terminal/context'
 import ProConsole from './ProConsole'
 import ProNotFound from './ProNotFound'
 import ProBackdrop from './effects/ProBackdrop'
+import Lightspeed from './effects/Lightspeed'
+import ProCursor from './effects/ProCursor'
 import ProHome from './ProHome'
 import ProProjectPage from './ProProjectPage'
 
@@ -18,40 +22,52 @@ const SECTIONS = [
 
 /** The professional face of the site. Same routes, same demos, quieter clothes. */
 export default function ProLayout() {
-  const location = useLocation()
+  // `shown` lags the URL: the new page is mounted at the peak of the warp,
+  // behind the flash, so the swap itself is never visible.
+  const { shown, phase, runId } = useRouteSwap(WARP.cover, WARP.total)
 
   useEffect(() => {
     const t = setTimeout(() => {
-      const target = location.hash && document.querySelector(location.hash)
+      const target = shown.hash && document.querySelector(shown.hash)
       if (target) target.scrollIntoView({ behavior: 'smooth' })
       else window.scrollTo(0, 0)
-    }, 120)
+    }, 60)
     return () => clearTimeout(t)
-  }, [location.pathname, location.hash])
+  }, [shown.pathname, shown.hash])
 
   return (
     <div className="relative min-h-dvh overflow-x-clip">
       <ProBackdrop />
+      <ProCursor />
       <ProHeader />
       <ProConsole />
 
       <main className="mx-auto max-w-5xl px-5 sm:px-6">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <Routes location={location}>
-              <Route path="/" element={<ProHome />} />
-              <Route path="/projects/:slug" element={<ProProjectPage />} />
-              <Route path="*" element={<ProNotFound />} />
-            </Routes>
-          </motion.div>
-        </AnimatePresence>
+        {/* The page is pulled into the warp on the way out and eases back out
+            of it on the way in; the overlay covers the cut between the two. */}
+        <motion.div
+          key={shown.pathname}
+          initial={{ opacity: 0, scale: 1.07, filter: 'blur(10px)' }}
+          animate={
+            phase === 'out'
+              ? { opacity: 0.15, scale: 1.16, filter: 'blur(9px)' }
+              : { opacity: 1, scale: 1, filter: 'blur(0px)' }
+          }
+          transition={
+            phase === 'out'
+              ? { duration: WARP.cover / 1000, ease: [0.7, 0, 0.9, 0.3] }
+              : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+          }
+        >
+          <Routes location={shown}>
+            <Route path="/" element={<ProHome />} />
+            <Route path="/projects/:slug" element={<ProProjectPage />} />
+            <Route path="*" element={<ProNotFound />} />
+          </Routes>
+        </motion.div>
       </main>
+
+      {phase !== 'idle' && <Lightspeed key={runId} coverMs={WARP.cover} totalMs={WARP.total} />}
 
       <ProFooter />
     </div>
@@ -59,7 +75,7 @@ export default function ProLayout() {
 }
 
 function ProHeader() {
-  const { toggle } = useSkin()
+  const { toggle, reset } = useSkin()
   const terminal = useTerminal()
   const [scrolled, setScrolled] = useState(false)
   // How far down the page you are, smoothed so the bar glides instead of jerking.
@@ -113,12 +129,22 @@ function ProHeader() {
             <span className="font-code">&gt;_</span> <span className="hidden sm:inline">Console</span>
           </button>
 
+          {/* Both ways out of this side, at every width: the casual version,
+              and the front door where the two are offered side by side. */}
           <button
             onClick={toggle}
-            className="ml-1 rounded-full px-3 py-1.5 font-sans text-sm text-quiet transition-colors hover:text-violet"
+            className="ml-1 rounded-full border border-ink/10 bg-card/50 px-3.5 py-1.5 font-sans text-sm text-ink backdrop-blur transition-all hover:border-violet/45 hover:text-violet"
             title="Switch to the casual version of this site"
           >
             Casual view
+          </button>
+
+          <button
+            onClick={reset}
+            className="ml-1 rounded-full border border-ink/10 bg-card/50 px-3.5 py-1.5 font-sans text-sm text-ink backdrop-blur transition-all hover:border-coral/45 hover:text-coral"
+            title="Back to the front door, where both versions are offered"
+          >
+            Front door
           </button>
         </nav>
       </div>
@@ -127,14 +153,19 @@ function ProHeader() {
 }
 
 function ProFooter() {
-  const { toggle } = useSkin()
+  const { toggle, reset } = useSkin()
   return (
     <footer className="border-t border-rule bg-paper/70 backdrop-blur-sm">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-5 py-7 font-sans text-sm text-quiet sm:px-6">
         <p>© {new Date().getFullYear()} Janit B · Built with React and FastAPI.</p>
-        <button onClick={toggle} className="rule-grow text-quiet transition-colors hover:text-coral">
-          View the casual version
-        </button>
+        <div className="flex items-center gap-4">
+          <button onClick={toggle} className="rule-grow text-quiet transition-colors hover:text-coral">
+            View the casual version
+          </button>
+          <button onClick={reset} className="rule-grow text-quiet transition-colors hover:text-violet">
+            Front door
+          </button>
+        </div>
       </div>
     </footer>
   )

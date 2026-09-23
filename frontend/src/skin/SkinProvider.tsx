@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { bootPending } from '../effects/boot'
+import { timingFor } from '../effects/transitions'
 import { STORAGE_KEY, SkinContext, type Skin, type SkinState } from './context'
 
 const isSkin = (value: string | null): value is Skin => value === 'pro' || value === 'sys'
@@ -39,21 +41,81 @@ export default function SkinProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const choose = useCallback(
+  // The move between the two sides is covered by the transition belonging to
+  // the side you are arriving at: light speed into the professional one,
+  // falling blocks into the casual one. The skin is committed at the cover's
+  // peak, so <html>'s background, the layout and the backdrop all change while
+  // nothing is on screen.
+  const [entering, setEntering] = useState<SkinState['entering']>(null)
+  const runs = useRef(0)
+  const timers = useRef<number[]>([])
+  useEffect(() => () => timers.current.forEach(clearTimeout), [])
+
+  /** Plays `effect`'s transition and commits `next` while the screen is hidden. */
+  const play = useCallback((effect: Skin, over: 'light' | 'dark', next: typeof state) => {
+    timers.current.forEach(clearTimeout)
+
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setEntering(null)
+      setState(next)
+      return
+    }
+
+    runs.current += 1
+    setEntering({ effect, over, runId: runs.current })
+    const { cover, total } = timingFor(effect)
+    timers.current = [
+      setTimeout(() => setState(next), cover),
+      setTimeout(() => setEntering(null), total),
+    ]
+  }, [])
+
+  const go = useCallback(
     (skin: Skin) => {
       remember(skin)
-      setState({ skin, chosen: true })
+
+      // First casual visit of the session: the boot log is the arrival, so it
+      // goes first and the blocks play after it (CyberLayout runs them when the
+      // boot finishes). Two "we are loading" screens at once cancel each other.
+      if (skin === 'sys' && bootPending()) {
+        timers.current.forEach(clearTimeout)
+        setEntering(null)
+        setState({ skin, chosen: true })
+        return
+      }
+
+      // Arriving at the professional side always means leaving a dark screen:
+      // the gate, or the casual skin.
+      play(skin, 'dark', { skin, chosen: true })
     },
-    [remember],
+    [remember, play],
   )
+
+  const choose = go
+
+  /** Back to the front door, played out through the side you are leaving. */
+  const reset = useCallback(() => {
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {
+      /* private browsing: nothing was remembered anyway */
+    }
+    setSearchParams(
+      (params) => {
+        params.delete('view')
+        return params
+      },
+      { replace: true },
+    )
+    play(state.skin, state.skin === 'pro' ? 'light' : 'dark', { skin: state.skin, chosen: false })
+  }, [play, setSearchParams, state.skin])
 
   const toggle = useCallback(() => {
     // Deliberately NOT inside a setState updater: React runs those during
     // render, and calling the router's setSearchParams there updates another
     // component mid-render, which React warns about.
     const skin: Skin = state.skin === 'pro' ? 'sys' : 'pro'
-    remember(skin)
-    setState({ skin, chosen: true })
+    go(skin)
     // Drop ?view= if it is in the address bar, or it would win on the next
     // page load and quietly undo the switch the visitor just made.
     setSearchParams(
@@ -63,11 +125,11 @@ export default function SkinProvider({ children }: { children: ReactNode }) {
       },
       { replace: true },
     )
-  }, [state.skin, remember, setSearchParams])
+  }, [state.skin, go, setSearchParams])
 
   const value = useMemo<SkinState>(
-    () => ({ skin: state.skin, chosen: state.chosen, choose, toggle }),
-    [state.skin, state.chosen, choose, toggle],
+    () => ({ skin: state.skin, chosen: state.chosen, choose, toggle, reset, entering }),
+    [state.skin, state.chosen, choose, toggle, reset, entering],
   )
 
   return <SkinContext.Provider value={value}>{children}</SkinContext.Provider>

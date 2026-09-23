@@ -611,3 +611,514 @@ html.skin-pro ::selection {
     animation: none;
   }
 }
+
+/* ---------- Page transitions ----------
+   Two different jumps for the two skins: the professional side goes to light
+   speed, the casual side gets bricked over by falling blocks. Both are driven
+   by effects/useRouteSwap.ts, which hides the route change at the peak. */
+
+/* Shock rings riding on top of the warp flash. */
+.lightspeed-rings::before,
+.lightspeed-rings::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46vmin;
+  height: 46vmin;
+  margin: -23vmin 0 0 -23vmin;
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--color-coral) 55%, transparent);
+  opacity: 0;
+  animation: ls-ring 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.lightspeed-rings::after {
+  border-color: color-mix(in srgb, var(--color-violet) 50%, transparent);
+  animation-delay: 0.16s;
+}
+@keyframes ls-ring {
+  0% { transform: scale(0.1); opacity: 0; }
+  28% { opacity: 0.85; }
+  100% { transform: scale(3.4); opacity: 0; }
+}
+
+/* ---------- Casual skin: falling blocks ---------- */
+.bw-block {
+  position: absolute;
+  background: var(--color-panel);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 240 255 / 0.14),
+    inset 0 2px 0 0 rgb(0 240 255 / 0.07);
+  will-change: transform, opacity;
+}
+/* Blocks come in off-axis and snap straight on landing, so the stack assembles
+   like a signal locking on rather than like a tidy grid filling. */
+@keyframes bw-drop {
+  0% { transform: translate3d(var(--jx, 0), -125vh, 0); opacity: 0.9; }
+  55% { transform: translate3d(calc(var(--jx, 0px) * 0.45), -25vh, 0); opacity: 1; }
+  70% { transform: translate3d(calc(var(--jx, 0px) * -0.12), 8px, 0); }
+  78% { opacity: 0.72; }
+  86% { transform: translate3d(0, -3px, 0); opacity: 1; }
+  100% { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+@keyframes bw-clear {
+  0% { transform: translate3d(0, 0, 0); filter: none; opacity: 1; }
+  22% { transform: translate3d(0, 0, 0) scale(1.03); filter: brightness(3.2) saturate(1.8); }
+  100% { transform: translate3d(0, 118vh, 0) scale(0.88); opacity: 0; }
+}
+
+/* Torn bands of the stack, sliding sideways as the route swaps. */
+.bw-band {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.bw-band-a {
+  background: linear-gradient(90deg, rgb(255 42 109 / 0.5), transparent 55%);
+  animation: bw-band-a 0.46s steps(3, end) both;
+}
+.bw-band-b {
+  background: linear-gradient(270deg, rgb(0 240 255 / 0.45), transparent 60%);
+  animation: bw-band-b 0.4s steps(3, end) both;
+}
+@keyframes bw-band-a {
+  0% { opacity: 0.9; clip-path: inset(18% 0 62% 0); transform: translateX(-4%); }
+  45% { opacity: 0.8; clip-path: inset(58% 0 26% 0); transform: translateX(5%); }
+  100% { opacity: 0; clip-path: inset(50% 0 50% 0); transform: none; }
+}
+@keyframes bw-band-b {
+  0% { opacity: 0.85; clip-path: inset(70% 0 12% 0); transform: translateX(6%); }
+  50% { opacity: 0.7; clip-path: inset(8% 0 78% 0); transform: translateX(-6%); }
+  100% { opacity: 0; clip-path: inset(50% 0 50% 0); transform: none; }
+}
+
+/* One bright line sweeping down the finished stack, like a CRT refresh. */
+.bw-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  top: 0;
+  background: linear-gradient(90deg, transparent, var(--color-neon), transparent);
+  box-shadow: 0 0 26px var(--color-neon);
+  opacity: 0;
+  pointer-events: none;
+  animation: bw-scan 0.62s ease-in-out both;
+}
+@keyframes bw-scan {
+  0% { transform: translateY(-4px); opacity: 0; }
+  12% { opacity: 0.95; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+.bw-readout {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  transform: translate(-50%, -50%);
+  font-size: 0.8rem;
+  letter-spacing: 0.32em;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  animation: bw-readout 0.62s ease-out both;
+}
+@keyframes bw-readout {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.bw-bar {
+  width: 11rem;
+  height: 3px;
+  background: rgb(0 240 255 / 0.18);
+  position: relative;
+  overflow: hidden;
+}
+.bw-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-acid);
+  box-shadow: 0 0 12px var(--color-acid);
+  transform-origin: left;
+  animation: bw-bar 0.5s steps(6, end) both;
+}
+@keyframes bw-bar {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* The hook itself skips the whole transition when motion is reduced; this is
+   the belt-and-braces for anything that still mounts. */
+@media (prefers-reduced-motion: reduce) {
+  .lightspeed-rings::before,
+  .lightspeed-rings::after,
+  .bw-block,
+  .bw-band,
+  .bw-scan,
+  .bw-readout,
+  .bw-bar::after {
+    animation: none;
+    display: none;
+  }
+}
+
+/* ---------- The front door's background: a circuit board ---------- */
+.gq {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(160deg, #07080e, #0b0710 60%, #0a0a14);
+}
+.gq-board {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.gq-trace path {
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: gq-draw 2.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes gq-draw {
+  to { stroke-dashoffset: 0; }
+}
+.gq-warm path { stroke: rgb(255 158 96 / 0.75); filter: drop-shadow(0 0 3px rgb(255 130 70 / 0.45)); }
+.gq-warm .gq-pad { fill: #ffb347; }
+.gq-warm .gq-via { fill: rgb(255 107 90 / 0.35); }
+.gq-cool path { stroke: rgb(0 228 255 / 0.68); filter: drop-shadow(0 0 3px rgb(0 220 255 / 0.4)); }
+.gq-cool .gq-pad { fill: #00f0ff; }
+.gq-cool .gq-via { fill: rgb(0 240 255 / 0.3); }
+.gq-pad {
+  filter: drop-shadow(0 0 4px currentColor);
+}
+/* Hovering a choice brightens that side's traces and dims the other. */
+.gq-lean-pro .gq-cool,
+.gq-lean-sys .gq-warm { opacity: 0.25; }
+.gq-lean-pro .gq-warm,
+.gq-lean-sys .gq-cool { opacity: 1; }
+.gq-trace { transition: opacity 0.5s ease; }
+.gq-haze {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(55% 45% at 22% 62%, rgb(255 150 90 / 0.16), transparent 70%),
+    radial-gradient(55% 45% at 78% 38%, rgb(0 240 255 / 0.14), transparent 70%);
+}
+.gq-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(82% 66% at 50% 48%, transparent, rgb(3 4 8 / 0.45));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gq-trace path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- and its motion ---------- */
+/* A test probe sweeping the board, lighting what it passes over. */
+.gq::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 0.05) 45%,
+    rgb(180 240 255 / 0.16) 50%,
+    rgb(255 255 255 / 0.05) 55%,
+    transparent
+  );
+  animation: gq-sweep 7s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes gq-sweep {
+  0% { transform: translateX(-100%); }
+  55%, 100% { transform: translateX(100%); }
+}
+.gq-via {
+  animation: gq-blink 2.8s steps(1) infinite;
+}
+@keyframes gq-blink {
+  0%, 62%, 100% { opacity: 1; }
+  66% { opacity: 0.15; }
+  72% { opacity: 0.9; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gq::after,
+  .gq-via {
+    animation: none;
+  }
+}
+
+/* ---------- Casual transition: the rest of the glitch ----------
+   Tearing bands, chromatic ghosts on a few blocks, analogue static, a slice
+   shift and a memory dump. Deliberately dialled back from the first version:
+   loud enough to be the site's noisiest moment, quiet enough to sit through
+   twenty times. */
+
+/* Whole-stack slice shift, three small jumps and back. */
+.bw-slice {
+  position: absolute;
+  inset: 0;
+  animation: bw-slice 0.5s steps(1, end) both;
+}
+@keyframes bw-slice {
+  0%, 100% { transform: none; clip-path: none; }
+  18% { transform: translateX(-1.1%); }
+  34% { transform: translateX(0.8%); }
+  52% { transform: translateX(-0.4%); }
+  68% { transform: none; }
+}
+
+/* A chromatic ghost on a minority of blocks: red left, cyan right. */
+.bw-ghost::before,
+.bw-ghost::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.bw-ghost::before {
+  background: rgb(255 42 109 / 0.55);
+  animation: bw-ghost-a 0.42s steps(2, end) infinite;
+}
+.bw-ghost::after {
+  background: rgb(0 240 255 / 0.5);
+  animation: bw-ghost-b 0.42s steps(2, end) infinite;
+}
+@keyframes bw-ghost-a {
+  0%, 100% { transform: translateX(-2px); opacity: 0.5; }
+  50% { transform: translateX(1px); opacity: 0.22; }
+}
+@keyframes bw-ghost-b {
+  0%, 100% { transform: translateX(2px); opacity: 0.45; }
+  50% { transform: translateX(-1px); opacity: 0.2; }
+}
+
+/* Analogue static: one turbulence tile, jumped around in hard steps. */
+.bw-static {
+  position: absolute;
+  inset: -20%;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: bw-static 0.7s steps(4, end) both;
+}
+@keyframes bw-static {
+  0% { opacity: 0.12; transform: translate(0, 0); }
+  25% { opacity: 0.07; transform: translate(-4%, 3%); }
+  50% { opacity: 0.1; transform: translate(3%, -2%); }
+  75% { opacity: 0.05; transform: translate(-2%, -4%); }
+  100% { opacity: 0; transform: none; }
+}
+
+/* Memory garbage, scrolling up behind the readout. */
+.bw-dump {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: min(34rem, 80vw);
+  transform: translate(-50%, -50%);
+  color: var(--color-neon);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  pointer-events: none;
+  animation: bw-dump 0.75s steps(6, end) both;
+}
+.bw-dump span {
+  white-space: nowrap;
+}
+@keyframes bw-dump {
+  0% { opacity: 0; transform: translate(-50%, -38%); }
+  20% { opacity: 0.26; }
+  60% { opacity: 0.14; }
+  100% { opacity: 0; transform: translate(-50%, -62%); }
+}
+
+/* The readout's own chromatic split. */
+.bw-title {
+  position: relative;
+}
+.bw-title::before,
+.bw-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+}
+.bw-title::before {
+  color: var(--color-hot);
+  animation: bw-title-a 0.36s steps(2, end) infinite;
+}
+.bw-title::after {
+  color: var(--color-acid);
+  animation: bw-title-b 0.36s steps(2, end) infinite;
+}
+@keyframes bw-title-a {
+  0%, 100% { transform: translate(-1px, 1px); opacity: 0.5; }
+  50% { transform: translate(1px, -1px); opacity: 0.2; }
+}
+@keyframes bw-title-b {
+  0%, 100% { transform: translate(1px, -1px); opacity: 0.4; }
+  50% { transform: translate(-1px, 1px); opacity: 0.18; }
+}
+
+/* ---------- The professional pointer ----------
+   Three layers with different lags: an ink dot on the pixel, a ring a beat
+   behind that opens over anything clickable, and a warm wash that lights the
+   paper. Positions come from a rAF loop in ProCursor.tsx, never from React. */
+@media (pointer: fine) {
+  html.has-pro-cursor,
+  html.has-pro-cursor * {
+    cursor: none !important;
+  }
+}
+
+.pro-cursor-dot,
+.pro-cursor-ring,
+.pro-cursor-wash {
+  position: fixed;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.pro-cursor-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--color-ink);
+  transition: opacity 0.2s ease;
+}
+
+.pro-cursor-ring {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid color-mix(in srgb, var(--color-ink) 35%, transparent);
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-coral) 10%, transparent), transparent 70%);
+  transition:
+    border-color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.pro-cursor-wash {
+  width: 280px;
+  height: 280px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-amber) 30%, transparent),
+    color-mix(in srgb, var(--color-coral) 16%, transparent) 45%,
+    transparent 70%
+  );
+  mix-blend-mode: multiply;
+  filter: blur(14px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bw-slice,
+  .bw-static,
+  .bw-dump,
+  .bw-ghost::before,
+  .bw-ghost::after,
+  .bw-title::before,
+  .bw-title::after {
+    animation: none;
+    display: none;
+  }
+}
+
+/* ---------- "Return to base": the way off a mission page ----------
+   A lit HUD control with its own dark pane, because the neon city behind the
+   casual project pages eats anything quieter. */
+.hud-back {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.9rem 0.5rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--color-neon) 55%, transparent);
+  background: rgb(5 6 10 / 0.72);
+  backdrop-filter: blur(6px);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  color: var(--color-neon);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  box-shadow:
+    0 0 0 1px rgb(0 240 255 / 0.08),
+    0 8px 26px -14px rgb(0 240 255 / 0.8);
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.hud-back:hover {
+  background: var(--color-neon);
+  border-color: var(--color-neon);
+  color: var(--color-void);
+  box-shadow: 0 0 22px -2px rgb(0 240 255 / 0.65);
+}
+/* A live edge on the left, like a powered rail. */
+.hud-back::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-acid);
+  box-shadow: 0 0 10px var(--color-acid);
+  animation: hud-back-rail 2.6s ease-in-out infinite;
+}
+@keyframes hud-back-rail {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+.hud-back-arrow {
+  font-weight: 700;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hud-back:hover .hud-back-arrow {
+  transform: translateX(-4px);
+}
+/* The keyboard shortcut, shown as a key cap. */
+.hud-back-key {
+  border: 1px solid currentColor;
+  padding: 0 0.3rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  opacity: 0.65;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-back::before {
+    animation: none;
+  }
+  .hud-back:hover .hud-back-arrow {
+    transform: none;
+  }
+}

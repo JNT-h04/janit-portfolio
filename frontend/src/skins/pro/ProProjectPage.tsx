@@ -1,9 +1,10 @@
 import type { ComponentType } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { findProject } from '../../data/projects'
+import { findProject, demoState } from '../../data/projects'
 import ProNotFound from './ProNotFound'
 import { COMPLEXITY } from './components/labels'
 import Reveal from './components/Reveal'
+import DemoUnavailable from '../../components/DemoUnavailable'
 import CortexPanel from './demos/CortexPanel'
 import EchoPanel from './demos/EchoPanel'
 import FracturePanel from './demos/FracturePanel'
@@ -23,6 +24,7 @@ export default function ProProjectPage() {
   const project = findProject(slug)
   if (!project) return <ProNotFound />
   const Panel = PANELS[project.slug]
+  const state = demoState(project)
 
   return (
     <article className="py-12">
@@ -44,7 +46,7 @@ export default function ProProjectPage() {
           <Fact label="Status">
             <span className="inline-flex items-center gap-1.5">
               <span className={`h-1.5 w-1.5 rounded-full ${project.online ? 'bg-coral' : 'bg-quiet/50'}`} />
-              {project.online ? 'Live demo below' : 'In progress'}
+              {{ live: 'Live demo below', offline: 'Demo offline', 'local-only': 'Runs locally' }[state]}
             </span>
           </Fact>
           <Fact label="Compute">{COMPLEXITY[project.threat]}</Fact>
@@ -62,14 +64,21 @@ export default function ProProjectPage() {
 
       <section className="mt-10">
         <Reveal>
-          <h2 className="mb-1 font-serif text-2xl text-ink">Try it</h2>
+          <h2 className="mb-1 font-serif text-2xl text-ink">{state === 'live' ? 'Try it' : 'The demo'}</h2>
           <p className="mb-6 max-w-2xl font-sans text-[15px] leading-relaxed text-quiet">
-            This is the real system, running against the same backend. Use your own file, or pick one of the
-            provided samples.
+            {state === 'live'
+              ? 'This is the real system, running against the same backend. Use your own file, or pick one of the provided samples.'
+              : 'The demo takes your own file and runs the real model on it — it is not a recording. It needs the API running, which this copy of the site does not have.'}
           </p>
         </Reveal>
 
-        {Panel ? (
+        {Panel && state !== 'live' ? (
+          <DemoUnavailable
+            slug={project.slug}
+            theme="paper"
+            reason={state === 'local-only' ? 'no-backend' : 'switched-off'}
+          />
+        ) : Panel ? (
           <Panel />
         ) : (
           <div className="paper-card p-8 text-center">

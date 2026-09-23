@@ -15,6 +15,17 @@ export type SkinState = {
   choose: (skin: Skin) => void
   /** Jump to the other side without going back through the gate. */
   toggle: () => void
+  /** Forget the choice and go back to the front door. */
+  reset: () => void
+  /**
+   * Set while a move between sides is in flight: which side's transition is
+   * playing, whether it started over a light or a dark screen (the warp's
+   * streaks have to be darker than paper and brighter than night), and a run
+   * number so the overlay replays from frame zero each time. The skin itself
+   * does not change until that transition has the screen covered, so the page
+   * background can't flip before the visitor stops seeing it.
+   */
+  entering: { effect: Skin; over: 'light' | 'dark'; runId: number } | null
 }
 
 export const SkinContext = createContext<SkinState>({
@@ -22,6 +33,8 @@ export const SkinContext = createContext<SkinState>({
   chosen: true,
   choose: () => {},
   toggle: () => {},
+  reset: () => {},
+  entering: null,
 })
 
 export const useSkin = () => useContext(SkinContext)

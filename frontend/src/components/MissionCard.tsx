@@ -1,3 +1,4 @@
+import { demoState } from '../data/projects'
 import { motion } from 'framer-motion'
 import { useRef, type MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
@@ -43,8 +44,8 @@ export default function MissionCard({ project, index }: { project: Project; inde
         >
           <div className="flex items-center justify-between font-mono text-xs tracking-widest">
             <span className="text-dim">MISSION_{String(index + 1).padStart(2, '0')}</span>
-            <span className={project.online ? 'text-acid' : 'text-dim'}>
-              {project.online ? '● ONLINE' : '○ OFFLINE'}
+            <span className={demoState(project) === 'live' ? 'text-acid' : 'text-dim'}>
+              {{ live: '● ONLINE', offline: '○ OFFLINE', 'local-only': '○ RUNS LOCALLY' }[demoState(project)]}
             </span>
           </div>
           <h3 className="mt-4 font-display text-2xl font-bold text-neon group-hover:text-glow">{project.codename}</h3>

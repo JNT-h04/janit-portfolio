@@ -1,9 +1,12 @@
 import { useMemo, useState } from 'react'
+import { BLOCKS, WARP } from './effects/transitions'
 import Gate from './pages/Gate'
 import SkinProvider from './skin/SkinProvider'
 import { useSkin } from './skin/context'
 import CyberLayout from './skins/cyber/CyberLayout'
+import BlockWaterfall from './skins/cyber/effects/BlockWaterfall'
 import ProLayout from './skins/pro/ProLayout'
+import Lightspeed from './skins/pro/effects/Lightspeed'
 import { TerminalContext } from './terminal/context'
 
 /**
@@ -27,7 +30,29 @@ export default function App() {
 }
 
 function Shell() {
-  const { skin, chosen } = useSkin()
-  if (!chosen) return <Gate />
-  return skin === 'pro' ? <ProLayout /> : <CyberLayout />
+  const { skin, chosen, entering } = useSkin()
+  return (
+    <>
+      {!chosen ? <Gate /> : skin === 'pro' ? <ProLayout /> : <CyberLayout />}
+
+      {/* Crossing between the two sides — from the gate, the header link or the
+          footer — plays the transition of the side being arrived at. Above
+          everything, including the boot screen, since it has to hide the
+          moment the whole site changes clothes. */}
+      {entering && (
+        <div className="fixed inset-0 z-[80]">
+          {entering.effect === 'pro' ? (
+            <Lightspeed
+              key={entering.runId}
+              coverMs={WARP.cover}
+              totalMs={WARP.total}
+              over={entering.over}
+            />
+          ) : (
+            <BlockWaterfall key={entering.runId} coverMs={BLOCKS.cover} totalMs={BLOCKS.total} />
+          )}
+        </div>
+      )}
+    </>
+  )
 }

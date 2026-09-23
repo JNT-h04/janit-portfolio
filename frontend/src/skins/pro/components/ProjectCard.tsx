@@ -1,6 +1,6 @@
 import { useRef, type MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
-import type { Project } from '../../../data/projects'
+import { demoState, type Project } from '../../../data/projects'
 import { COMPLEXITY } from './labels'
 import Reveal from './Reveal'
 
@@ -65,7 +65,7 @@ export default function ProjectCard({ project, index }: { project: Project; inde
                   : 'bg-quiet/40'
               }`}
             />
-            {project.online ? 'Live demo' : 'In progress'}
+            {{ live: 'Live demo', offline: 'Demo offline', 'local-only': 'Runs locally' }[demoState(project)]}
           </span>
         </div>
 

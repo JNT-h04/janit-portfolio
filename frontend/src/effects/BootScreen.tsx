@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { bootPending } from './boot'
 
 const LINES = [
   'JANIT://SYS BIOS v2.0.26',
@@ -15,15 +16,8 @@ const LINES = [
  * sessionStorage remembers that it has played, so it doesn't replay on every
  * page change. Any key or click skips it; ?boot=off disables it (for screenshots).
  */
-export default function BootScreen() {
-  const [shown, setShown] = useState(() => {
-    if (new URLSearchParams(location.search).get('boot') === 'off') return false
-    try {
-      return sessionStorage.getItem('booted') !== '1'
-    } catch {
-      return true
-    }
-  })
+export default function BootScreen({ onDone }: { onDone?: () => void }) {
+  const [shown, setShown] = useState(bootPending)
   const [count, setCount] = useState(0)
 
   useEffect(() => {
@@ -35,6 +29,7 @@ export default function BootScreen() {
       } catch {
         /* private mode: just replay next time */
       }
+      onDone?.()
     }
     const timer = setInterval(() => {
       setCount((c) => {
@@ -46,14 +41,24 @@ export default function BootScreen() {
         return c + 1
       })
     }, 280)
-    addEventListener('keydown', finish)
-    addEventListener('click', finish)
+    // "Any key or click skips" — but not the click that got you here. Choosing
+    // the casual side on the gate mounts this screen while that very click is
+    // still propagating to the window, so an immediately-attached listener
+    // skipped the boot log in the same tick it appeared. The skip arms itself a
+    // beat later, which is long after the arriving click and long before anyone
+    // decides they have read enough.
+    const arm = setTimeout(() => {
+      addEventListener('keydown', finish)
+      addEventListener('click', finish)
+    }, 400)
+
     return () => {
       clearInterval(timer)
+      clearTimeout(arm)
       removeEventListener('keydown', finish)
       removeEventListener('click', finish)
     }
-  }, [shown])
+  }, [shown, onDone])
 
   return (
     <AnimatePresence>

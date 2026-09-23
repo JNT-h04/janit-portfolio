@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 import { useSkin } from '../skin/context'
 import type { Skin } from '../skin/context'
+import GateCircuit from './effects/GateCircuit'
 
 /**
  * The front door. Before the visitor has picked a side, this is the whole page.
@@ -10,9 +12,13 @@ import type { Skin } from '../skin/context'
  */
 export default function Gate() {
   const { choose } = useSkin()
+  // Which choice the pointer is on, so the background can lean that way.
+  const [focus, setFocus] = useState<Skin | null>(null)
 
   return (
-    <div className="flex min-h-dvh flex-col justify-center bg-[#0a0b0e] px-5 py-14 text-[#e8eaee]">
+    <div className="relative flex min-h-dvh flex-col justify-center overflow-hidden px-5 py-14 text-[#e8eaee]">
+      <GateCircuit focus={focus} />
+      <div className="relative">
       <motion.header
         className="mx-auto w-full max-w-5xl text-center"
         initial={{ opacity: 0, y: -12 }}
@@ -22,8 +28,8 @@ export default function Gate() {
         <p className="font-sans text-xs tracking-[0.35em] text-[#7c8494] uppercase">Janit B</p>
         <h1 className="mt-3 font-serif text-3xl font-normal sm:text-4xl">How would you like to look around?</h1>
         <p className="mx-auto mt-4 max-w-xl font-sans text-[15px] leading-relaxed text-[#9aa2b1]">
-          This portfolio comes in two versions. They contain the same projects and the same working demos —
-          only the presentation differs.
+          This portfolio comes in two versions. They contain the same projects and the same demos — only the
+          presentation differs.
         </p>
       </motion.header>
 
@@ -34,6 +40,7 @@ export default function Gate() {
           label="Recruiter / Professional"
           blurb="A clean, conventional portfolio. Projects, case studies, experience and skills, laid out to be read quickly and skimmed on any device."
           onChoose={choose}
+          onFocus={setFocus}
         >
           <ProPreview />
         </Choice>
@@ -44,6 +51,7 @@ export default function Gate() {
           label="Just looking around"
           blurb="The same work rendered as a cyberpunk terminal. Neon, glitch, a live command line, and a neon skyline behind everything."
           onChoose={choose}
+          onFocus={setFocus}
         >
           <SysPreview />
         </Choice>
@@ -57,6 +65,7 @@ export default function Gate() {
       >
         You can switch between them at any time from the top of the page.
       </motion.p>
+      </div>
     </div>
   )
 }
@@ -67,15 +76,21 @@ type ChoiceProps = {
   label: string
   blurb: string
   onChoose: (skin: Skin) => void
+  /** Tells the backdrop which side the pointer is on. */
+  onFocus: (skin: Skin | null) => void
   children: React.ReactNode
 }
 
-function Choice({ skin, index, label, blurb, onChoose, children }: ChoiceProps) {
+function Choice({ skin, index, label, blurb, onChoose, onFocus, children }: ChoiceProps) {
   return (
     <motion.button
       type="button"
       onClick={() => onChoose(skin)}
-      className="group flex flex-col rounded-xl border border-white/10 bg-white/[0.03] p-5 text-left transition-colors hover:border-white/25 hover:bg-white/[0.06] focus:outline-none focus-visible:border-white/40"
+      onMouseEnter={() => onFocus(skin)}
+      onMouseLeave={() => onFocus(null)}
+      onFocus={() => onFocus(skin)}
+      onBlur={() => onFocus(null)}
+      className="group flex flex-col rounded-xl border border-white/10 bg-black/35 p-5 text-left backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-black/45 focus:outline-none focus-visible:border-white/40"
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.25 + index * 0.12, duration: 0.5 }}

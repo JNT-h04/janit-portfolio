@@ -25,7 +25,10 @@ export default function ProBackdrop() {
       if (far.current) far.current.style.transform = `translate3d(0, ${y * 0.06}px, 0)`
       if (near.current) near.current.style.transform = `translate3d(0, ${y * 0.14}px, 0)`
       if (city.current) {
-        const faded = Math.min(1, y / (innerHeight * 0.75))
+        // Gone within half a screen of scrolling: at 0.75 the buildings were
+        // still at ~40% behind the first cards, which read as the backdrop
+        // following the content down the page instead of belonging to the hero.
+        const faded = Math.min(1, y / (innerHeight * 0.5))
         city.current.style.opacity = String(1 - faded)
       }
     }
