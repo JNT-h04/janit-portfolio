@@ -18,6 +18,8 @@ import { fileURLToPath } from 'node:url'
 const root = dirname(dirname(fileURLToPath(import.meta.url)))
 const base = process.env.VITE_BASE ?? '/janit-portfolio/'
 
+// VITE_API_BASE points the published site at the hosted API. Without it the
+// build still works and simply says its demos run locally.
 execSync('npm run build', {
   cwd: root,
   stdio: 'inherit',

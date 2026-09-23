@@ -1,0 +1,20 @@
+# What the hosted API installs. Deliberately not the same as the development
+# requirements: no torch (CORTEX is off there) and CPU-only TensorFlow.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic-settings>=2.4
+python-multipart>=0.0.9
+
+# LEXICON: document parsing
+pymupdf>=1.24
+python-docx>=1.1
+beautifulsoup4>=4.12
+lxml>=5
+
+# LEXICON + ECHO: the Gemini client
+google-genai>=1.0
+
+# FRACTURE: the crack classifier and the image handling around it
+tensorflow-cpu>=2.16,<2.22
+opencv-python-headless>=4.9
+numpy>=1.26

@@ -4,7 +4,7 @@ import portraitPro from '../../assets/portrait-pro.png'
 import { RESUME_FILE, RESUME_URL } from '../../data/resume'
 import { useProfile, type Profile } from '../../api/profile'
 import { useContactForm } from '../../contact/useContactForm'
-import { STATIC_BUILD } from '../../config'
+import { HAS_API } from '../../config'
 import { PROJECTS, demoState } from '../../data/projects'
 import { useTerminal } from '../../terminal/context'
 import CountUp from './components/CountUp'
@@ -32,7 +32,7 @@ export default function ProHome() {
 
       <Section id="work" title="Selected work" number="01">
         <p className="-mt-2 mb-8 max-w-2xl font-sans text-[15px] leading-relaxed text-quiet">
-          {STATIC_BUILD
+          {!HAS_API
             ? 'Every project below is a working system with an interactive demo — this published copy is the frontend, so the demos run when the API is started alongside it. Results are reported honestly, including where they fall short.'
             : 'Every project below has a demo you can use right now — upload your own file and see what the model says. Results are reported honestly, including where they fall short.'}
         </p>
@@ -70,8 +70,8 @@ export default function ProHome() {
                         answering; on the frontend-only copy it counts the demos
                         that exist and says where they run. */}
                     <Stat
-                      n={STATIC_BUILD ? PROJECTS.length : PROJECTS.filter((p) => demoState(p) === 'live').length}
-                      label={STATIC_BUILD ? 'Demos (run locally)' : 'Live demos'}
+                      n={!HAS_API ? PROJECTS.length : PROJECTS.filter((p) => demoState(p) === 'live').length}
+                      label={!HAS_API ? 'Demos (run locally)' : 'Live demos'}
                       tone="var(--color-amber)"
                     />
                     <Stat

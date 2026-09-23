@@ -1,3 +1,4 @@
+import { api } from '../../config'
 // Talking to the CORTEX backend (backend/app/routers/cortex.py).
 
 export type Status = {
@@ -29,7 +30,7 @@ async function detail(res: Response) {
 
 export async function getStatus(): Promise<Status> {
   try {
-    const res = await fetch('/api/cortex/status')
+    const res = await fetch(api('/api/cortex/status'))
     if (!res.ok) throw new Error()
     return await res.json()
   } catch {
@@ -39,7 +40,7 @@ export async function getStatus(): Promise<Status> {
 
 export async function listSamples(): Promise<string[]> {
   try {
-    const res = await fetch('/api/cortex/samples')
+    const res = await fetch(api('/api/cortex/samples'))
     return res.ok ? await res.json() : []
   } catch {
     return []
@@ -51,7 +52,7 @@ export const sampleUrl = (name: string) => `/api/cortex/samples/${name}`
 export async function analyze(file: Blob, filename = 'scan.jpg'): Promise<Analysis> {
   const form = new FormData()
   form.append('file', file, filename)
-  const res = await fetch('/api/cortex/analyze', { method: 'POST', body: form })
+  const res = await fetch(api('/api/cortex/analyze'), { method: 'POST', body: form })
   if (!res.ok) throw new Error(await detail(res))
   return res.json()
 }
@@ -74,7 +75,7 @@ export type SampleSeries = { id: string; label: string; slices: string[] }
 
 export async function listSeries(): Promise<SampleSeries[]> {
   try {
-    const res = await fetch('/api/cortex/series')
+    const res = await fetch(api('/api/cortex/series'))
     return res.ok ? await res.json() : []
   } catch {
     return []
@@ -85,7 +86,7 @@ export async function listSeries(): Promise<SampleSeries[]> {
 export async function analyzeSeries(files: { blob: Blob; name: string }[]): Promise<SeriesAnalysis> {
   const form = new FormData()
   for (const f of files) form.append('files', f.blob, f.name)
-  const res = await fetch('/api/cortex/analyze-series', { method: 'POST', body: form })
+  const res = await fetch(api('/api/cortex/analyze-series'), { method: 'POST', body: form })
   if (!res.ok) throw new Error(await detail(res))
   return res.json()
 }

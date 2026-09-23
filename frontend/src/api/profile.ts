@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { STATIC_BUILD } from '../config'
+import { USE_SNAPSHOT, api } from '../config'
 import snapshot from '../data/profile.snapshot.json'
 
 // The shape of the JSON your backend will send from GET /api/profile.
@@ -34,20 +34,22 @@ export type ProfileState =
 
 export function useProfile(): ProfileState {
   const [state, setState] = useState<ProfileState>(
-    // The static build has no API to ask, so it starts from the snapshot that
-    // was copied out of backend/app/data/profile.json at build time.
-    STATIC_BUILD ? { status: 'online', profile: snapshot as Profile } : { status: 'loading' },
+    // The published build starts from the snapshot copied out of
+    // backend/app/data/profile.json, so the page has content immediately even
+    // while a sleeping API wakes up. The live answer replaces it below.
+    USE_SNAPSHOT ? { status: 'online', profile: snapshot as Profile } : { status: 'loading' },
   )
   useEffect(() => {
-    if (STATIC_BUILD) return
     async function load(){
       try {
-        const res = await fetch('/api/profile')
+        const res = await fetch(api('/api/profile'))
         if (!res.ok) throw new Error(`server replied ${res.status}`)
         const profile = await res.json()
         setState({ status: 'online', profile })
       } catch (error) {
-        setState({ status: 'offline', error: (error as Error).message })
+        // With a snapshot already on screen, a failed fetch changes nothing:
+        // the visitor keeps reading real data instead of watching it vanish.
+        if (!USE_SNAPSHOT) setState({ status: 'offline', error: (error as Error).message })
       }
     }
     load()

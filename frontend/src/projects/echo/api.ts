@@ -1,3 +1,4 @@
+import { api } from '../../config'
 // Talking to the ECHO backend (backend/app/routers/echo.py).
 //
 // ECHO is the first mission where the work takes longer than a request can wait.
@@ -32,7 +33,7 @@ export const POLL_MS = 2000
 
 export async function getStatus(): Promise<boolean> {
   try {
-    const res = await fetch('/api/echo/status')
+    const res = await fetch(api('/api/echo/status'))
     return res.ok && (await res.json()).ready
   } catch {
     return false
@@ -49,7 +50,7 @@ export function submitRecording(file: File, onProgress: (fraction: number) => vo
     const form = new FormData()
     form.append('file', file) // the name must match the `file` parameter in FastAPI
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', '/api/echo/jobs')
+    xhr.open('POST', api('/api/echo/jobs'))
     xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total)
     xhr.onload = () => {
       let body: { detail?: string; id?: string } = {}
@@ -67,7 +68,7 @@ export function submitRecording(file: File, onProgress: (fraction: number) => vo
 }
 
 export async function getJob(id: string): Promise<Job> {
-  const res = await fetch(`/api/echo/jobs/${id}`)
+  const res = await fetch(api(`/api/echo/jobs/${id}`))
   if (!res.ok) {
     let detail = `error ${res.status}`
     try {

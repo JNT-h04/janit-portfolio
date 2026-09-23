@@ -1,3 +1,4 @@
+import { api } from '../../config'
 // Talking to the LEXICON backend (backend/app/routers/lexicon.py).
 
 export type ChapterInfo = { index: number; title: string; words: number; preview: string }
@@ -14,7 +15,7 @@ const errorFrom = async (res: Response) => {
 
 export async function getStatus(): Promise<boolean> {
   try {
-    const res = await fetch('/api/lexicon/status')
+    const res = await fetch(api('/api/lexicon/status'))
     return res.ok && (await res.json()).ready
   } catch {
     return false
@@ -30,7 +31,7 @@ export function uploadBook(file: File, onProgress: (fraction: number) => void): 
     const form = new FormData()
     form.append('file', file) // the name must match the `file` parameter in FastAPI
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', '/api/lexicon/books')
+    xhr.open('POST', api('/api/lexicon/books'))
     xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total)
     xhr.onload = () => {
       let body: { detail?: string } & Partial<BookInfo> = {}
@@ -55,7 +56,7 @@ export const ERROR_MARK = '[[error]]'
  * instead of waiting for the whole answer.
  */
 export async function streamSummary(bookId: string, index: number, onText: (soFar: string) => void): Promise<string> {
-  const res = await fetch(`/api/lexicon/books/${bookId}/chapters/${index}/summary`, { method: 'POST' })
+  const res = await fetch(api(`/api/lexicon/books/${bookId}/chapters/${index}/summary`), { method: 'POST' })
   if (!res.ok || !res.body) throw new Error(await errorFrom(res))
 
   const reader = res.body.getReader()

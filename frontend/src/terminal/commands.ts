@@ -5,6 +5,7 @@
 import { PROJECTS } from '../data/projects'
 import { RESUME_FILE, RESUME_URL } from '../data/resume'
 import { HOME, lookup, pretty, resolve } from './fs'
+import { api } from '../config'
 
 // ANSI escape codes: special character sequences that terminals read as
 // "switch colour" instead of printing them.
@@ -77,7 +78,7 @@ export const COMMANDS: Record<string, Command> = {
       let remote: string[]
       try {
         // The backend lists its own commands at GET /api/terminal.
-        const res = await fetch('/api/terminal')
+        const res = await fetch(api('/api/terminal'))
         if (!res.ok) throw new Error(`${res.status}`)
         const list: { name: string; help: string }[] = await res.json()
         remote = list.map((cmd) => `  ${c.acid(cmd.name.padEnd(10))} ${cmd.help}`)
@@ -237,7 +238,7 @@ export const COMMANDS: Record<string, Command> = {
 /** Anything not defined above is asked of the backend. */
 export async function runRemote(name: string, args: string[]): Promise<string> {
   try {
-    const res = await fetch('/api/terminal', {
+    const res = await fetch(api('/api/terminal'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ command: name, args }),

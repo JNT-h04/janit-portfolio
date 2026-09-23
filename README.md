@@ -5,9 +5,9 @@ two skins over one engine: a conventional professional layout and a cyberpunk te
 projects, the same demos and the same caveats — a demo's behaviour lives in a shared hook, so the two sides
 cannot drift apart or describe a result differently.
 
-**Live site:** https://jnt-h04.github.io/janit-portfolio/ — that copy is the frontend only. The demos need
-the API running alongside it, so there they say where they run instead of offering an upload box that cannot
-answer. Everything else (both skins, the case studies and the measured results) is live.
+**Live site:** https://jnt-h04.github.io/janit-portfolio/ — the frontend is served from GitHub Pages and
+talks to the API running as a Docker Space on Hugging Face. When no API is configured for a build, the site
+says where its demos run instead of offering an upload box that cannot answer.
 
 ## What is in here
 
@@ -66,12 +66,27 @@ loading a single network.
 React, TypeScript, Vite, Tailwind and Framer Motion on the front; FastAPI and Python on the back, with
 PyTorch, TensorFlow and OpenCV behind the vision demos and the Gemini API behind the text and audio ones.
 
-## Deploying the published copy
+## Deploying
+
+Two pieces, deployed separately.
+
+**The API** runs as a Docker Space on Hugging Face — the free CPU tier has enough memory for TensorFlow,
+which 512 MB tiers do not. `deploy/` holds its Dockerfile, its own requirements (no PyTorch: CORTEX is off
+there and torch is only imported inside its loader) and a script that assembles the Space, weights included:
 
 ```bash
-cd frontend && npm run build:static
+HF_TOKEN=hf_xxx node deploy/publish-space.mjs <user>/<space>
 ```
 
-That builds with `VITE_STATIC=true` (the app then uses the committed profile snapshot and never offers a demo
-it cannot run) and `VITE_BASE=/janit-portfolio/`, and copies `index.html` to `404.html` so deep links survive
-GitHub Pages having no rewrite rule. The contents of `frontend/dist` are what the `gh-pages` branch holds.
+Set `GEMINI_API_KEY` as a Space secret for LEXICON and ECHO. Free Spaces sleep when idle, so the first
+request after a quiet spell waits while it wakes; the demos show a warming-up state for exactly this reason.
+
+**The site:**
+
+```bash
+cd frontend && VITE_API_BASE=https://<space-host> npm run build:static
+```
+
+That builds with `VITE_BASE=/janit-portfolio/`, points every call at the API, and copies `index.html` to
+`404.html` so deep links survive GitHub Pages having no rewrite rule. The contents of `frontend/dist` are
+what the `gh-pages` branch holds.

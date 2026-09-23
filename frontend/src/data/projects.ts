@@ -2,7 +2,7 @@
 // backend; this file only drives cards and page headers, so it stays in the
 // frontend where it loads instantly.
 
-import { STATIC_BUILD } from '../config'
+import { HAS_API } from '../config'
 
 export type Project = {
   slug: string
@@ -23,7 +23,7 @@ export type Project = {
 export type DemoState = 'live' | 'offline' | 'local-only'
 
 export function demoState(project: Project): DemoState {
-  if (STATIC_BUILD) return 'local-only'
+  if (!HAS_API) return 'local-only'
   return project.online ? 'live' : 'offline'
 }
 

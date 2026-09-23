@@ -1,3 +1,4 @@
+import { api } from '../../config'
 // Talking to the FRACTURE backend (backend/app/routers/fracture.py).
 
 export type Status = {
@@ -29,7 +30,7 @@ async function detail(res: Response) {
 
 export async function getStatus(): Promise<Status> {
   try {
-    const res = await fetch('/api/fracture/status')
+    const res = await fetch(api('/api/fracture/status'))
     if (!res.ok) throw new Error()
     return await res.json()
   } catch {
@@ -39,7 +40,7 @@ export async function getStatus(): Promise<Status> {
 
 export async function listSamples(): Promise<string[]> {
   try {
-    const res = await fetch('/api/fracture/samples')
+    const res = await fetch(api('/api/fracture/samples'))
     return res.ok ? await res.json() : []
   } catch {
     return []
@@ -51,7 +52,7 @@ export const sampleUrl = (name: string) => `/api/fracture/samples/${name}`
 export async function analyze(file: Blob, filename = 'upload.jpg'): Promise<Analysis> {
   const form = new FormData()
   form.append('file', file, filename)
-  const res = await fetch('/api/fracture/analyze', { method: 'POST', body: form })
+  const res = await fetch(api('/api/fracture/analyze'), { method: 'POST', body: form })
   if (!res.ok) throw new Error(await detail(res))
   return res.json()
 }

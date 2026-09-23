@@ -19,7 +19,14 @@ class Settings(BaseSettings):
     version: str = "0.1.0"
     # Which websites may call this API from a browser (CORS). The Vite dev
     # proxy doesn't need this, but the deployed frontend will.
-    cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    # The published site is served from GitHub Pages, which is a different
+    # origin from the API, so it has to be named here or the browser blocks
+    # every call. Override with CORS_ORIGINS in the environment.
+    cors_origins: list[str] = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://jnt-h04.github.io",
+    ]
     data_dir: Path = BASE_DIR / "data"
 
     # LEXICON (book summarizer). Get a free key at https://aistudio.google.com/apikey
