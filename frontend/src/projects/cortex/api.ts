@@ -47,7 +47,7 @@ export async function listSamples(): Promise<string[]> {
   }
 }
 
-export const sampleUrl = (name: string) => `/api/cortex/samples/${name}`
+export const sampleUrl = (name: string) => api(`/api/cortex/samples/${name}`)
 
 export async function analyze(file: Blob, filename = 'scan.jpg'): Promise<Analysis> {
   const form = new FormData()

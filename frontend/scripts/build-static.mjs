@@ -18,13 +18,15 @@ import { fileURLToPath } from 'node:url'
 const root = dirname(dirname(fileURLToPath(import.meta.url)))
 const base = process.env.VITE_BASE ?? '/janit-portfolio/'
 
-// VITE_API_BASE points the published site at the hosted API. Without it the
-// build still works and simply says its demos run locally.
+// VITE_API_BASE points the published site at the hosted API (Render, from
+// render.yaml). Set it to an empty string to build a copy that says its demos
+// run locally.
+const apiBase = process.env.VITE_API_BASE ?? 'https://janit-portfolio-api.onrender.com'
 execSync('npm run build', {
   cwd: root,
   stdio: 'inherit',
-  env: { ...process.env, VITE_BASE: base, VITE_STATIC: 'true' },
+  env: { ...process.env, VITE_BASE: base, VITE_STATIC: 'true', VITE_API_BASE: apiBase },
 })
 
 copyFileSync(join(root, 'dist', 'index.html'), join(root, 'dist', '404.html'))
-console.log(`\nStatic build ready in dist/ (base ${base})`)
+console.log(`\nStatic build ready in dist/ (base ${base}, API ${apiBase || 'none'})`)

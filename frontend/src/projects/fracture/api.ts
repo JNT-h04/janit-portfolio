@@ -47,7 +47,7 @@ export async function listSamples(): Promise<string[]> {
   }
 }
 
-export const sampleUrl = (name: string) => `/api/fracture/samples/${name}`
+export const sampleUrl = (name: string) => api(`/api/fracture/samples/${name}`)
 
 export async function analyze(file: Blob, filename = 'upload.jpg'): Promise<Analysis> {
   const form = new FormData()
