@@ -1,0 +1,32 @@
+# One-click deploy of the API on Render (Blueprint).
+#
+# The free instance has modest memory, which the API now fits: FRACTURE is
+# served as ONNX rather than TensorFlow and CORTEX is switched off, so nothing
+# here pulls in a gigabyte of framework. The model weights are not in the repo;
+# they are downloaded once at boot from the GitHub release named in
+# CRACK_MODEL_URL.
+#
+# Set GEMINI_API_KEY in the Render dashboard (it is marked sync: false so it is
+# never written into this file) to switch LEXICON and ECHO on.
+services:
+  - type: web
+    name: janit-portfolio-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r ../deploy/requirements-deploy.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.6
+      - key: CRACK_MODEL_URL
+        value: https://github.com/JNT-h04/janit-portfolio/releases/download/weights-v1/fracture_resnet50.onnx
+      - key: CRACK_MODEL_PATH
+        value: /tmp/fracture_resnet50.onnx
+      - key: CORTEX_ENABLED
+        value: "false"
+      - key: CORS_ORIGINS
+        value: '["https://jnt-h04.github.io","http://localhost:5173"]'
+      - key: GEMINI_API_KEY
+        sync: false

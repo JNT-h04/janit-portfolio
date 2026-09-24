@@ -9,7 +9,7 @@
  *   HF_TOKEN=hf_xxx node deploy/publish-space.mjs <hf-user>/<space-name>
  *
  * The token needs write access; create one at huggingface.co/settings/tokens.
- * Weights are pushed through git-lfs, so the first push is slow (~280 MB).
+ * Weights are pushed through git-lfs, so the first push takes a minute (~96 MB).
  */
 import { execSync } from 'node:child_process'
 import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
@@ -27,7 +27,7 @@ if (!target || !token) {
 }
 
 const CRACK_WEIGHTS = process.env.CRACK_MODEL_PATH
-  ?? 'D:/Projects/concrete-crack-severity-analysis/model/final_model.h5'
+  ?? resolve(root, 'backend', 'models', 'fracture_resnet50.onnx')
 if (!existsSync(CRACK_WEIGHTS)) {
   console.error(`crack weights not found at ${CRACK_WEIGHTS} — set CRACK_MODEL_PATH`)
   process.exit(1)
@@ -51,7 +51,7 @@ cpSync(join(here, 'requirements-deploy.txt'), join(work, 'requirements-deploy.tx
 cpSync(join(here, 'README.md'), join(work, 'README.md'))
 
 mkdirSync(join(work, 'weights'), { recursive: true })
-cpSync(resolve(CRACK_WEIGHTS), join(work, 'weights', 'final_model.h5'))
+cpSync(resolve(CRACK_WEIGHTS), join(work, 'weights', 'fracture_resnet50.onnx'))
 
 writeFileSync(join(work, '.gitattributes'), 'weights/** filter=lfs diff=lfs merge=lfs -text\n')
 

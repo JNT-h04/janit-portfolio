@@ -1,9 +1,10 @@
 # The API as it runs on Hugging Face Spaces.
 #
-# CORTEX is switched off there, and PyTorch is only ever imported inside the
-# CORTEX loader, so this image leaves torch out entirely: ~1.5 GB smaller and
-# noticeably faster to wake from sleep. Bring it back with CORTEX_ENABLED=true
-# and torch in requirements-deploy.txt if that demo is ever turned on here.
+# Two things keep this image small enough for a free host: FRACTURE is served
+# as ONNX rather than TensorFlow (~50 MB of runtime instead of ~600 MB), and
+# PyTorch is left out entirely because CORTEX is switched off here and torch is
+# only ever imported inside its loader. Bring either back by adding it to
+# requirements-deploy.txt.
 FROM python:3.12-slim
 
 # opencv needs libGL and libglib even in headless builds; ffmpeg is for the
@@ -31,7 +32,7 @@ COPY --chown=app weights/ /home/app/weights/
 COPY --chown=app app/ /home/app/api/app/
 
 # Where the models live inside the image, and who may call this API.
-ENV CRACK_MODEL_PATH=/home/app/weights/final_model.h5 \
+ENV CRACK_MODEL_PATH=/home/app/weights/fracture_resnet50.onnx \
     CORTEX_ENABLED=false \
     PORT=7860
 

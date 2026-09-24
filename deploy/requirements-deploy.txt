@@ -1,5 +1,6 @@
 # What the hosted API installs. Deliberately not the same as the development
-# requirements: no torch (CORTEX is off there) and CPU-only TensorFlow.
+# requirements: no torch (CORTEX is off there) and no TensorFlow (FRACTURE is
+# served as ONNX).
 fastapi>=0.115
 uvicorn[standard]>=0.30
 pydantic-settings>=2.4
@@ -14,7 +15,9 @@ lxml>=5
 # LEXICON + ECHO: the Gemini client
 google-genai>=1.0
 
-# FRACTURE: the crack classifier and the image handling around it
-tensorflow-cpu>=2.16,<2.22
+# FRACTURE: the crack classifier, exported to ONNX. ONNX Runtime is ~50 MB
+# against TensorFlow's ~600 MB, and wants a few hundred MB of RAM instead of
+# most of a gigabyte — which is what lets this API run on a free tier at all.
+onnxruntime>=1.17
 opencv-python-headless>=4.9
 numpy>=1.26

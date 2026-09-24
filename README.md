@@ -63,23 +63,27 @@ loading a single network.
 
 ## Built with
 
-React, TypeScript, Vite, Tailwind and Framer Motion on the front; FastAPI and Python on the back, with
-PyTorch, TensorFlow and OpenCV behind the vision demos and the Gemini API behind the text and audio ones.
+React, TypeScript, Vite, Tailwind and Framer Motion on the front; FastAPI and Python on the back. The vision
+models were trained with TensorFlow/Keras and PyTorch; FRACTURE is *served* as ONNX, which is the same
+network at a fraction of the runtime cost (`scripts/export_fracture_onnx.py` does the export and checks the
+two agree). The text and audio demos call the Gemini API.
 
 ## Deploying
 
 Two pieces, deployed separately.
 
-**The API** runs as a Docker Space on Hugging Face — the free CPU tier has enough memory for TensorFlow,
-which 512 MB tiers do not. `deploy/` holds its Dockerfile, its own requirements (no PyTorch: CORTEX is off
-there and torch is only imported inside its loader) and a script that assembles the Space, weights included:
+**The API** runs on Render's free instance. It fits there because nothing in it is heavy any more:
+FRACTURE is served as ONNX instead of TensorFlow and CORTEX is switched off, so the whole service is a few
+hundred megabytes rather than a gigabyte and a half. `render.yaml` is a Blueprint — point Render at this
+repository and it reads every setting from there, except `GEMINI_API_KEY`, which you set in the dashboard to
+switch LEXICON and ECHO on.
 
-```bash
-HF_TOKEN=hf_xxx node deploy/publish-space.mjs <user>/<space>
-```
+The model weights are not in this repository. They are published as a [release
+asset](https://github.com/JNT-h04/janit-portfolio/releases/tag/weights-v1) and downloaded once at boot by
+`app/core/weights.py`, in the background thread that loads the model — so the API answers straight away and
+reports itself as warming up until the network is ready.
 
-Set `GEMINI_API_KEY` as a Space secret for LEXICON and ECHO. Free Spaces sleep when idle, so the first
-request after a quiet spell waits while it wakes; the demos show a warming-up state for exactly this reason.
+`deploy/` still holds a Dockerfile for hosts that want a container instead.
 
 **The site:**
 

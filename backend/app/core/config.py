@@ -35,8 +35,14 @@ class Settings(BaseSettings):
     # don't break when an old version is retired.
     gemini_models: list[str] = ["gemini-flash-latest", "gemini-3.5-flash", "gemini-flash-lite-latest"]
 
-    # FRACTURE (crack severity). The weights are ~290 MB, so they stay outside the repo.
-    crack_model_path: Path = Path("D:/Projects/concrete-crack-severity-analysis/model/final_model.h5")
+    # FRACTURE (crack severity). The Keras model exported to ONNX: same weights,
+    # 96 MB instead of 277 MB, and served by ONNX Runtime rather than
+    # TensorFlow. Still outside the repo, so the path is a setting.
+    crack_model_path: Path = BASE_DIR.parent / "models" / "fracture_resnet50.onnx"
+    # Where a host can fetch those weights if they are not on disk yet. They
+    # are published as a GitHub release asset, so a fresh container needs no
+    # manual upload. Empty locally, where the file is already there.
+    crack_model_url: str = ""
     # CORTEX (Alzheimer MRI). Prefers the retrained 3-class checkpoint; the older
     # 4-class one still works (its untrained class is masked out).
     cortex_model_path: Path = BASE_DIR.parent / "models" / "cortex_resnet18_patientsplit.pt"
