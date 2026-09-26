@@ -4,6 +4,7 @@ import { useFracture } from '../../../projects/fracture/useFracture'
 import { FRACTURE_NOTES } from '../../../projects/notes'
 import DropZone from '../components/DropZone'
 import HonestNotes from '../components/HonestNotes'
+import MeasuredPanel from '../components/MeasuredPanel'
 
 const LABELS: Record<string, string> = {
   No_Crack: 'No crack',
@@ -19,7 +20,7 @@ const TONE: Record<string, string> = {
 }
 
 export default function FracturePanel() {
-  const { status, samples, preview, busy, error, result, onFile, onSample, warming } = useFracture()
+  const { measured, status, samples, preview, busy, error, result, onFile, onSample, warming } = useFracture()
 
   return (
     <div className="space-y-5">
@@ -139,6 +140,7 @@ export default function FracturePanel() {
         </div>
       </div>
 
+      <MeasuredPanel measured={measured} />
       <HonestNotes notes={FRACTURE_NOTES} />
     </div>
   )

@@ -5,6 +5,7 @@ import { useEcho } from '../../../projects/echo/useEcho'
 import { ECHO_NOTES } from '../../../projects/notes'
 import DropZone from '../components/DropZone'
 import HonestNotes from '../components/HonestNotes'
+import MeasuredPanel from '../components/MeasuredPanel'
 
 const STAGE_LABEL: Record<Stage, string> = {
   queued: 'Queued',
@@ -18,10 +19,21 @@ const STAGE_LABEL: Record<Stage, string> = {
 const SPEAKER_COLORS = ['text-coral', 'text-indigo-600', 'text-amber-700', 'text-rose-600', 'text-emerald-700']
 
 export default function EchoPanel() {
-  const { online, job, uploadFraction, error, filename, minutes, running, busy, onFile } = useEcho()
+  const { measured, online, keyStatus, job, uploadFraction, error, filename, minutes, running, busy, onFile } = useEcho()
 
   return (
     <div className="space-y-5">
+      {keyStatus === 'waking' && (
+        <p className="paper-card p-4 font-sans text-sm text-quiet">
+          Waking the server up. It sleeps when nobody has visited for a while and takes about a minute to start.
+          This message goes away on its own.
+        </p>
+      )}
+      {keyStatus === 'unreachable' && (
+        <p className="paper-card p-4 font-sans text-sm text-quiet">
+          The server isn't answering right now. Try reloading the page in a few minutes.
+        </p>
+      )}
       {online === false && (
         <p className="paper-card p-4 font-sans text-sm text-quiet">
           This demo is offline: the server has no <code className="font-code text-ink">GEMINI_API_KEY</code> set.
@@ -63,6 +75,7 @@ export default function EchoPanel() {
         )}
       </AnimatePresence>
 
+      <MeasuredPanel measured={measured} />
       <HonestNotes notes={ECHO_NOTES} />
     </div>
   )

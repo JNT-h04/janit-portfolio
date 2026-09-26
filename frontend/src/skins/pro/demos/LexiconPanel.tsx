@@ -5,12 +5,24 @@ import { ACCEPT, useLexicon, type Result } from '../../../projects/lexicon/useLe
 import { LEXICON_NOTES } from '../../../projects/notes'
 import DropZone from '../components/DropZone'
 import HonestNotes from '../components/HonestNotes'
+import MeasuredPanel from '../components/MeasuredPanel'
 
 export default function LexiconPanel() {
-  const { ready, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset } = useLexicon()
+  const { measured, ready, keyStatus, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset } = useLexicon()
 
   return (
     <div className="space-y-5">
+      {keyStatus === 'waking' && (
+        <p className="paper-card p-4 font-sans text-sm text-quiet">
+          Waking the server up. It sleeps when nobody has visited for a while and takes about a minute to start.
+          This message goes away on its own.
+        </p>
+      )}
+      {keyStatus === 'unreachable' && (
+        <p className="paper-card p-4 font-sans text-sm text-quiet">
+          The server isn't answering right now. Try reloading the page in a few minutes.
+        </p>
+      )}
       {ready === false && (
         <p className="paper-card p-4 font-sans text-sm text-quiet">
           The summariser is offline: the server has no Gemini API key. You can still upload a book and see the
@@ -105,6 +117,7 @@ export default function LexiconPanel() {
         </>
       )}
 
+      <MeasuredPanel measured={measured} />
       <HonestNotes notes={LEXICON_NOTES} />
     </div>
   )

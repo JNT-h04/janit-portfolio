@@ -51,11 +51,11 @@ export default function CyberLayout() {
       <TerminalDock />
 
       <nav className="sticky top-0 z-40 border-b border-neon/15 bg-void/70 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 font-mono text-sm">
-          <Link to="/" className="font-display font-bold tracking-widest text-neon">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 font-mono text-xs sm:text-sm">
+          <Link to="/" className="shrink-0 font-display font-bold tracking-wider text-neon sm:tracking-widest">
             JANIT<span className="text-hot">://</span>SYS
           </Link>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3 sm:gap-5">
             <Link to="/#missions" className="hover:text-neon">missions</Link>
             <Link to="/#operator" className="hover:text-neon">operator</Link>
             <Link to="/#experience" className="hidden hover:text-neon lg:inline">experience</Link>
@@ -71,7 +71,7 @@ export default function CyberLayout() {
             </button>
             <button
               onClick={() => terminal.setOpen(!terminal.open)}
-              className={`flex items-center gap-2 border px-3 py-1 tracking-widest transition-colors ${
+              className={`flex items-center gap-2 border px-2 py-1 tracking-widest sm:px-3 transition-colors ${
                 terminal.open ? 'border-acid bg-acid text-void' : 'border-acid text-acid hover:bg-acid hover:text-void'
               }`}
               title="toggle terminal (` key)"

@@ -1,5 +1,6 @@
 """FRACTURE: upload a photo of concrete, get crack severity plus a visual analysis."""
 
+import time
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
@@ -33,6 +34,9 @@ class Analysis(BaseModel):
     advice: str
     edges_image: str  # data URLs, ready for <img src>
     lines_image: str
+    # Measured on this request, so the page can show real numbers, not claims.
+    model: str
+    timings_ms: dict[str, float]  # decode, inference, analysis
 
 
 @router.get("/status", response_model=Status)
@@ -69,15 +73,20 @@ def analyze(file: UploadFile) -> Analysis:
     data = file.file.read(MAX_BYTES + 1)
     if len(data) > MAX_BYTES:
         raise HTTPException(413, "image too large (max 10 MB)")
+    t0 = time.perf_counter()
     try:
         img = analysis.decode(data)
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
-
+    t1 = time.perf_counter()
     probs = model.predict(img)
+    t2 = time.perf_counter()
     severity = max(probs, key=lambda k: probs[k])
     edge_map = analysis.edges(img)
     cause, overlay, angle = analysis.cause_and_overlay(img, edge_map)
+    edges_image = analysis.to_data_url(analysis.edges_as_neon(edge_map))
+    lines_image = analysis.to_data_url(overlay)
+    t3 = time.perf_counter()
     return Analysis(
         severity=severity,
         confidence=probs[severity],
@@ -87,6 +96,12 @@ def analyze(file: UploadFile) -> Analysis:
         cause=cause,
         angle=round(angle, 1) if angle is not None else None,
         advice=analysis.ADVICE[severity],
-        edges_image=analysis.to_data_url(analysis.edges_as_neon(edge_map)),
-        lines_image=analysis.to_data_url(overlay),
+        edges_image=edges_image,
+        lines_image=lines_image,
+        model="ResNet50 · ONNX Runtime (CPU)",
+        timings_ms={
+            "decode": round((t1 - t0) * 1000, 1),
+            "inference": round((t2 - t1) * 1000, 1),
+            "analysis": round((t3 - t2) * 1000, 1),
+        },
     )

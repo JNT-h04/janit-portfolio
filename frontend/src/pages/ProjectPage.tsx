@@ -10,6 +10,7 @@ import FractureDemo from '../projects/fracture/FractureDemo'
 import LexiconDemo from '../projects/lexicon/LexiconDemo'
 import { useTerminal } from '../terminal/context'
 import NotFound from './NotFound'
+import { useDocumentTitle } from '../useDocumentTitle'
 
 // The working demo for each project. Projects missing here show "not yet deployed".
 const DEMOS: Record<string, ComponentType> = {
@@ -24,6 +25,7 @@ export default function ProjectPage() {
   const navigate = useNavigate()
   const terminal = useTerminal()
   const project = findProject(slug)
+  useDocumentTitle(project ? `${project.codename} — ${project.title}` : 'Not found')
 
   // The button says ESC, so ESC has to work. Not while the terminal is open
   // (Escape closes that first) and not while something is being typed into.

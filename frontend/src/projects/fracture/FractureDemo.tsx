@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import HonestNotes from '../../components/HonestNotes'
+import TelemetryPanel from '../../components/TelemetryPanel'
 import HudPanel from '../../components/HudPanel'
 import UploadZone from '../../components/UploadZone'
 import { FRACTURE_NOTES } from '../notes'
@@ -16,7 +17,7 @@ const LABELS: Record<string, string> = { No_Crack: 'NO CRACK', Minor: 'MINOR', M
 
 export default function FractureDemo() {
   // All the behaviour lives in useFracture, shared with the professional skin.
-  const { status, samples, preview, busy, error, result, onFile, onSample, warming } = useFracture()
+  const { measured, status, samples, preview, busy, error, result, onFile, onSample, warming } = useFracture()
 
   return (
     <div className="mt-10 space-y-6">
@@ -137,6 +138,7 @@ export default function FractureDemo() {
         </HudPanel>
       </div>
 
+      <TelemetryPanel measured={measured} />
       <HonestNotes notes={FRACTURE_NOTES} />
 
     </div>

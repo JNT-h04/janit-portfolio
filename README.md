@@ -6,8 +6,9 @@ projects, the same demos and the same caveats — a demo's behaviour lives in a 
 cannot drift apart or describe a result differently.
 
 **Live site:** https://jnt-h04.github.io/janit-portfolio/ — the frontend is served from GitHub Pages and
-talks to the API running as a Docker Space on Hugging Face. When no API is configured for a build, the site
-says where its demos run instead of offering an upload box that cannot answer.
+talks to the API running on Render's free tier (it sleeps when idle, so the first demo of a visit can take
+about a minute to wake it). When no API is configured for a build, the site says where its demos run
+instead of offering an upload box that cannot answer.
 
 ## What is in here
 
@@ -21,6 +22,26 @@ says where its demos run instead of offering an upload box that cannot answer.
 Each project page carries a "what is honest about this" section written from measured runs, including the
 parts that do not flatter the model — for example CORTEX scores 60.2% on held-out slices and 81.5% when every
 slice of a patient votes, against a 99% figure that turned out to come from a leaky split.
+
+Under every demo sits a **"What I measured"** panel (TELEMETRY on the cyberpunk side) filled from the
+visitor's own run: the server's timings for inference or the model call, the browser's end-to-end time, the
+network and queueing in between, which Gemini model actually answered, and a median across the visitor's
+runs. Nothing in it is typed in.
+
+## Tailored links
+
+One link per company you apply to:
+
+```
+https://jnt-h04.github.io/janit-portfolio/?view=pro&for=zoho&focus=nlp
+```
+
+- `for` shows a short greeting for that company and signs contact-form messages with it.
+- `focus` moves matching projects to the front: `nlp`, `cv`, `audio`, `health`, `genai` (comma-separate
+  several). Live demos come before switched-off ones.
+
+Everything else stays the same: the same projects, numbers and caveats. The choice lasts for that browser
+tab's visit (sessionStorage), so it survives clicking around.
 
 ## Running it
 
@@ -44,6 +65,7 @@ Useful settings (`backend/.env`, all optional):
 | Variable | Effect |
 | --- | --- |
 | `GEMINI_API_KEY` | Enables LEXICON and ECHO. Without it they report themselves offline. |
+| `RESEND_API_KEY` | Lets the contact form send mail itself (see below). Without it the form opens the visitor's own mail app. |
 | `CORTEX_ENABLED` | `true` brings the Alzheimer demo back; it ships switched off. |
 | `LOAD_MODELS` | `false` skips loading the ML models — much faster restarts, and what the tests use. |
 | `CRACK_MODEL_PATH`, `CORTEX_MODEL_PATH` | Where the model weights live. |
@@ -55,7 +77,7 @@ API key.
 ## Tests
 
 ```bash
-cd backend && .venv/Scripts/python -m pytest      # 48 tests
+cd backend && .venv/Scripts/python -m pytest      # 56 tests
 ```
 
 They run with `LOAD_MODELS=false`, so they exercise the API, the parsing and the honest-failure paths without
@@ -83,14 +105,24 @@ asset](https://github.com/JNT-h04/janit-portfolio/releases/tag/weights-v1) and d
 `app/core/weights.py`, in the background thread that loads the model — so the API answers straight away and
 reports itself as warming up until the network is ready.
 
+**The contact form** sends through [Resend](https://resend.com)'s HTTPS API, not SMTP: Render's free tier
+blocks outgoing SMTP ports (25, 465 and 587), so a Gmail app password would fail there silently. Open a
+free Resend account *with the address the messages should reach* (without a verified domain Resend only
+delivers to the account's own address), create an API key and set it as `RESEND_API_KEY` in the Render
+dashboard. The visitor's address goes in Reply-To, so answering is one click. If the key is missing or a
+send fails, the page opens the visitor's mail app with the message written out and says why. It never
+drops a message silently. A hidden honeypot field and a limit of 5 messages an hour per visitor keep the
+spam out.
+
 `deploy/` still holds a Dockerfile for hosts that want a container instead.
 
 **The site:**
 
 ```bash
-cd frontend && VITE_API_BASE=https://<space-host> npm run build:static
+cd frontend && npm run build:static      # VITE_API_BASE defaults to the Render URL
 ```
 
 That builds with `VITE_BASE=/janit-portfolio/`, points every call at the API, and copies `index.html` to
-`404.html` so deep links survive GitHub Pages having no rewrite rule. The contents of `frontend/dist` are
-what the `gh-pages` branch holds.
+`404.html`, plus a copy at `projects/<slug>/index.html` for every project so those pages are served with a
+200 (link previews on LinkedIn and Slack give up on a 404). The contents of `frontend/dist` are what the
+`gh-pages` branch holds.

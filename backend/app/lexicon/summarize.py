@@ -1,7 +1,8 @@
 """Ask Gemini to summarise one chapter, streaming the answer as it's written."""
 
+import asyncio
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 
 from google import genai
 from google.genai import errors, types
@@ -17,6 +18,16 @@ CONFIG = types.GenerateContentConfig(thinking_config=types.ThinkingConfig(thinki
 
 # Worth trying the next model for these: retired/unknown model, quota hit, overloaded.
 FALLBACK_CODES = {404, 429, 500, 503}
+
+# Sent when a model dies halfway through an answer and the next one starts over:
+# the page throws away everything before the last marker. Without it a busy
+# spell (Gemini 503s mid-stream) left visitors with half a summary and an error.
+RESTART_MARK = "[[restart]]"
+
+# A model that goes quiet this long is treated like a busy one: move on to the
+# next. Without it a stalled stream kept the visitor waiting forever, because
+# nothing in the client times out on its own.
+STALL_SECONDS = 30.0
 
 PROMPT = """You are summarising one chapter of the book "{book}".
 Chapter: "{chapter}"
@@ -60,28 +71,44 @@ def _get_client() -> genai.Client:
     return _client
 
 
-async def summarize(book: str, chapter: str, text: str) -> AsyncIterator[str]:
+async def summarize(
+    book: str, chapter: str, text: str, on_model: Callable[[str], None] | None = None
+) -> AsyncIterator[str]:
     note = " (truncated to fit)" if len(text) > MAX_CHARS else ""
     prompt = PROMPT.format(book=book, chapter=chapter, note=note, text=text[:MAX_CHARS])
 
     last_error = ""
     # Google retires model names and some are overloaded at busy times, so try
-    # each configured model in turn until one starts answering.
+    # each configured model in turn until one answers all the way through.
     for model in settings.gemini_models:
         started = False
         try:
-            stream = await _get_client().aio.models.generate_content_stream(
-                model=model, contents=prompt, config=CONFIG
+            stream = await asyncio.wait_for(
+                _get_client().aio.models.generate_content_stream(model=model, contents=prompt, config=CONFIG),
+                STALL_SECONDS,
             )
-            async for chunk in stream:
+            chunks = aiter(stream)
+            while True:
+                try:
+                    chunk = await asyncio.wait_for(anext(chunks), STALL_SECONDS)
+                except StopAsyncIteration:
+                    break
                 if chunk.text:
                     started = True
                     yield chunk.text
+            if on_model:
+                on_model(model)
             return
+        except TimeoutError:
+            log.warning("model %s went quiet for %ss (started=%s), trying the next one", model, STALL_SECONDS, started)
+            last_error = "timed out"
+            if started:
+                yield RESTART_MARK
         except errors.APIError as exc:
-            # Once text has reached the visitor we can't switch models mid-answer.
-            if started or exc.code not in FALLBACK_CODES:
+            if exc.code not in FALLBACK_CODES:
                 raise SummaryError(f"{exc.code} {exc.status}") from exc
-            log.warning("model %s failed with %s, trying the next one", model, exc.code)
+            log.warning("model %s failed with %s (started=%s), trying the next one", model, exc.code, started)
             last_error = f"{exc.code} {exc.status}"
+            if started:
+                yield RESTART_MARK
     raise SummaryError(f"all models are busy right now ({last_error}). try again in a minute")

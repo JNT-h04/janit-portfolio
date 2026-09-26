@@ -21,3 +21,6 @@ google-genai>=1.0
 onnxruntime>=1.17
 opencv-python-headless>=4.9
 numpy>=1.26
+
+# Contact form: posts to the Resend HTTPS API (the free host blocks SMTP).
+httpx>=0.27

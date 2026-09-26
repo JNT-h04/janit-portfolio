@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { findProject, demoState } from '../../data/projects'
 import ProNotFound from './ProNotFound'
+import { useDocumentTitle } from '../../useDocumentTitle'
 import { COMPLEXITY } from './components/labels'
 import Reveal from './components/Reveal'
 import DemoUnavailable from '../../components/DemoUnavailable'
@@ -22,6 +23,7 @@ const PANELS: Record<string, ComponentType> = {
 export default function ProProjectPage() {
   const { slug = '' } = useParams()
   const project = findProject(slug)
+  useDocumentTitle(project ? project.title : 'Not found')
   if (!project) return <ProNotFound />
   const Panel = PANELS[project.slug]
   const state = demoState(project)

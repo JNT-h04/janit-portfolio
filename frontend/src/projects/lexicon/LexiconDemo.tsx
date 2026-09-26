@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import HonestNotes from '../../components/HonestNotes'
+import TelemetryPanel from '../../components/TelemetryPanel'
 import HudPanel from '../../components/HudPanel'
 import UploadZone from '../../components/UploadZone'
 import { LEXICON_NOTES } from '../notes'
@@ -9,10 +10,20 @@ import { ACCEPT, useLexicon, type Result } from './useLexicon'
 
 export default function LexiconDemo() {
   // All the behaviour lives in useLexicon, shared with the professional skin.
-  const { ready, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset } = useLexicon()
+  const { measured, ready, keyStatus, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset } = useLexicon()
 
   return (
     <div className="mt-10 space-y-6">
+      {keyStatus === 'waking' && (
+        <div className="border border-neon/50 bg-neon/5 px-4 py-3 font-mono text-sm text-neon">
+          ◌ WAKING THE SERVER: it sleeps when idle and needs about a minute to boot. This clears on its own.
+        </div>
+      )}
+      {keyStatus === 'unreachable' && (
+        <div className="border border-hot/60 bg-hot/10 px-4 py-3 font-mono text-sm text-hot">
+          ⚠ UPLINK DOWN: the server isn't answering. Reload in a few minutes.
+        </div>
+      )}
       {ready === false && (
         <div className="border border-hot/60 bg-hot/10 px-4 py-3 font-mono text-sm text-hot">
           ⚠ SUMMARISER OFFLINE: the server has no Gemini API key yet. You can still upload a book and see its chapters.
@@ -98,6 +109,7 @@ export default function LexiconDemo() {
         </>
       )}
 
+      <TelemetryPanel measured={measured} />
       <HonestNotes notes={LEXICON_NOTES} />
     </div>
   )

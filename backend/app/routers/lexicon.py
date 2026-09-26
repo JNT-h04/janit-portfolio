@@ -1,5 +1,6 @@
 """LEXICON: upload a book, list its chapters, stream a summary of one."""
 
+import json
 import time
 import uuid
 
@@ -10,6 +11,9 @@ from pydantic import BaseModel
 from app.core.ratelimit import RateLimit
 from app.lexicon import summarize
 from app.lexicon.extract import Book, ExtractError, extract
+
+# Ends a successful summary stream, followed by JSON measurements.
+META_MARK = "[[meta]]"
 
 router = APIRouter(prefix="/lexicon", tags=["lexicon"])
 
@@ -89,9 +93,20 @@ async def summary(book_id: str, index: int) -> StreamingResponse:
     async def stream():
         # Once streaming starts the 200 status is already sent, so a failure
         # halfway is reported inside the text with a marker the page looks for.
+        started = time.perf_counter()
+        answered: list[str] = []
         try:
-            async for piece in summarize.summarize(book.title, chapter.title, chapter.text):
+            async for piece in summarize.summarize(
+                book.title, chapter.title, chapter.text, on_model=answered.append
+            ):
                 yield piece
+            # A trailer the page strips off and shows in its "measured" panel.
+            meta = {
+                "model": answered[-1] if answered else "",
+                "server_ms": round((time.perf_counter() - started) * 1000),
+                "input_chars": min(len(chapter.text), summarize.MAX_CHARS),
+            }
+            yield f"\n{META_MARK}{json.dumps(meta)}"
         except summarize.SummaryError as exc:
             yield f"\n\n[[error]] the AI model failed: {exc}"
         except Exception as exc:

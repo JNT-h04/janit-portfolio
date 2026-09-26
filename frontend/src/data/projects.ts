@@ -12,7 +12,12 @@ export type Project = {
   stack: string[]
   threat: 'LOW' | 'MED' | 'HIGH' // how heavy the model is; shown on the card
   online: boolean // false while a demo is switched off at the backend
+  focus: Focus[] // what kind of work it shows; a tailored link (?focus=) sorts by it
 }
+
+/** The areas a tailored link can ask to see first: ?for=acme&focus=nlp */
+export const FOCI = ['nlp', 'cv', 'audio', 'health', 'genai'] as const
+export type Focus = (typeof FOCI)[number]
 
 /**
  * What a card or page header may honestly say about a demo right now.
@@ -36,15 +41,18 @@ export const PROJECTS: Project[] = [
     stack: ['Gemini', 'PyMuPDF', 'FastAPI', 'Streaming'],
     threat: 'LOW',
     online: true,
+    focus: ['nlp', 'genai'],
   },
   {
     slug: 'crack-severity',
     codename: 'FRACTURE',
     title: 'Crack Severity Detection',
     tagline: 'Upload a photo of a concrete crack and get its severity, probable cause and repair advice.',
-    stack: ['TensorFlow', 'ResNet50', 'OpenCV'],
+    // Trained in TensorFlow, served as ONNX (same weights, verified identical labels).
+    stack: ['TensorFlow', 'ONNX Runtime', 'ResNet50', 'OpenCV'],
     threat: 'MED',
     online: true,
+    focus: ['cv'],
   },
   {
     slug: 'alzheimer-xai',
@@ -56,6 +64,7 @@ export const PROJECTS: Project[] = [
     // Switched off for now (CORTEX_ENABLED in the backend settings): its
     // weights live outside the repo and it is the heaviest model to host.
     online: false,
+    focus: ['cv', 'health'],
   },
   {
     slug: 'meeting-assistant',
@@ -65,6 +74,7 @@ export const PROJECTS: Project[] = [
     stack: ['Gemini', 'FastAPI', 'background jobs'],
     threat: 'HIGH',
     online: true,
+    focus: ['audio', 'nlp', 'genai'],
   },
 ]
 

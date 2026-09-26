@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom'
 import portraitPro from '../../assets/portrait-pro.png'
 import { RESUME_FILE, RESUME_URL } from '../../data/resume'
 import { useProfile, type Profile } from '../../api/profile'
+import Honeypot from '../../contact/Honeypot'
 import { useContactForm } from '../../contact/useContactForm'
 import { HAS_API } from '../../config'
+import { useAudience } from '../../audience/audience'
 import { PROJECTS, demoState } from '../../data/projects'
 import { useTerminal } from '../../terminal/context'
 import CountUp from './components/CountUp'
@@ -16,6 +18,7 @@ import Reveal from './components/Reveal'
 export default function ProHome() {
   const state = useProfile()
   const profile = state.status === 'online' ? state.profile : null
+  const { projects } = useAudience()
 
   return (
     <>
@@ -37,7 +40,7 @@ export default function ProHome() {
             : 'Every project below has a demo you can use right now — upload your own file and see what the model says. Results are reported honestly, including where they fall short.'}
         </p>
         <div className="grid gap-5 md:grid-cols-2">
-          {PROJECTS.map((p, i) => (
+          {projects.map((p, i) => (
             <ProjectCard key={p.slug} project={p} index={i} />
           ))}
         </div>
@@ -255,13 +258,16 @@ function ContactForm({ profile }: { profile: Profile }) {
   const field =
     'w-full rounded-md border border-rule bg-card/80 px-3 py-2.5 font-sans text-sm text-ink outline-none transition-colors placeholder:text-quiet/70 focus:border-coral'
 
-  if (f.opened) {
+  if (f.outcome) {
     return (
-      <div className="paper-card p-8 text-center">
-        <p className="font-serif text-2xl text-ink">Message composed</p>
+      <div className="paper-card p-8 text-center" role="status">
+        <p className="font-serif text-2xl text-ink">{f.outcome === 'sent' ? 'Message sent' : 'Message composed'}</p>
         <p className="mt-2 font-sans text-[15px] text-quiet">
-          Your mail app should have opened with it ready to send.
+          {f.outcome === 'sent'
+            ? 'It is in my inbox. I reply from my own address, usually within a day.'
+            : 'It couldn’t be sent from here, so your mail app opened with it written out. Press send there.'}
         </p>
+        {f.fallbackReason && <p className="mt-2 font-sans text-xs text-quiet/80">({f.fallbackReason})</p>}
         <button
           onClick={f.reset}
           className="mt-6 rounded-full border border-rule px-5 py-2 font-sans text-sm text-ink transition-colors hover:border-coral/50 hover:text-coral"
@@ -276,8 +282,11 @@ function ContactForm({ profile }: { profile: Profile }) {
     <form onSubmit={f.submit} className="paper-card p-7">
       <h3 className="font-serif text-xl text-ink">Send me a message</h3>
       <p className="mt-1 font-sans text-sm text-quiet">
-        This opens your own mail app with the message already written.
+        {f.canSend === false
+          ? 'This opens your own mail app with the message already written.'
+          : 'It goes straight to my inbox. If that fails, your mail app opens with it written out instead.'}
       </p>
+      <Honeypot value={f.website} onChange={f.setWebsite} />
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <label className="block">
@@ -323,9 +332,10 @@ function ContactForm({ profile }: { profile: Profile }) {
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          className="rounded-full bg-gradient-to-r from-coral to-violet px-6 py-2.5 font-sans text-sm font-semibold text-white shadow-[0_12px_30px_-12px_var(--color-coral)]"
+          disabled={f.sending}
+          className="rounded-full bg-gradient-to-r from-coral to-violet px-6 py-2.5 font-sans text-sm font-semibold text-white shadow-[0_12px_30px_-12px_var(--color-coral)] disabled:opacity-60"
         >
-          Send message
+          {f.sending ? 'Sending…' : 'Send message'}
         </button>
         {f.address && (
           <button
@@ -359,6 +369,7 @@ const titleCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase()
 
 function Hero({ profile }: { profile: Profile | null }) {
   const terminal = useTerminal()
+  const { company, lead, focus } = useAudience()
   const ease = [0.22, 1, 0.36, 1] as const
 
   return (
@@ -366,6 +377,22 @@ function Hero({ profile }: { profile: Profile | null }) {
     // first section starts below the fold instead of sitting on the rooftops.
     <section className="grid min-h-[calc(100dvh-4.5rem)] items-center gap-8 pt-10 pb-24 lg:grid-cols-[1.15fr_0.85fr]">
       <div>
+      {company && (
+        <motion.p
+          className="mb-5 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-0.5 rounded-2xl border border-violet/25 bg-card/70 px-4 py-2 font-sans text-sm text-ink/80 backdrop-blur"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease }}
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-violet" aria-hidden />
+          Hello, {company} team, thanks for stopping by.
+          {focus.length > 0 && (
+            <Link to={`/projects/${lead.slug}`} className="font-medium text-coral hover:underline">
+              Start with {lead.codename} &rarr;
+            </Link>
+          )}
+        </motion.p>
+      )}
       <h1 className="gradient-text -mb-[0.22em] -ml-[0.12em] font-script text-[clamp(3.6rem,9vw,6.5rem)] leading-[1.15] font-normal pb-[0.22em] pl-[0.3em] xl:-ml-[0.3em]">
         <LetterReveal text={profile?.name ?? 'Janit B'} />
       </h1>

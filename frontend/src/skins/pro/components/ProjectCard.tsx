@@ -33,7 +33,7 @@ export default function ProjectCard({ project, index }: { project: Project; inde
         to={`/projects/${project.slug}`}
         onMouseMove={onMove}
         onMouseLeave={onLeave}
-        className="paper-card paper-card-hover group relative flex h-full flex-col overflow-hidden p-6 transition-transform duration-300 ease-out focus:outline-none"
+        className="paper-card paper-card-hover group relative flex h-full flex-col overflow-hidden p-6 transition-transform duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
       >
         {/* the spotlight; invisible until the pointer is over the card */}
         <span

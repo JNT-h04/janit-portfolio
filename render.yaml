@@ -30,3 +30,8 @@ services:
         value: '["https://jnt-h04.github.io","http://localhost:5173"]'
       - key: GEMINI_API_KEY
         sync: false
+      # Contact form: a free key from resend.com, with the account opened as
+      # janit.b2006@gmail.com (without a domain Resend only delivers there).
+      # Render's free tier blocks SMTP, which is why it isn't a Gmail password.
+      - key: RESEND_API_KEY
+        sync: false

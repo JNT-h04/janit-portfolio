@@ -3,12 +3,14 @@ import CyberLogo from '../components/CyberLogo'
 import GlitchText from '../components/GlitchText'
 import MissionCard from '../components/MissionCard'
 import OperatorFile from '../components/OperatorFile'
-import { PROJECTS } from '../data/projects'
+import { Link } from 'react-router-dom'
+import { useAudience } from '../audience/audience'
 import { RESUME_FILE, RESUME_URL } from '../data/resume'
 import { useTerminal } from '../terminal/context'
 
 export default function Home() {
   const terminal = useTerminal()
+  const { company, projects, lead, focus } = useAudience()
   return (
     <>
       <section className="relative flex min-h-[85vh] flex-col justify-center">
@@ -22,6 +24,24 @@ export default function Home() {
         >
           &gt; IDENTITY CONFIRMED
         </motion.p>
+        {company && (
+          <motion.p
+            className="mt-3 font-mono text-sm tracking-[0.2em] text-acid"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.35 }}
+          >
+            &gt; TRANSMISSION FOR: {company.toUpperCase()}
+            {focus.length > 0 && (
+              <>
+                {' '}// START WITH{' '}
+                <Link to={`/projects/${lead.slug}`} className="text-neon underline decoration-dotted hover:text-hot">
+                  {lead.codename}
+                </Link>
+              </>
+            )}
+          </motion.p>
+        )}
         <GlitchText
           as="h1"
           text="JANIT B, AI/ML engineer"
@@ -79,7 +99,7 @@ export default function Home() {
           <span className="text-hot">01.</span> MISSIONS
         </h2>
         <div className="grid gap-6 md:grid-cols-2">
-          {PROJECTS.map((p, i) => (
+          {projects.map((p, i) => (
             <MissionCard key={p.slug} project={p} index={i} />
           ))}
         </div>

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { useProfile, type Profile } from '../api/profile'
+import Honeypot from '../contact/Honeypot'
 import { useContactForm } from '../contact/useContactForm'
 import portraitCasual from '../assets/portrait-casual.jpeg'
 import BinaryPortrait from '../effects/BinaryPortrait'
@@ -218,13 +219,18 @@ function ContactSection({ profile }: { profile: Profile }) {
           )}
         </HudPanel>
 
-        <HudPanel title="TRANSMIT" tag={f.opened ? '● HANDED OFF' : 'COMPOSE'}>
-          {f.opened ? (
-            <div className="py-6 text-center">
-              <p className="font-display text-2xl text-acid text-glow">MESSAGE COMPOSED</p>
-              <p className="mt-3 font-mono text-sm text-dim">
-                your mail app should have opened with it ready to send.
+        <HudPanel title="TRANSMIT" tag={f.outcome === 'sent' ? '● DELIVERED' : f.outcome ? '● HANDED OFF' : 'COMPOSE'}>
+          {f.outcome ? (
+            <div className="py-6 text-center" role="status">
+              <p className="font-display text-2xl text-acid text-glow">
+                {f.outcome === 'sent' ? 'TRANSMISSION DELIVERED' : 'MESSAGE COMPOSED'}
               </p>
+              <p className="mt-3 font-mono text-sm text-dim">
+                {f.outcome === 'sent'
+                  ? 'it is in my inbox. i reply from my own address, usually within a day.'
+                  : 'couldn’t send it from here, so your mail app opened with it typed in. press send there.'}
+              </p>
+              {f.fallbackReason && <p className="mt-2 font-mono text-xs text-hot">// {f.fallbackReason}</p>}
               <button
                 onClick={f.reset}
                 className="mt-6 border border-neon px-4 py-1.5 font-mono text-sm text-neon hover:bg-neon hover:text-void"
@@ -234,6 +240,7 @@ function ContactSection({ profile }: { profile: Profile }) {
             </div>
           ) : (
             <form onSubmit={f.submit} className="space-y-4">
+              <Honeypot value={f.website} onChange={f.setWebsite} />
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
                   <span className="font-mono text-xs tracking-widest text-dim">CALLSIGN</span>
@@ -277,13 +284,16 @@ function ContactSection({ profile }: { profile: Profile }) {
 
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="font-mono text-xs text-dim">
-                  // opens your own mail app with this typed in
+                  {f.canSend === false
+                    ? '// opens your own mail app with this typed in'
+                    : '// goes straight to my inbox; falls back to your mail app if it can’t'}
                 </p>
                 <button
                   type="submit"
-                  className="border border-acid bg-acid/10 px-5 py-2 font-mono text-acid shadow-[0_0_18px_rgb(209_247_0/0.25)] transition-colors hover:bg-acid hover:text-void"
+                  disabled={f.sending}
+                  className="border border-acid bg-acid/10 px-5 py-2 font-mono text-acid shadow-[0_0_18px_rgb(209_247_0/0.25)] transition-colors hover:bg-acid hover:text-void disabled:opacity-60"
                 >
-                  &gt;_ TRANSMIT
+                  {f.sending ? 'TRANSMITTING…' : <>&gt;_ TRANSMIT</>}
                 </button>
               </div>
             </form>

@@ -24,21 +24,15 @@ export type Job = {
   stage: Stage
   percent: number
   seconds: number
+  model?: string
+  audio_bytes?: number
+  stage_seconds?: Partial<Record<'uploading' | 'listening', number>>
   error: string
   minutes: Minutes | null
 }
 
 /** How long to wait between two "is it done yet?" questions. */
 export const POLL_MS = 2000
-
-export async function getStatus(): Promise<boolean> {
-  try {
-    const res = await fetch(api('/api/echo/status'))
-    return res.ok && (await res.json()).ready
-  } catch {
-    return false
-  }
-}
 
 /**
  * Step 1. Upload with XMLHttpRequest instead of fetch, because fetch can't

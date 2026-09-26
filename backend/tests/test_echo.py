@@ -30,10 +30,12 @@ FAKE = Minutes(
 @pytest.fixture
 def fake_gemini(monkeypatch):
     """Pretend the key is set and the model always answers."""
-    async def fake_transcribe(data, mime, on_step=None):
+    async def fake_transcribe(data, mime, on_step=None, on_model=None):
         if on_step:
             on_step("uploading")
             on_step("listening")
+        if on_model:
+            on_model("fake-model")
         return FAKE
 
     monkeypatch.setattr(transcribe, "ready", lambda: True)
@@ -64,10 +66,14 @@ def test_job_finishes_with_the_minutes(fake_gemini):
     assert job["percent"] == 100
     assert job["minutes"]["title"] == "Sprint planning"
     assert job["minutes"]["actions"][0]["owner"] == "Priya"
+    # The measurements the page shows are real, not placeholders.
+    assert job["model"] == "fake-model"
+    assert job["audio_bytes"] > 0
+    assert set(job["stage_seconds"]) == {"uploading", "listening"}
 
 
 def test_failure_is_reported_on_the_job_not_as_a_crash(monkeypatch):
-    async def boom(data, mime, on_step=None):
+    async def boom(data, mime, on_step=None, on_model=None):
         raise transcribe.TranscribeError("429 RESOURCE_EXHAUSTED")
 
     monkeypatch.setattr(transcribe, "ready", lambda: True)

@@ -11,7 +11,7 @@
  * profile snapshot and never offers a demo it cannot run.
  */
 import { execSync } from 'node:child_process'
-import { copyFileSync } from 'node:fs'
+import { copyFileSync, mkdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -28,5 +28,17 @@ execSync('npm run build', {
   env: { ...process.env, VITE_BASE: base, VITE_STATIC: 'true', VITE_API_BASE: apiBase },
 })
 
-copyFileSync(join(root, 'dist', 'index.html'), join(root, 'dist', '404.html'))
+const index = join(root, 'dist', 'index.html')
+copyFileSync(index, join(root, 'dist', '404.html'))
+
+// 404.html renders a deep link fine, but with a 404 status, and link-preview
+// crawlers (LinkedIn, Slack) give up on a 404. Give every real page its own
+// copy of index.html so it is served as a 200.
+const slugs = [...readFileSync(join(root, 'src', 'data', 'projects.ts'), 'utf8').matchAll(/slug:\s*'([^']+)'/g)].map((m) => m[1])
+for (const slug of slugs) {
+  const dir = join(root, 'dist', 'projects', slug)
+  mkdirSync(dir, { recursive: true })
+  copyFileSync(index, join(dir, 'index.html'))
+}
+console.log(`Page copies for: ${slugs.join(', ')}`)
 console.log(`\nStatic build ready in dist/ (base ${base}, API ${apiBase || 'none'})`)

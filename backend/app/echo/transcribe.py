@@ -26,6 +26,11 @@ FILE_POLL_SECONDS = 1.0
 FILE_TIMEOUT_SECONDS = 180
 
 # Worth trying the next model for these: retired/unknown model, quota hit, overloaded.
+# A real minute of audio takes the model about a minute to write up (55.9s
+# measured for a 30-second clip on a busy day). Longer than this and it is
+# stuck, not thinking: try the next model instead of holding the job forever.
+ANSWER_TIMEOUT = 240.0
+
 FALLBACK_CODES = {404, 429, 500, 503}
 
 PROMPT = """You are listening to a recording of a meeting.
@@ -115,8 +120,16 @@ async def _upload(data: bytes, mime: str) -> types.File:
     return uploaded
 
 
-async def transcribe(data: bytes, mime: str, on_step: Callable[[str], None] | None = None) -> Minutes:
-    """Upload the recording, then ask each model in turn until one answers."""
+async def transcribe(
+    data: bytes,
+    mime: str,
+    on_step: Callable[[str], None] | None = None,
+    on_model: Callable[[str], None] | None = None,
+) -> Minutes:
+    """Upload the recording, then ask each model in turn until one answers.
+
+    `on_model` is told which model finally answered, so the page can say so.
+    """
     note = on_step or (lambda _step: None)
 
     note("uploading")
@@ -129,13 +142,19 @@ async def transcribe(data: bytes, mime: str, on_step: Callable[[str], None] | No
         # each configured model in turn until one answers.
         for model in settings.gemini_models:
             try:
-                res = await _get_client().aio.models.generate_content(
-                    model=model, contents=[uploaded, PROMPT], config=CONFIG
+                res = await asyncio.wait_for(
+                    _get_client().aio.models.generate_content(model=model, contents=[uploaded, PROMPT], config=CONFIG),
+                    ANSWER_TIMEOUT,
                 )
                 minutes = res.parsed
                 if not isinstance(minutes, Minutes):
                     raise TranscribeError("the model replied in a shape we can't read")
+                if on_model:
+                    on_model(model)
                 return minutes
+            except TimeoutError:
+                log.warning("model %s gave no answer in %ss, trying the next one", model, ANSWER_TIMEOUT)
+                last_error = "timed out"
             except errors.APIError as exc:
                 if exc.code not in FALLBACK_CODES:
                     raise TranscribeError(f"{exc.code} {exc.status}") from exc

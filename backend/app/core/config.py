@@ -56,6 +56,14 @@ class Settings(BaseSettings):
     # is the heaviest model to host, so the demo reports itself offline rather
     # than pretending to work. Set CORTEX_ENABLED=true to bring it back.
     cortex_enabled: bool = False
+    # Contact form. Render's free tier blocks outgoing SMTP (ports 25/465/587),
+    # so mail goes out through Resend's HTTPS API instead. Without a verified
+    # domain Resend only delivers to the address the account was opened with,
+    # which is all a contact form needs. No key = the page falls back to
+    # opening the visitor's own mail app.
+    resend_api_key: str = ""
+    contact_to: str = "janit.b2006@gmail.com"
+    contact_from: str = "Portfolio contact form <onboarding@resend.dev>"
     # Set LOAD_MODELS=false to skip loading the ML models (faster restarts, tests).
     load_models: bool = True
 

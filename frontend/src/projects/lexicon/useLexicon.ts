@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
-import { getStatus, streamSummary, uploadBook, type BookInfo } from './api'
+import { useState } from 'react'
+import { fmtMs, useMeasured, type Metric } from '../../measure/measure'
+import { useKeyStatus } from '../keyStatus'
+import { streamSummary, uploadBook, type BookInfo } from './api'
 
 export const ACCEPT = '.pdf,.docx,.epub,.txt,.md,.html,.htm'
 
@@ -8,16 +10,14 @@ export type Result = { text: string; done: boolean; error?: string }
 
 /** Everything LEXICON does, with nothing about how it looks. Shared by both skins. */
 export function useLexicon() {
-  const [ready, setReady] = useState<boolean | null>(null)
+  const keyStatus = useKeyStatus('/api/lexicon/status')
+  const ready = keyStatus === 'ready' ? true : keyStatus === 'no-key' ? false : null
   const [stage, setStage] = useState<Stage>({ kind: 'idle' })
   const [book, setBook] = useState<BookInfo | null>(null)
   const [selected, setSelected] = useState(0)
   // Summaries are kept per chapter, so going back to a chapter costs nothing.
   const [results, setResults] = useState<Record<number, Result>>({})
-
-  useEffect(() => {
-    getStatus().then(setReady)
-  }, [])
+  const { measured, record } = useMeasured()
 
   const handleFile = async (file: File) => {
     setStage({ kind: 'uploading', progress: 0 })
@@ -36,10 +36,24 @@ export function useLexicon() {
     if (!book) return
     setResults((r) => ({ ...r, [index]: { text: '', done: false } }))
     try {
-      const text = await streamSummary(book.id, index, (soFar) =>
+      const { text, timing } = await streamSummary(book.id, index, (soFar) =>
         setResults((r) => ({ ...r, [index]: { text: soFar, done: false } })),
       )
       setResults((r) => ({ ...r, [index]: { text, done: true } }))
+      const m = timing.meta
+      const metrics: Metric[] = [
+        { label: 'First words on screen', value: fmtMs(timing.firstTextMs), source: 'browser' },
+        { label: 'Whole summary streamed', value: fmtMs(timing.totalMs), source: 'browser' },
+      ]
+      if (m) {
+        const tokens = Math.round(m.input_chars / 4).toLocaleString()
+        metrics.push(
+          { label: 'Time inside the server (model call)', value: fmtMs(m.server_ms), source: 'server' },
+          { label: 'Chapter text sent to the model', value: `${m.input_chars.toLocaleString()} chars (~${tokens} tokens)`, source: 'server' },
+          { label: 'Model that answered', value: m.model || 'unknown', source: 'server' },
+        )
+      }
+      record(timing.totalMs, metrics)
     } catch (err) {
       setResults((r) => ({ ...r, [index]: { text: r[index]?.text ?? '', done: true, error: (err as Error).message } }))
     }
@@ -68,5 +82,5 @@ export function useLexicon() {
 
   const doneCount = book ? book.chapters.filter((c) => results[c.index]?.done && !results[c.index].error).length : 0
 
-  return { ready, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset, doneCount }
+  return { measured, ready, keyStatus, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset, doneCount }
 }

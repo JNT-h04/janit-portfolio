@@ -13,15 +13,6 @@ const errorFrom = async (res: Response) => {
   }
 }
 
-export async function getStatus(): Promise<boolean> {
-  try {
-    const res = await fetch(api('/api/lexicon/status'))
-    return res.ok && (await res.json()).ready
-  } catch {
-    return false
-  }
-}
-
 /**
  * Upload with XMLHttpRequest instead of fetch, because fetch can't report
  * upload progress, and a 30 MB book deserves a progress bar.
@@ -49,27 +40,56 @@ export function uploadBook(file: File, onProgress: (fraction: number) => void): 
 }
 
 export const ERROR_MARK = '[[error]]'
+/** Ends a successful answer; JSON measurements follow it. */
+export const META_MARK = '[[meta]]'
+export type SummaryMeta = { model: string; server_ms: number; input_chars: number }
+export type SummaryTiming = { firstTextMs: number; totalMs: number; meta: SummaryMeta | null }
+
+/** The server switched models mid-answer; everything before it is void. */
+export const RESTART_MARK = '[[restart]]'
+const afterRestart = (text: string) => {
+  const at = text.lastIndexOf(RESTART_MARK)
+  return at === -1 ? text : text.slice(at + RESTART_MARK.length)
+}
 
 /**
  * Ask for a chapter summary and hand each piece of text to `onText` as it
  * arrives. The server streams plain text, so we read the body chunk by chunk
  * instead of waiting for the whole answer.
  */
-export async function streamSummary(bookId: string, index: number, onText: (soFar: string) => void): Promise<string> {
+export async function streamSummary(
+  bookId: string,
+  index: number,
+  onText: (soFar: string) => void,
+): Promise<{ text: string; timing: SummaryTiming }> {
+  const t0 = performance.now()
+  let firstTextMs = 0
   const res = await fetch(api(`/api/lexicon/books/${bookId}/chapters/${index}/summary`), { method: 'POST' })
   if (!res.ok || !res.body) throw new Error(await errorFrom(res))
 
   const reader = res.body.getReader()
   const decoder = new TextDecoder()
   let text = ''
+  // The trailer arrives last; never show it, even half-received.
+  const visible = (t: string) => afterRestart(t).split(META_MARK)[0]
   for (;;) {
     const { done, value } = await reader.read()
     if (done) break
     text += decoder.decode(value, { stream: true })
-    onText(text)
+    if (!firstTextMs && visible(text).trim()) firstTextMs = performance.now() - t0
+    onText(visible(text))
   }
+  const totalMs = performance.now() - t0
+  text = afterRestart(text)
   if (text.includes(ERROR_MARK)) throw new Error(text.split(ERROR_MARK)[1].trim())
-  return text
+  const [body, trailer] = text.split(META_MARK)
+  let meta: SummaryMeta | null = null
+  try {
+    meta = trailer ? JSON.parse(trailer) : null
+  } catch {
+    /* an older server, without the trailer */
+  }
+  return { text: body.trimEnd(), timing: { firstTextMs, totalMs, meta } }
 }
 
 export type Parsed = { summary: string[]; insights: string[]; cards: { q: string; a: string }[] }

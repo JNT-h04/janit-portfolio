@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.cortex import model as cortex_model
 from app.fracture import model as fracture_model
-from app.routers import cortex, echo, fracture, health, lexicon, profile, terminal
+from app.routers import contact, cortex, echo, fracture, health, lexicon, profile, terminal
 
 
 # "lifespan" runs code when the server starts (before `yield`) and when it
@@ -47,3 +47,4 @@ app.include_router(lexicon.router, prefix="/api")
 app.include_router(fracture.router, prefix="/api")
 app.include_router(cortex.router, prefix="/api")
 app.include_router(echo.router, prefix="/api")
+app.include_router(contact.router, prefix="/api")

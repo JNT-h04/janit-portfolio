@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { fmtMs, fmtPct, useMeasured } from '../../measure/measure'
 import { analyze, getStatus, listSamples, sampleUrl, type Analysis, type Status } from './api'
 
 /** Everything FRACTURE does, with nothing about how it looks. Shared by both skins. */
@@ -9,6 +10,7 @@ export function useFracture() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState<Analysis | null>(null)
+  const { measured, record } = useMeasured()
 
   // Ask how the model is doing, and keep asking while it warms up.
   useEffect(() => {
@@ -34,7 +36,20 @@ export function useFracture() {
     setResult(null)
     setPreview(previewUrl)
     try {
-      setResult(await analyze(blob, name))
+      const t0 = performance.now()
+      const res = await analyze(blob, name)
+      const total = performance.now() - t0
+      const t = res.timings_ms
+      const server = t.decode + t.inference + t.analysis
+      setResult(res)
+      record(total, [
+        { label: 'Round trip, your browser to the model and back', value: fmtMs(total), source: 'browser' },
+        { label: 'Model inference (ResNet50 forward pass)', value: fmtMs(t.inference), source: 'server' },
+        { label: 'Image decode + edge and line analysis', value: fmtMs(t.decode + t.analysis), source: 'server' },
+        { label: 'Network, upload and queueing', value: fmtMs(Math.max(0, total - server)), source: 'browser' },
+        { label: 'Top-class confidence', value: fmtPct(res.confidence), source: 'model' },
+        { label: 'Runtime', value: res.model, source: 'server' },
+      ])
     } catch (err) {
       setError((err as Error).message)
     } finally {
@@ -51,5 +66,5 @@ export function useFracture() {
 
   const warming = status?.state === 'loading' || status?.state === 'idle'
 
-  return { status, samples, preview, busy, error, result, onFile, onSample, warming }
+  return { status, samples, preview, busy, error, result, onFile, onSample, warming, measured }
 }

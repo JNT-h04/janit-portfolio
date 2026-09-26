@@ -1,4 +1,5 @@
 import io
+import json
 import zipfile
 
 import pymupdf
@@ -106,9 +107,11 @@ def test_bad_files_give_readable_errors(name, data, message):
 
 
 def test_upload_then_stream_summary(monkeypatch):
-    async def fake_summarize(book, chapter, text):
+    async def fake_summarize(book, chapter, text, on_model=None):
         yield "## Summary\n"
         yield f"about {chapter}"
+        if on_model:
+            on_model("fake-model")
 
     monkeypatch.setattr(summarize, "summarize", fake_summarize)
     monkeypatch.setattr(summarize, "ready", lambda: True)
@@ -120,7 +123,9 @@ def test_upload_then_stream_summary(monkeypatch):
 
     res = client.post(f"/api/lexicon/books/{book['id']}/chapters/1/summary")
     assert res.status_code == 200
-    assert res.text == "## Summary\nabout Beta"
+    text, meta = res.text.split("\n[[meta]]")
+    assert text == "## Summary\nabout Beta"
+    assert json.loads(meta)["model"] == "fake-model"
 
 
 def test_upload_rejects_bad_file():
@@ -170,3 +175,67 @@ def test_falls_back_to_next_model_when_one_is_busy(monkeypatch):
 
     assert asyncio.run(collect()) == ["answer"]
     assert calls == ["busy-model", "good-model"]
+
+
+def test_restarts_on_next_model_when_one_dies_mid_answer(monkeypatch):
+    import asyncio
+
+    from google.genai import errors
+
+    from app.core.config import settings
+
+    class FakeModels:
+        async def generate_content_stream(self, model, contents, config):
+            async def gen():
+                class Chunk:
+                    text = "half an answer" if model == "flaky-model" else "whole answer"
+
+                yield Chunk()
+                if model == "flaky-model":
+                    raise errors.ServerError(503, {"error": {"code": 503, "status": "UNAVAILABLE", "message": "busy"}})
+
+            return gen()
+
+    class FakeClient:
+        class aio:
+            models = FakeModels()
+
+    monkeypatch.setattr(settings, "gemini_models", ["flaky-model", "good-model"])
+    monkeypatch.setattr(summarize, "_get_client", lambda: FakeClient())
+
+    async def collect():
+        return [piece async for piece in summarize.summarize("b", "c", "text")]
+
+    # The page keeps only what follows the last marker.
+    assert asyncio.run(collect()) == ["half an answer", summarize.RESTART_MARK, "whole answer"]
+
+
+def test_a_model_that_goes_quiet_is_abandoned(monkeypatch):
+    import asyncio
+
+    from app.core.config import settings
+
+    class FakeModels:
+        async def generate_content_stream(self, model, contents, config):
+            async def gen():
+                class Chunk:
+                    text = "half an answer" if model == "stuck-model" else "whole answer"
+
+                yield Chunk()
+                if model == "stuck-model":
+                    await asyncio.sleep(60)  # never finishes
+
+            return gen()
+
+    class FakeClient:
+        class aio:
+            models = FakeModels()
+
+    monkeypatch.setattr(settings, "gemini_models", ["stuck-model", "good-model"])
+    monkeypatch.setattr(summarize, "_get_client", lambda: FakeClient())
+    monkeypatch.setattr(summarize, "STALL_SECONDS", 0.05)
+
+    async def collect():
+        return [piece async for piece in summarize.summarize("b", "c", "text")]
+
+    assert asyncio.run(collect()) == ["half an answer", summarize.RESTART_MARK, "whole answer"]

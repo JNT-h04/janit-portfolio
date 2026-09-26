@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useTerminal } from './context'
-import Terminal from './Terminal'
 import { useTerminalHotkeys } from './useHotkeys'
 import { useMicroGlitch } from './useMicroGlitch'
+
+// xterm is the heaviest thing on the page, and most visitors never open the
+// terminal, so it is fetched on the first opening instead of with the site.
+const Terminal = lazy(() => import('./Terminal'))
 
 // Opening: the window tears into slices that jump sideways and flip colour,
 // like a monitor locking onto a signal. Closing collapses it to a line, the
@@ -52,6 +55,9 @@ const glitchOut = {
  */
 export default function TerminalDock() {
   const { open, setOpen } = useTerminal()
+  // Mounted on the first opening, then kept, so history survives closing it.
+  const [everOpened, setEverOpened] = useState(open)
+  if (open && !everOpened) setEverOpened(true)
   // Counts openings, so remounting the burst replays its CSS animation.
   const [burst, setBurst] = useState(0)
   // Random interference while the window is open.
@@ -79,13 +85,17 @@ export default function TerminalDock() {
             <span className="h-2 w-2 animate-pulse rounded-full bg-[#39ff88]" />
             TERMINAL · guest@janit-sys
           </span>
-          <button onClick={() => setOpen(false)} className="text-hot hover:text-glow">
+          <button onClick={() => setOpen(false)} className="text-hot hover:text-glow" aria-label="Close terminal">
             [ESC] ✕
           </button>
         </div>
         {/* ...while the screen inside is an old green-phosphor CRT. */}
         <div className="crt-screen min-h-0 flex-1 px-3 py-2">
-          <Terminal active={open} onClose={() => setOpen(false)} />
+          {everOpened && (
+            <Suspense fallback={null}>
+              <Terminal active={open} onClose={() => setOpen(false)} />
+            </Suspense>
+          )}
         </div>
       </div>
 

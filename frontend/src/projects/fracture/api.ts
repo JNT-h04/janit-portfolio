@@ -18,6 +18,8 @@ export type Analysis = {
   advice: string
   edges_image: string
   lines_image: string
+  model: string
+  timings_ms: { decode: number; inference: number; analysis: number }
 }
 
 async function detail(res: Response) {

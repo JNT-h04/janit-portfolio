@@ -56,6 +56,11 @@ class Job(BaseModel):
     # so these are honest milestones, not a guess at how much is left.
     percent: int = 5
     seconds: float = 0.0
+    # Measured, for the page's "what I measured" panel: which model answered,
+    # the size of the recording, and how long each server-side stage took.
+    model: str = ""
+    audio_bytes: int = 0
+    stage_seconds: dict[str, float] = {}
     error: str = ""
     minutes: Minutes | None = None
     created: float = 0.0
@@ -91,13 +96,27 @@ async def _run(job: Job, data: bytes, mime: str) -> None:
     """The slow part. Runs after the upload response has already been sent."""
     started = time.time()
     percent = {"uploading": 20, "listening": 55}
+    job.audio_bytes = len(data)
+    entered = started
+
+    def close_stage() -> None:
+        nonlocal entered
+        now = time.time()
+        if job.stage in percent:
+            job.stage_seconds[job.stage] = round(now - entered, 1)
+        entered = now
 
     def step(stage: str) -> None:
+        close_stage()
         job.stage = stage  # type: ignore[assignment]
         job.percent = percent.get(stage, job.percent)
 
+    def answered(model: str) -> None:
+        job.model = model
+
     try:
-        job.minutes = await transcribe.transcribe(data, mime, on_step=step)
+        job.minutes = await transcribe.transcribe(data, mime, on_step=step, on_model=answered)
+        close_stage()
         job.stage = "done"
         job.percent = 100
     except transcribe.TranscribeError as exc:

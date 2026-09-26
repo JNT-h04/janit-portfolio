@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState, type ReactNode } from 'react'
 import HonestNotes from '../../components/HonestNotes'
+import TelemetryPanel from '../../components/TelemetryPanel'
 import UploadZone from '../../components/UploadZone'
 import { ECHO_NOTES } from '../notes'
 import { POLL_MS, type Job, type Minutes, type Stage } from './api'
@@ -19,11 +20,21 @@ const SPEAKER_COLORS = ['text-neon', 'text-hot', 'text-acid', 'text-amber-300', 
 
 export default function EchoDemo() {
   // All the behaviour lives in useEcho, shared with the professional skin.
-  const { online, job, uploadFraction, error, filename, minutes, running, busy, onFile } = useEcho()
+  const { measured, online, keyStatus, job, uploadFraction, error, filename, minutes, running, busy, onFile } = useEcho()
 
 
   return (
     <div className="mt-8 space-y-6">
+      {keyStatus === 'waking' && (
+        <div className="border border-neon/50 bg-neon/5 px-4 py-3 font-mono text-sm text-neon">
+          ◌ WAKING THE SERVER: it sleeps when idle and needs about a minute to boot. This clears on its own.
+        </div>
+      )}
+      {keyStatus === 'unreachable' && (
+        <div className="border border-hot/60 bg-hot/10 px-4 py-3 font-mono text-sm text-hot">
+          ⚠ UPLINK DOWN: the server isn't answering. Reload in a few minutes.
+        </div>
+      )}
       {online === false && (
         <p className="hud-panel p-4 font-mono text-sm text-hot">
           ECHO is offline: the server has no GEMINI_API_KEY set. Nothing can be processed until it does.
@@ -65,6 +76,7 @@ export default function EchoDemo() {
         )}
       </AnimatePresence>
 
+      <TelemetryPanel measured={measured} />
       <HonestNotes notes={ECHO_NOTES} />
     </div>
   )

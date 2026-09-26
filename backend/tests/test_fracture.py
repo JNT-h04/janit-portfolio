@@ -56,6 +56,8 @@ def test_analyze_returns_full_report(ready_model):
     assert body["confidence"] == 0.7
     assert "engineer" in body["advice"]
     assert body["edges_image"].startswith("data:image/png")
+    assert set(body["timings_ms"]) == {"decode", "inference", "analysis"}
+    assert all(ms >= 0 for ms in body["timings_ms"].values())
 
 
 def test_analyze_rejects_garbage(ready_model):

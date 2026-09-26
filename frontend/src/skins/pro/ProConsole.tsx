@@ -1,7 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import Terminal from '../../terminal/Terminal'
+import { lazy, Suspense } from 'react'
 import { useTerminal } from '../../terminal/context'
 import { useTerminalHotkeys } from '../../terminal/useHotkeys'
+
+// Fetched on first opening: xterm is too heavy to ship to every visitor.
+const Terminal = lazy(() => import('../../terminal/Terminal'))
 
 /**
  * The same sandboxed shell the cyberpunk side has, in professional clothes:
@@ -37,7 +40,9 @@ export default function ProConsole() {
             </div>
 
             <div className="min-h-0 flex-1 bg-[#fcfcfb] px-3 py-2">
-              <Terminal active={open} theme="paper" onClose={() => setOpen(false)} />
+              <Suspense fallback={null}>
+                <Terminal active={open} theme="paper" onClose={() => setOpen(false)} />
+              </Suspense>
             </div>
 
             <p className="border-t border-rule px-4 py-1.5 font-sans text-[11px] text-quiet">
