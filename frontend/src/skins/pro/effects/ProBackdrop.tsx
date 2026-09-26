@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 
 /**
  * The professional side's answer to the cyberpunk city.
@@ -12,6 +13,9 @@ export default function ProBackdrop() {
   const far = useRef<HTMLDivElement>(null)
   const near = useRef<HTMLDivElement>(null)
   const city = useRef<HTMLDivElement>(null)
+  // The skyline is the home hero's. On a project page it sat behind the demo
+  // controls, which on a phone is right where you are reading and tapping.
+  const onHome = useLocation().pathname === '/'
 
   // Parallax: the far skyline drifts down slowly, the near one faster, so the
   // hero feels like it has depth without anything moving on its own. The city
@@ -51,7 +55,7 @@ export default function ProBackdrop() {
       <div className="pro-aurora pro-aurora-d" />
       <div className="pro-grid" />
 
-      <div ref={city} className="absolute inset-0 will-change-[opacity]">
+      <div ref={city} className={`absolute inset-0 will-change-[opacity] ${onHome ? '' : 'hidden'}`}>
         <div ref={far} className="absolute inset-x-0 bottom-0 will-change-transform">
           <Skyline layer="far" />
         </div>

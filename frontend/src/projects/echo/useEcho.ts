@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { fmtBytes, fmtMs, useMeasured, type Metric } from '../../measure/measure'
 import { useKeyStatus } from '../keyStatus'
+import { announce, MEETING_SAMPLE, sampleFile, useSampleRequests } from '../samples'
 import { pollJob, submitRecording, type Job } from './api'
 
 /**
@@ -42,7 +43,10 @@ export function useEcho() {
       const uploadMs = performance.now() - t0
       setJob({ id, filename: file.name, stage: 'queued', percent: 5, seconds: 0, error: '', minutes: null })
       const finished = await pollJob(id, setJob, () => left.current)
-      if (finished?.stage === 'error') setError(finished.error)
+      if (finished?.stage === 'error') {
+        setError(finished.error)
+        announce({ slug: 'meeting-assistant', ok: false, text: `The minutes failed: ${finished.error}.` })
+      }
       if (finished?.stage === 'done' && finished.minutes) {
         const total = performance.now() - t0
         const st = finished.stage_seconds ?? {}
@@ -62,6 +66,12 @@ export function useEcho() {
           { label: 'Model that answered', value: finished.model || 'unknown', source: 'server' },
         )
         record(total, metrics)
+        const m = finished.minutes
+        announce({
+          slug: 'meeting-assistant',
+          ok: true,
+          text: `Minutes ready: "${m.title}". ${speakers} speakers, ${m.decisions.length} ${m.decisions.length === 1 ? 'decision' : 'decisions'} and ${m.actions.length} action ${m.actions.length === 1 ? 'item' : 'items'}, in ${(total / 1000).toFixed(0)} seconds.`,
+        })
       }
     } catch (err) {
       setError(String(err instanceof Error ? err.message : err))
@@ -69,9 +79,19 @@ export function useEcho() {
     }
   }
 
+  /** One click: run the bundled sample meeting through the real pipeline. */
+  const trySample = async () => {
+    try {
+      await onFile(await sampleFile(MEETING_SAMPLE))
+    } catch (err) {
+      setError((err as Error).message)
+    }
+  }
+  useSampleRequests('meeting-assistant', () => trySample())
+
   const minutes = job?.minutes ?? null
   const running = job !== null && job.stage !== 'done' && job.stage !== 'error'
   const busy = Boolean(filename) && !minutes && !error
 
-  return { measured, online, keyStatus, job, uploadFraction, error, filename, minutes, running, busy, onFile }
+  return { trySample, measured, online, keyStatus, job, uploadFraction, error, filename, minutes, running, busy, onFile }
 }

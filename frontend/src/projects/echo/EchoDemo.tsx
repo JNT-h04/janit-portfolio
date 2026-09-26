@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState, type ReactNode } from 'react'
 import HonestNotes from '../../components/HonestNotes'
+import SampleStrip from '../../components/SampleStrip'
+import { MEETING_SAMPLE } from '../samples'
 import TelemetryPanel from '../../components/TelemetryPanel'
 import UploadZone from '../../components/UploadZone'
 import { ECHO_NOTES } from '../notes'
@@ -20,7 +22,7 @@ const SPEAKER_COLORS = ['text-neon', 'text-hot', 'text-acid', 'text-amber-300', 
 
 export default function EchoDemo() {
   // All the behaviour lives in useEcho, shared with the professional skin.
-  const { measured, online, keyStatus, job, uploadFraction, error, filename, minutes, running, busy, onFile } = useEcho()
+  const { trySample, measured, online, keyStatus, job, uploadFraction, error, filename, minutes, running, busy, onFile } = useEcho()
 
 
   return (
@@ -60,6 +62,16 @@ export default function EchoDemo() {
         error={error}
         onFile={onFile}
       />
+      {!busy && !minutes && (
+        <SampleStrip
+          title={MEETING_SAMPLE.title}
+          credit={MEETING_SAMPLE.credit}
+          cta="RUN SAMPLE MEETING"
+          audio={MEETING_SAMPLE.url}
+          disabled={online === false}
+          onTry={trySample}
+        />
+      )}
 
       {running && job && <JobTicker job={job} />}
 

@@ -5,10 +5,12 @@ import { ACCEPT, useLexicon, type Result } from '../../../projects/lexicon/useLe
 import { LEXICON_NOTES } from '../../../projects/notes'
 import DropZone from '../components/DropZone'
 import HonestNotes from '../components/HonestNotes'
+import SampleStrip from '../components/SampleStrip'
+import { BOOK_SAMPLE } from '../../../projects/samples'
 import MeasuredPanel from '../components/MeasuredPanel'
 
 export default function LexiconPanel() {
-  const { measured, ready, keyStatus, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset } = useLexicon()
+  const { trySample, measured, ready, keyStatus, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset } = useLexicon()
 
   return (
     <div className="space-y-5">
@@ -50,7 +52,17 @@ export default function LexiconPanel() {
           }
           onFile={handleFile}
         />
-      ) : (
+      ) : null}
+      {!book && stage.kind !== 'uploading' && (
+        <SampleStrip
+          title={BOOK_SAMPLE.title}
+          credit={BOOK_SAMPLE.credit}
+          cta="Try a sample book"
+          disabled={ready === false}
+          onTry={trySample}
+        />
+      )}
+      {!book ? null : (
         <>
           <div className="paper-card flex flex-wrap items-end justify-between gap-4 p-6">
             <div>

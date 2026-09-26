@@ -16,7 +16,7 @@ export default function Gate() {
   const [focus, setFocus] = useState<Skin | null>(null)
 
   return (
-    <div className="relative flex min-h-dvh flex-col justify-center overflow-hidden px-5 py-14 text-[#e8eaee]">
+    <div className="relative flex min-h-dvh flex-col justify-center overflow-hidden px-4 py-8 text-[#e8eaee] sm:px-5 sm:py-14">
       <GateCircuit focus={focus} />
       <div className="relative">
       <motion.header
@@ -26,19 +26,28 @@ export default function Gate() {
         transition={{ duration: 0.5 }}
       >
         <p className="font-sans text-xs tracking-[0.35em] text-[#7c8494] uppercase">Janit B</p>
-        <h1 className="mt-3 font-serif text-3xl font-normal sm:text-4xl">How would you like to look around?</h1>
-        <p className="mx-auto mt-4 max-w-xl font-sans text-[15px] leading-relaxed text-[#9aa2b1]">
-          This portfolio comes in two versions. They contain the same projects and the same demos — only the
-          presentation differs.
+        <h1 className="mt-3 font-serif text-[26px] leading-tight font-normal sm:text-4xl">How would you like to look around?</h1>
+        <p className="mx-auto mt-3 max-w-xl font-sans text-sm leading-relaxed text-[#9aa2b1] sm:mt-4 sm:text-[15px]">
+          Two versions, the same work. Pick a look — you can switch later.
         </p>
+        {/* What makes this more than a page to read, said before anyone
+            decides it is "just another portfolio". */}
+        <ul className="mx-auto mt-5 flex max-w-2xl flex-wrap justify-center gap-2 font-sans text-[13px] text-[#d6dae2]">
+          {FEATURES.map((f) => (
+            <li key={f} className="flex items-center gap-1.5 rounded-full border border-white/12 bg-black/40 px-3 py-1 backdrop-blur-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#34d399] shadow-[0_0_6px_#34d399]" />
+              {f}
+            </li>
+          ))}
+        </ul>
       </motion.header>
 
-      <div className="mx-auto mt-12 grid w-full max-w-5xl gap-5 md:grid-cols-2">
+      <div className="mx-auto mt-7 grid w-full max-w-5xl gap-3 sm:mt-12 sm:gap-5 md:grid-cols-2">
         <Choice
           skin="pro"
           index={0}
           label="Recruiter / Professional"
-          blurb="A clean, conventional portfolio. Projects, case studies, experience and skills, laid out to be read quickly and skimmed on any device."
+          blurb="Clean and quick to skim: projects, live demos, experience and skills."
           onChoose={choose}
           onFocus={setFocus}
         >
@@ -49,7 +58,7 @@ export default function Gate() {
           skin="sys"
           index={1}
           label="Just looking around"
-          blurb="The same work rendered as a cyberpunk terminal. Neon, glitch, a live command line, and a neon skyline behind everything."
+          blurb="The same work as a neon cyberpunk city, with a tour-guide drone you can talk to."
           onChoose={choose}
           onFocus={setFocus}
         >
@@ -58,17 +67,19 @@ export default function Gate() {
       </div>
 
       <motion.p
-        className="mx-auto mt-10 text-center font-sans text-sm text-[#6a7180]"
+        className="mx-auto mt-6 text-center font-sans text-xs text-[#6a7180] sm:mt-10 sm:text-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
       >
-        You can switch between them at any time from the top of the page.
+        You can come back here any time from the menu, or the link at the bottom of every page.
       </motion.p>
       </div>
     </div>
   )
 }
+
+const FEATURES = ['Live AI demos you can run', 'A terminal you can type in', 'A talking tour guide']
 
 type ChoiceProps = {
   skin: Skin
@@ -90,18 +101,18 @@ function Choice({ skin, index, label, blurb, onChoose, onFocus, children }: Choi
       onMouseLeave={() => onFocus(null)}
       onFocus={() => onFocus(skin)}
       onBlur={() => onFocus(null)}
-      className="group flex flex-col rounded-xl border border-white/10 bg-black/35 p-5 text-left backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-black/45 focus:outline-none focus-visible:border-white/40"
+      className="group flex flex-col rounded-xl border border-white/10 bg-black/45 p-4 text-left sm:bg-black/35 sm:p-5 backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-black/45 focus:outline-none focus-visible:border-white/40"
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.25 + index * 0.12, duration: 0.5 }}
       whileHover={{ y: -4 }}
     >
       {/* A small, honest preview of what the visitor is about to get. */}
-      <div className="overflow-hidden rounded-lg border border-white/10">{children}</div>
+      <div className="mb-5 hidden overflow-hidden rounded-lg border border-white/10 sm:block">{children}</div>
 
-      <h2 className="mt-5 font-sans text-lg font-semibold">{label}</h2>
-      <p className="mt-2 flex-1 font-sans text-sm leading-relaxed text-[#9aa2b1]">{blurb}</p>
-      <span className="mt-5 inline-flex items-center gap-2 font-sans text-sm font-medium text-white">
+      <h2 className="font-sans text-lg font-semibold">{label}</h2>
+      <p className="mt-1.5 flex-1 font-sans text-sm leading-relaxed text-[#9aa2b1] sm:mt-2">{blurb}</p>
+      <span className="mt-3 inline-flex items-center gap-2 font-sans text-sm font-medium text-white sm:mt-5">
         Enter
         <span className="transition-transform group-hover:translate-x-1">&rarr;</span>
       </span>

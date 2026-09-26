@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { findProject, demoState } from '../../data/projects'
+import { findProject, demoState, neighbours } from '../../data/projects'
 import ProNotFound from './ProNotFound'
 import { useDocumentTitle } from '../../useDocumentTitle'
 import { COMPLEXITY } from './components/labels'
@@ -91,7 +91,33 @@ export default function ProProjectPage() {
           </div>
         )}
       </section>
+
+      <Pager slug={project.slug} />
     </article>
+  )
+}
+
+/** Keep going without a trip back to the list: the projects either side. */
+function Pager({ slug }: { slug: string }) {
+  const { prev, next } = neighbours(slug)
+  const card =
+    'paper-card paper-card-hover group flex flex-col gap-1 p-5 font-sans transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-coral'
+  return (
+    <nav aria-label="More projects" className="mt-16 border-t border-rule pt-8">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Link to={`/projects/${prev.slug}`} className={card}>
+          <span className="text-xs tracking-widest text-quiet uppercase">&larr; Previous project</span>
+          <span className="font-serif text-lg text-ink group-hover:text-coral">{prev.title}</span>
+        </Link>
+        <Link to={`/projects/${next.slug}`} className={`${card} sm:items-end sm:text-right`}>
+          <span className="text-xs tracking-widest text-quiet uppercase">Next project &rarr;</span>
+          <span className="font-serif text-lg text-ink group-hover:text-coral">{next.title}</span>
+        </Link>
+      </div>
+      <Link to="/#work" className="mt-6 inline-flex items-center gap-1.5 font-sans text-sm text-quiet hover:text-coral">
+        <span aria-hidden>&larr;</span> All projects
+      </Link>
+    </nav>
   )
 }
 

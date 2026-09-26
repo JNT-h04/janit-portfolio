@@ -79,3 +79,10 @@ export const PROJECTS: Project[] = [
 ]
 
 export const findProject = (slug: string) => PROJECTS.find((p) => p.slug === slug)
+
+/** The projects either side of this one, wrapping round, for "next project" links. */
+export function neighbours(slug: string) {
+  const i = PROJECTS.findIndex((p) => p.slug === slug)
+  const n = PROJECTS.length
+  return { prev: PROJECTS[(i - 1 + n) % n], next: PROJECTS[(i + 1) % n] }
+}

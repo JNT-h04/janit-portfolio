@@ -14,6 +14,8 @@ import Magnetic from './components/Magnetic'
 import Marquee from './components/Marquee'
 import ProjectCard from './components/ProjectCard'
 import Reveal from './components/Reveal'
+import TryStrip from './components/TryStrip'
+import { useTryIt } from '../../features/useTryIt'
 
 export default function ProHome() {
   const state = useProfile()
@@ -23,6 +25,7 @@ export default function ProHome() {
   return (
     <>
       <Hero profile={profile} />
+      <TryStrip />
 
       {/* No negative margin on the band: the hero is a full viewport tall and
           the skyline is fixed to the bottom of the viewport, so pulling the
@@ -456,8 +459,10 @@ function Hero({ profile }: { profile: Profile | null }) {
         </Magnetic>
       </motion.div>
 
+      <LiveHint />
+
       <motion.div
-        className="mt-16 flex items-center gap-3 font-sans text-xs tracking-[0.2em] text-quiet uppercase"
+        className="mt-16 hidden items-center gap-3 font-sans text-xs tracking-[0.2em] text-quiet uppercase sm:flex"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 1.1 }}
@@ -474,6 +479,31 @@ function Hero({ profile }: { profile: Profile | null }) {
 
       <Portrait />
     </section>
+  )
+}
+
+/** The first sign that this portfolio does things: one tap runs a real model. */
+function LiveHint() {
+  const { runDemo, canRunQuick, quick } = useTryIt()
+  if (!canRunQuick) return null
+  return (
+    <motion.button
+      type="button"
+      onClick={runDemo}
+      className="group mt-6 inline-flex max-w-full items-center gap-2.5 rounded-full border border-jade/30 bg-card/70 py-2 pr-4 pl-3 text-left font-sans text-sm text-ink/85 backdrop-blur transition-colors hover:border-jade"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.6 }}
+    >
+      <span className="relative flex h-2 w-2 shrink-0">
+        <span className="absolute inset-0 animate-ping rounded-full bg-jade/60" />
+        <span className="relative h-2 w-2 rounded-full bg-jade" />
+      </span>
+      <span>
+        <span className="font-semibold text-ink">Live:</span> tap to run {quick?.codename}, a real AI model, on a sample photo
+      </span>
+      <span className="text-jade transition-transform group-hover:translate-x-1">&rarr;</span>
+    </motion.button>
   )
 }
 

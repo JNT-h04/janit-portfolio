@@ -5,6 +5,8 @@ import { useEcho } from '../../../projects/echo/useEcho'
 import { ECHO_NOTES } from '../../../projects/notes'
 import DropZone from '../components/DropZone'
 import HonestNotes from '../components/HonestNotes'
+import SampleStrip from '../components/SampleStrip'
+import { MEETING_SAMPLE } from '../../../projects/samples'
 import MeasuredPanel from '../components/MeasuredPanel'
 
 const STAGE_LABEL: Record<Stage, string> = {
@@ -19,7 +21,7 @@ const STAGE_LABEL: Record<Stage, string> = {
 const SPEAKER_COLORS = ['text-coral', 'text-indigo-600', 'text-amber-700', 'text-rose-600', 'text-emerald-700']
 
 export default function EchoPanel() {
-  const { measured, online, keyStatus, job, uploadFraction, error, filename, minutes, running, busy, onFile } = useEcho()
+  const { trySample, measured, online, keyStatus, job, uploadFraction, error, filename, minutes, running, busy, onFile } = useEcho()
 
   return (
     <div className="space-y-5">
@@ -59,6 +61,16 @@ export default function EchoPanel() {
         error={error}
         onFile={onFile}
       />
+      {!busy && !minutes && (
+        <SampleStrip
+          title={MEETING_SAMPLE.title}
+          credit={MEETING_SAMPLE.credit}
+          cta="Try a sample meeting"
+          audio={MEETING_SAMPLE.url}
+          disabled={online === false}
+          onTry={trySample}
+        />
+      )}
 
       {running && job && <JobTicker job={job} />}
 

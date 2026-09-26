@@ -62,7 +62,9 @@ export default function MissionCard({ project, index }: { project: Project; inde
             <span>
               LOAD: <span className={THREAT_COLOR[project.threat]}>{project.threat}</span>
             </span>
-            <span className="text-hot transition-transform group-hover:translate-x-1">ENGAGE &gt;&gt;</span>
+            <span className="text-hot transition-transform group-hover:translate-x-1">
+              {demoState(project) === 'live' ? 'TRY IT LIVE' : 'OPEN FILE'} &gt;&gt;
+            </span>
           </div>
         </div>
       </Link>

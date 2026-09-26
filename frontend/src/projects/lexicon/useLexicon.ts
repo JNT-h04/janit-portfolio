@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { fmtMs, useMeasured, type Metric } from '../../measure/measure'
 import { useKeyStatus } from '../keyStatus'
+import { announce, BOOK_SAMPLE, sampleFile, useSampleRequests } from '../samples'
 import { streamSummary, uploadBook, type BookInfo } from './api'
 
 export const ACCEPT = '.pdf,.docx,.epub,.txt,.md,.html,.htm'
@@ -19,7 +20,7 @@ export function useLexicon() {
   const [results, setResults] = useState<Record<number, Result>>({})
   const { measured, record } = useMeasured()
 
-  const handleFile = async (file: File) => {
+  const handleFile = async (file: File): Promise<BookInfo | null> => {
     setStage({ kind: 'uploading', progress: 0 })
     try {
       const info = await uploadBook(file, (progress) => setStage({ kind: 'uploading', progress }))
@@ -27,16 +28,22 @@ export function useLexicon() {
       setSelected(0)
       setResults({})
       setStage({ kind: 'idle' })
+      return info
     } catch (err) {
       setStage({ kind: 'error', message: (err as Error).message })
+      announce({ slug: 'book-summarizer', ok: false, text: `The upload failed: ${(err as Error).message}.` })
+      return null
     }
   }
 
-  const generate = async (index: number) => {
-    if (!book) return
+  // `forBook` lets the sample summarise straight after uploading, before the
+  // new book has landed in state.
+  const generate = async (index: number, forBook?: BookInfo) => {
+    const current = forBook ?? book
+    if (!current) return
     setResults((r) => ({ ...r, [index]: { text: '', done: false } }))
     try {
-      const { text, timing } = await streamSummary(book.id, index, (soFar) =>
+      const { text, timing } = await streamSummary(current.id, index, (soFar) =>
         setResults((r) => ({ ...r, [index]: { text: soFar, done: false } })),
       )
       setResults((r) => ({ ...r, [index]: { text, done: true } }))
@@ -54,10 +61,24 @@ export function useLexicon() {
         )
       }
       record(timing.totalMs, metrics)
+      const chapter = current.chapters.find((c) => c.index === index)?.title ?? 'that chapter'
+      announce({ slug: 'book-summarizer', ok: true, text: `The summary of ${chapter} is ready. It took ${(timing.totalMs / 1000).toFixed(1)} seconds, with flashcards at the end.` })
     } catch (err) {
       setResults((r) => ({ ...r, [index]: { text: r[index]?.text ?? '', done: true, error: (err as Error).message } }))
+      announce({ slug: 'book-summarizer', ok: false, text: `The summary failed: ${(err as Error).message}.` })
     }
   }
+
+  /** One click: load the bundled public-domain book and summarise chapter 1. */
+  const trySample = async () => {
+    try {
+      const info = await handleFile(await sampleFile(BOOK_SAMPLE))
+      if (info?.chapters.length) generate(info.chapters[0].index, info)
+    } catch (err) {
+      setStage({ kind: 'error', message: (err as Error).message })
+    }
+  }
+  useSampleRequests('book-summarizer', () => trySample())
 
   const exportAll = () => {
     if (!book) return
@@ -82,5 +103,5 @@ export function useLexicon() {
 
   const doneCount = book ? book.chapters.filter((c) => results[c.index]?.done && !results[c.index].error).length : 0
 
-  return { measured, ready, keyStatus, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset, doneCount }
+  return { trySample, measured, ready, keyStatus, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset, doneCount }
 }

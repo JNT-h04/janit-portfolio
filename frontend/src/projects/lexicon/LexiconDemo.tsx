@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import HonestNotes from '../../components/HonestNotes'
+import SampleStrip from '../../components/SampleStrip'
+import { BOOK_SAMPLE } from '../samples'
 import TelemetryPanel from '../../components/TelemetryPanel'
 import HudPanel from '../../components/HudPanel'
 import UploadZone from '../../components/UploadZone'
@@ -10,7 +12,7 @@ import { ACCEPT, useLexicon, type Result } from './useLexicon'
 
 export default function LexiconDemo() {
   // All the behaviour lives in useLexicon, shared with the professional skin.
-  const { measured, ready, keyStatus, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset } = useLexicon()
+  const { trySample, measured, ready, keyStatus, stage, book, selected, setSelected, results, handleFile, generate, exportAll, reset } = useLexicon()
 
   return (
     <div className="mt-10 space-y-6">
@@ -47,7 +49,17 @@ export default function LexiconDemo() {
           }
           onFile={handleFile}
         />
-      ) : (
+      ) : null}
+      {!book && stage.kind !== 'uploading' && (
+        <SampleStrip
+          title={BOOK_SAMPLE.title}
+          credit={BOOK_SAMPLE.credit}
+          cta="LOAD SAMPLE BOOK"
+          disabled={ready === false}
+          onTry={trySample}
+        />
+      )}
+      {!book ? null : (
         <>
           <HudPanel title="TARGET ACQUIRED" tag={`${book.chapters.length} CHAPTERS`}>
             <div className="flex flex-wrap items-end justify-between gap-4">

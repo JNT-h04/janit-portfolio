@@ -91,7 +91,7 @@ export default function ProjectCard({ project, index }: { project: Project; inde
         <div className="relative mt-5 flex items-center justify-between border-t border-rule pt-4 font-sans text-sm">
           <span className="text-quiet">{COMPLEXITY[project.threat]}</span>
           <span className="inline-flex items-center gap-1.5 font-medium text-coral">
-            View case study
+            {demoState(project) === 'live' ? 'Try it live' : 'View case study'}
             <span className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
           </span>
         </div>
