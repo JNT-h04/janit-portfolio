@@ -71,3 +71,28 @@ def test_rate_limited(monkeypatch):
     monkeypatch.setattr(send, "send", fake_send)
     codes = [client.post("/api/contact", json=GOOD).status_code for _ in range(6)]
     assert codes == [200] * 5 + [429]
+
+
+def test_send_cleans_the_key_and_names_resend_errors(monkeypatch):
+    import asyncio
+
+    import httpx
+    import pytest
+
+    from app.core.config import settings
+
+    seen = {}
+
+    def handler(request):
+        seen["auth"] = request.headers["authorization"]
+        return httpx.Response(401, json={"name": "invalid_api_key", "message": "API key is invalid"})
+
+    real_client = httpx.AsyncClient
+    monkeypatch.setattr(send.httpx, "AsyncClient", lambda **kw: real_client(transport=httpx.MockTransport(handler), **kw))
+    # pasted with a space and quotes, as dashboards invite
+    monkeypatch.setattr(settings, "resend_api_key", ' "re_test123" ')
+
+    assert send.ready()
+    with pytest.raises(send.SendError, match="401, invalid_api_key"):
+        asyncio.run(send.send("Priya", "priya@acme.com", "hello there, a test"))
+    assert seen["auth"] == "Bearer re_test123"
