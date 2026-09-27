@@ -72,7 +72,7 @@ export default function Gate() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
       >
-        You can come back here any time from the menu, or the link at the bottom of every page.
+        You can come back here any time with the Switch button at the top of every page.
       </motion.p>
       </div>
     </div>

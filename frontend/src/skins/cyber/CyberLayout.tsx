@@ -120,13 +120,6 @@ function ScrollScrim() {
   return <div ref={ref} className="pointer-events-none fixed inset-0 -z-[5] bg-void" />
 }
 
-const SECTIONS = [
-  { hash: '#missions', label: 'missions', hint: 'the four live projects' },
-  { hash: '#operator', label: 'operator', hint: 'about me' },
-  { hash: '#loadout', label: 'loadout', hint: 'skills and tools' },
-  { hash: '#contact', label: 'contact', hint: 'send a message' },
-  { hash: '#experience', label: 'experience', hint: 'internship' },
-]
 
 function CyberNav() {
   const terminal = useTerminal()
@@ -148,10 +141,11 @@ function CyberNav() {
               versions are offered together at the start page. */}
           <button
             onClick={reset}
-            className="hidden text-dim transition-colors hover:text-hot sm:inline"
+            className="border border-hot/60 px-2 py-1 tracking-widest text-hot transition-colors hover:bg-hot hover:text-void sm:border-0 sm:px-0 sm:py-0 sm:tracking-normal sm:text-dim sm:hover:bg-transparent sm:hover:text-hot"
             title="back to the start page, where both versions are offered"
           >
-            [start page]
+            <span className="sm:hidden">&#8644; SWITCH</span>
+            <span className="hidden sm:inline">[switch]</span>
           </button>
           <button
             onClick={() => terminal.setOpen(!terminal.open)}
@@ -187,7 +181,6 @@ function CyberNav() {
  * goes, because 'operator' and 'loadout' mean nothing to someone new.
  */
 function CyberMenu({ onClose }: { onClose: () => void }) {
-  const { reset } = useSkin()
   const { runDemo, canRunQuick, openTerminal } = useTryIt()
   const then = (fn: () => void) => () => {
     onClose()
@@ -220,15 +213,7 @@ function CyberMenu({ onClose }: { onClose: () => void }) {
         exit={{ opacity: 0, y: -6 }}
         transition={{ duration: 0.22 }}
       >
-        <p className={heading}>// JUMP TO</p>
-        {SECTIONS.map((s) => (
-          <Link key={s.hash} to={`/${s.hash}`} onClick={onClose} className={row}>
-            <span className="text-neon">&gt; {s.label}</span>
-            <span className="text-xs text-dim">{s.hint}</span>
-          </Link>
-        ))}
-
-        <p className={`${heading} mt-1 border-t border-neon/15`}>// TRY SOMETHING</p>
+        <p className={heading}>// TRY SOMETHING</p>
         <button onClick={then(runDemo)} className={row}>
           <span className="text-acid">&#9654; {canRunQuick ? 'run a live AI model' : 'open a demo'}</span>
           <span className="text-xs text-dim">one tap, real result</span>
@@ -242,11 +227,6 @@ function CyberMenu({ onClose }: { onClose: () => void }) {
           <span className="text-xs text-dim">type help</span>
         </button>
 
-        <p className={`${heading} mt-1 border-t border-neon/15`}>// VERSION</p>
-        <button onClick={then(reset)} className={row}>
-          <span className="text-text">&#8617; start page</span>
-          <span className="text-xs text-dim">pick a different version</span>
-        </button>
       </motion.div>
     </>
   )

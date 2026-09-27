@@ -17,7 +17,6 @@ import ProProjectPage from './ProProjectPage'
 const SECTIONS = [
   { hash: '#work', label: 'Work' },
   { hash: '#about', label: 'About' },
-  { hash: '#skills', label: 'Skills', menuOnly: true },
   { hash: '#experience', label: 'Experience' },
   { hash: '#contact', label: 'Contact' },
 ]
@@ -110,7 +109,7 @@ function ProHeader() {
         </Link>
 
         <nav className="flex items-center gap-1 sm:gap-2">
-          {SECTIONS.filter((s) => !s.menuOnly).map((s) => (
+          {SECTIONS.map((s) => (
             <NavLink
               key={s.hash}
               to={`/${s.hash}`}
@@ -144,12 +143,14 @@ function ProHeader() {
             Casual view
           </button>
 
+          {/* The dedicated switch: back to the start page, where the two
+              versions are offered side by side. Shown at every width. */}
           <button
             onClick={reset}
-            className="ml-1 hidden rounded-full border border-ink/10 bg-card/50 px-3.5 py-1.5 font-sans text-sm text-ink backdrop-blur transition-all hover:border-coral/45 hover:text-coral sm:inline-block"
+            className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-coral/35 bg-card/60 px-3 py-1.5 font-sans text-sm text-ink backdrop-blur transition-all hover:border-coral hover:text-coral sm:px-3.5"
             title="Back to the start page, where both versions are offered"
           >
-            Start page
+            <span aria-hidden className="text-coral">&#8644;</span> Switch
           </button>
 
           <button
@@ -193,7 +194,7 @@ function MenuIcon({ open }: { open: boolean }) {
  * saying what it does, so nothing has to be guessed from a one-word label.
  */
 function ProMenu({ onClose }: { onClose: () => void }) {
-  const { toggle, reset } = useSkin()
+  const { toggle } = useSkin()
   const { runDemo, canRunQuick, openTerminal } = useTryIt()
   const then = (fn: () => void) => () => {
     onClose()
@@ -227,16 +228,7 @@ function ProMenu({ onClose }: { onClose: () => void }) {
         exit={{ opacity: 0, y: -8 }}
         transition={{ duration: 0.2 }}
       >
-        <p className={heading}>On this page</p>
-        <div className="grid grid-cols-2 gap-1">
-          {SECTIONS.map((s) => (
-            <Link key={s.hash} to={`/${s.hash}`} onClick={onClose} className="rounded-xl px-4 py-2.5 font-sans text-[15px] text-ink hover:bg-coral/8">
-              {s.label}
-            </Link>
-          ))}
-        </div>
-
-        <p className={`${heading} mt-2 border-t border-rule`}>Try something</p>
+        <p className={heading}>Try something</p>
         <button onClick={then(runDemo)} className={row}>
           <span>
             <span className="block font-sans text-[15px] font-medium text-ink">{canRunQuick ? 'Run a live AI model' : 'Open a demo'}</span>
@@ -252,20 +244,13 @@ function ProMenu({ onClose }: { onClose: () => void }) {
           <span className="font-code text-violet">&gt;_</span>
         </button>
 
-        <p className={`${heading} mt-2 border-t border-rule`}>Other versions</p>
+        <p className={`${heading} mt-2 border-t border-rule`}>Other version</p>
         <button onClick={then(toggle)} className={row}>
           <span>
             <span className="block font-sans text-[15px] font-medium text-ink">Casual view</span>
             <span className="block font-sans text-xs text-quiet">Same work as a neon cyberpunk city, with a tour guide</span>
           </span>
           <span className="text-violet">&rarr;</span>
-        </button>
-        <button onClick={then(reset)} className={row}>
-          <span>
-            <span className="block font-sans text-[15px] font-medium text-ink">Start page</span>
-            <span className="block font-sans text-xs text-quiet">Back to where you chose between the two versions</span>
-          </span>
-          <span className="text-quiet">&#8617;</span>
         </button>
       </motion.div>
     </>

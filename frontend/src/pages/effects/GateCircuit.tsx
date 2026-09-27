@@ -23,6 +23,10 @@ export default function GateCircuit({ focus }: { focus: Skin | null }) {
               // 1.2px on any viewport — not 1.2 of the 100-wide viewBox.
               strokeWidth={1.2}
               vectorEffect="non-scaling-stroke"
+              // Measure the dash in fractions of the path, not in pixels: with a
+              // non-scaling stroke a pixel dash broke long traces into
+              // fragments, which read as the page glitching.
+              pathLength={100}
               style={{ animationDelay: `${t.delay}ms` }}
             />
             <circle r={0.22} className="gq-pad">
@@ -53,7 +57,7 @@ const TRACES = (() => {
   }
 
   const out: { d: string; warm: boolean; delay: number; pulse: number; endX: number; endY: number }[] = []
-  for (let i = 0; i < 34; i++) {
+  for (let i = 0; i < 22; i++) {
     const warm = i % 2 === 0
     // Warm traces enter from the left edge, cool ones from the right.
     const startX = warm ? -2 : 102
@@ -80,7 +84,7 @@ const TRACES = (() => {
       d,
       warm,
       delay: Math.round(rand() * 1800),
-      pulse: 3.5 + rand() * 4,
+      pulse: 6 + rand() * 5,
       endX: x,
       endY: cy,
     })

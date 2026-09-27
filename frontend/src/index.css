@@ -785,22 +785,19 @@ html.skin-pro ::selection {
   height: 100%;
 }
 .gq-trace path {
-  stroke-dasharray: 260;
-  stroke-dashoffset: 260;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
   animation: gq-draw 2.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes gq-draw {
   to { stroke-dashoffset: 0; }
 }
-.gq-warm path { stroke: rgb(255 158 96 / 0.75); filter: drop-shadow(0 0 3px rgb(255 130 70 / 0.45)); }
+.gq-warm path { stroke: rgb(255 158 96 / 0.5); }
 .gq-warm .gq-pad { fill: #ffb347; }
 .gq-warm .gq-via { fill: rgb(255 107 90 / 0.35); }
-.gq-cool path { stroke: rgb(0 228 255 / 0.68); filter: drop-shadow(0 0 3px rgb(0 220 255 / 0.4)); }
+.gq-cool path { stroke: rgb(0 228 255 / 0.45); }
 .gq-cool .gq-pad { fill: #00f0ff; }
 .gq-cool .gq-via { fill: rgb(0 240 255 / 0.3); }
-.gq-pad {
-  filter: drop-shadow(0 0 4px currentColor);
-}
 /* Hovering a choice brightens that side's traces and dims the other. */
 .gq-lean-pro .gq-cool,
 .gq-lean-sys .gq-warm { opacity: 0.25; }
@@ -827,42 +824,9 @@ html.skin-pro ::selection {
   }
 }
 
-/* ---------- and its motion ---------- */
-/* A test probe sweeping the board, lighting what it passes over. */
-.gq::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(255 255 255 / 0.05) 45%,
-    rgb(180 240 255 / 0.16) 50%,
-    rgb(255 255 255 / 0.05) 55%,
-    transparent
-  );
-  animation: gq-sweep 7s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes gq-sweep {
-  0% { transform: translateX(-100%); }
-  55%, 100% { transform: translateX(100%); }
-}
-.gq-via {
-  animation: gq-blink 2.8s steps(1) infinite;
-}
-@keyframes gq-blink {
-  0%, 62%, 100% { opacity: 1; }
-  66% { opacity: 0.15; }
-  72% { opacity: 0.9; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .gq::after,
-  .gq-via {
-    animation: none;
-  }
-}
+/* ---------- and its motion ----------
+   Kept calm on purpose: a sweeping light band and vias blinking in hard steps
+   made the start page look like it was crashing. Only the pulses move now. */
 
 /* ---------- Casual transition: the rest of the glitch ----------
    Tearing bands, chromatic ghosts on a few blocks, analogue static, a slice
