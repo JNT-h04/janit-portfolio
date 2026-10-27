@@ -45,15 +45,15 @@ export default function EchoPanel() {
       <DropZone
         accept="audio/*,video/mp4,video/webm,.m4a,.mp3,.wav,.ogg,.flac"
         title="Drop a meeting recording"
-        hint="wav · mp3 · m4a · mp4 · ogg · flac — up to 100 MB, 5 per hour"
+        hint="wav · mp3 · m4a · mp4 · ogg · flac · up to 100 MB, 5 per hour"
         busy={
           busy
             ? {
                 label: STAGE_LABEL[job?.stage ?? 'uploading'],
                 detail:
                   job === null
-                    ? `Sending ${filename} — ${Math.round(uploadFraction * 100)}%`
-                    : `${filename} — checking with the server every ${POLL_MS / 1000}s`,
+                    ? `Sending ${filename}: ${Math.round(uploadFraction * 100)}%`
+                    : `${filename}: checking in with the server every ${POLL_MS / 1000}s`,
                 progress: job === null ? uploadFraction * 0.2 : job.percent / 100,
               }
             : null
@@ -141,7 +141,7 @@ function JobTicker({ job }: { job: Job }) {
       </ol>
 
       <p className="mt-4 font-sans text-sm leading-relaxed text-quiet">
-        Long recordings take a while. The page is not frozen — it asks the server for this job's status every
+        Long recordings take a while. The page is not frozen. It asks the server for this job's status every
         couple of seconds until the minutes are ready.
       </p>
     </div>

@@ -39,8 +39,8 @@ export default function ProHome() {
       <Section id="work" title="Selected work" kicker="Things I built" number="01">
         <p className="-mt-2 mb-8 max-w-2xl font-sans text-[15px] leading-relaxed text-quiet">
           {!HAS_API
-            ? 'Every project below is a working system with an interactive demo — this published copy is the frontend, so the demos run when the API is started alongside it. Results are reported honestly, including where they fall short.'
-            : 'Every project below has a demo you can use right now — upload your own file and see what the model says. Results are reported honestly, including where they fall short.'}
+            ? 'Every project below is a working system with its own demo. This copy of the site is the front end only, so the demos run when the API is started next to it. I have also written down where each one falls short.'
+            : 'Every project below has a demo you can use right now. Try it with your own file and see what the model says. I have also written down where each one falls short, because the numbers should be honest.'}
         </p>
         <div className="grid gap-5 md:grid-cols-2">
           {projects.map((p, i) => (
@@ -101,7 +101,7 @@ export default function ProHome() {
                       label="Tools used"
                       tone="var(--color-violet)"
                     />
-                    <Stat n={profile.experience.length} label="Internship" tone="var(--color-jade)" />
+                    <Stat n={profile.experience.length} label="Internship" tone="#c2459b" />
               </dl>
             </Reveal>
 
@@ -229,9 +229,9 @@ export default function ProHome() {
             <Reveal delay={0.08}>
               <div className="paper-card mt-5 flex flex-wrap items-center justify-between gap-5 p-7">
                 <div>
-                  <p className="font-serif text-xl text-ink">Open to internships and new-grad roles.</p>
+                  <p className="font-serif text-xl text-ink">Open to internships and graduate roles.</p>
                   <p className="mt-1 font-sans text-[15px] text-quiet">
-                    Based in {profile.location}. Happy to talk through any project on this page.
+                    I live in {profile.location}. Always happy to walk you through any project on this page.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2.5">
@@ -498,19 +498,15 @@ function LiveHint() {
     <motion.button
       type="button"
       onClick={runDemo}
-      className="group mt-6 inline-flex max-w-full items-center gap-2.5 rounded-full border border-jade/30 bg-card/70 py-2 pr-4 pl-3 text-left font-sans text-sm text-ink/85 backdrop-blur transition-colors hover:border-jade"
+      className="group mt-6 inline-flex max-w-full items-center gap-2.5 rounded-full border border-coral/30 bg-card/70 py-2 pr-4 pl-4 text-left font-sans text-sm text-ink/85 backdrop-blur transition-colors hover:border-coral"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.6 }}
     >
-      <span className="relative flex h-2 w-2 shrink-0">
-        <span className="absolute inset-0 animate-ping rounded-full bg-jade/60" />
-        <span className="relative h-2 w-2 rounded-full bg-jade" />
-      </span>
       <span>
-        <span className="font-semibold text-ink">Live:</span> tap to run {quick?.codename}, a real AI model, on a sample photo
+        <span className="font-semibold text-ink">Try it now:</span> run {quick?.codename}, a real AI model, on a sample photo
       </span>
-      <span className="text-jade transition-transform group-hover:translate-x-1">&rarr;</span>
+      <span className="text-coral transition-transform group-hover:translate-x-1">&rarr;</span>
     </motion.button>
   )
 }

@@ -36,7 +36,7 @@ export default function LexiconPanel() {
         <DropZone
           accept={ACCEPT}
           title="Drop a book here"
-          hint="PDF · DOCX · EPUB · TXT · MD · HTML — up to 50 MB"
+          hint="PDF · DOCX · EPUB · TXT · MD · HTML · up to 50 MB"
           error={stage.kind === 'error' ? stage.message : undefined}
           busy={
             stage.kind === 'uploading'

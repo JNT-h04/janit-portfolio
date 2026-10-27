@@ -22,7 +22,7 @@ export default function DemoUnavailable({
   const line =
     reason === 'switched-off'
       ? `${project?.codename ?? 'This demo'} is temporarily switched off.`
-      : 'This copy of the site is the frontend only — the demos need the API running alongside it.'
+      : 'This copy of the site is the front end only. The demos need the API running next to it.'
 
   return (
     <div
@@ -38,7 +38,7 @@ export default function DemoUnavailable({
       <p className={crt ? 'mt-3 text-dim' : 'mt-3 text-quiet'}>{line}</p>
       <p className={crt ? 'mt-2 text-dim' : 'mt-2 text-quiet'}>
         The code for it is in this project's repository, and the notes below describe exactly what it does,
-        what it scores and where it falls short — those numbers were measured, not estimated.
+        what it scores and where it falls short. Those numbers were measured, not estimated.
       </p>
     </div>
   )

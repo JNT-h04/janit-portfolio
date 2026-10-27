@@ -27,15 +27,14 @@ export default function Gate() {
       >
         <p className="font-sans text-xs tracking-[0.35em] text-[#7c8494] uppercase">Janit B</p>
         <h1 className="mt-3 font-serif text-[26px] leading-tight font-normal sm:text-4xl">How would you like to look around?</h1>
-        <p className="mx-auto mt-3 max-w-xl font-sans text-sm leading-relaxed text-[#9aa2b1] sm:mt-4 sm:text-[15px]">
-          Two versions, the same work. Pick a look — you can switch later.
+        <p className="mx-auto mt-3 max-w-2xl font-sans text-sm leading-relaxed text-[#9aa2b1] sm:mt-4 sm:text-[15px]">
+          Two versions of the same work. Pick the one you like. You can always switch later.
         </p>
         {/* What makes this more than a page to read, said before anyone
             decides it is "just another portfolio". */}
         <ul className="mx-auto mt-5 flex max-w-2xl flex-wrap justify-center gap-2 font-sans text-[13px] text-[#d6dae2]">
           {FEATURES.map((f) => (
-            <li key={f} className="flex items-center gap-1.5 rounded-full border border-white/12 bg-black/40 px-3 py-1 backdrop-blur-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#34d399] shadow-[0_0_6px_#34d399]" />
+            <li key={f} className="rounded-full border border-white/12 bg-black/40 px-3 py-1 backdrop-blur-sm">
               {f}
             </li>
           ))}
@@ -47,7 +46,7 @@ export default function Gate() {
           skin="pro"
           index={0}
           label="Recruiter / Professional"
-          blurb="Clean and quick to skim: projects, live demos, experience and skills."
+          blurb="Clean and easy to skim. My projects, live demos, experience and skills, all in one place."
           onChoose={choose}
           onFocus={setFocus}
         >
@@ -58,7 +57,7 @@ export default function Gate() {
           skin="sys"
           index={1}
           label="Just looking around"
-          blurb="The same work as a neon cyberpunk city, with a tour-guide drone you can talk to."
+          blurb="The same work inside a neon cyberpunk city, with a little drone that shows you around and talks back."
           onChoose={choose}
           onFocus={setFocus}
         >
@@ -72,7 +71,7 @@ export default function Gate() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
       >
-        You can come back here any time with the Switch button at the top of every page.
+        Changed your mind? The Switch button at the top of every page brings you back here.
       </motion.p>
       </div>
     </div>

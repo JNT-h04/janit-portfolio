@@ -25,7 +25,7 @@ export default function ProjectPage() {
   const navigate = useNavigate()
   const terminal = useTerminal()
   const project = findProject(slug)
-  useDocumentTitle(project ? `${project.codename} — ${project.title}` : 'Not found')
+  useDocumentTitle(project ? `${project.codename} · ${project.title}` : 'Not found')
 
   // The button says ESC, so ESC has to work. Not while the terminal is open
   // (Escape closes that first) and not while something is being typed into.

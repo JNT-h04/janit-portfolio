@@ -21,7 +21,7 @@ export default function CortexPanel() {
   return (
     <div className="space-y-5">
       <p className="rounded-md border-l-2 border-red-600 bg-red-50 p-4 font-sans text-sm text-red-800">
-        <strong className="font-semibold">Research demo — not a medical device.</strong> This cannot diagnose
+        <strong className="font-semibold">Research demo, not a medical device.</strong> This cannot diagnose
         anyone. Please read the limitations below before reading anything into a result.
       </p>
 
@@ -53,7 +53,7 @@ export default function CortexPanel() {
             <DropZone
               accept=".jpg,.jpeg,.png,.webp,.bmp"
               title="Drop several slices"
-              hint="All slices of ONE patient · 2–12 files · they vote on the answer"
+              hint="All slices of ONE patient · 2 to 12 files · they vote on the answer"
               multiple
               busy={busy ? { label: 'Analysing series' } : null}
               error={error}
@@ -147,9 +147,9 @@ export default function CortexPanel() {
                 {truth && (
                   <p className="mt-2 font-sans text-sm">
                     {truth === view.prediction ? (
-                      <span className="font-medium text-jade">Correct — the true label is "{truth}".</span>
+                      <span className="font-medium text-jade">Correct. The true label is "{truth}".</span>
                     ) : (
-                      <span className="text-red-700">Wrong — the true label is "{truth}".</span>
+                      <span className="text-red-700">Wrong. The true label is "{truth}".</span>
                     )}
                   </p>
                 )}
@@ -233,7 +233,7 @@ export default function CortexPanel() {
 
               {result && result.excluded.length > 0 && (
                 <p className="border-l-2 border-rule pl-3 font-sans text-xs text-quiet">
-                  {result.excluded.join(', ')} is excluded from predictions — see why below.
+                  {result.excluded.join(', ')} is left out of predictions. See why below.
                 </p>
               )}
             </div>

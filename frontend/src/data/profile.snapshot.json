@@ -2,57 +2,130 @@
   "name": "Janit B",
   "role": "AI/ML Engineer",
   "location": "Salem, Tamil Nadu, India",
-  "tagline": "I like the last mile: turning a trained model into something someone can actually use.",
+  "tagline": "I build AI that people can actually use, not just models that look good in a notebook.",
   "about": [
-    "I'm a final-year Computer Science undergraduate at VIT Chennai, specialising in Artificial Intelligence and Machine Learning. I build AI systems end to end: preparing the data, training or fine-tuning the model, wrapping it in an API, and shipping an interface people can actually use.",
-    "I care about the last mile — the part where a trained model turns into something a person can open, upload their own file to, and get a useful answer from. That is what every project on this site does."
+    "I'm in my final year of Computer Science at VIT Chennai, specialising in AI and Machine Learning. I like owning a project from start to finish: cleaning the data, training the model, putting it behind an API and building the screen someone finally clicks on.",
+    "That last step is my favourite part. A model only matters once a real person can open it, drop in their own file and get a useful answer back. Every project on this site works that way, so go ahead and try them."
   ],
   "highlights": [
-    "Trained and fine-tuned deep-learning models (ResNet50, LSTM, transformers) for vision, audio and time-series problems.",
-    "Built retrieval-augmented (RAG) pipelines with LangChain, FAISS and Whisper for search over documents and meetings.",
-    "Ship full-stack around the model: FastAPI services, streaming responses, React interfaces, and tests.",
-    "Report results honestly: per-class accuracy, known weaknesses and limitations alongside the headline score.",
-    "Industry experience building AI voice agents and automations that ran for real e-commerce customers."
+    "I've trained and fine tuned deep learning models (ResNet50, LSTMs, transformers) for images, audio and time series.",
+    "I've built RAG pipelines with LangChain, FAISS and Whisper, so people can search through documents and meetings.",
+    "I build the whole product around a model: FastAPI services, streaming responses, React front ends and tests.",
+    "I tell you how a model really did. Accuracy per class, where it struggles and what it can't do, not just the headline number.",
+    "At my internship I built AI voice agents and automations that real e-commerce customers talked to."
   ],
   "skills": [
-    { "group": "Languages", "items": ["Python", "TypeScript", "Java", "C++", "SQL"] },
-    { "group": "ML & AI", "items": ["PyTorch", "TensorFlow", "Keras", "Scikit-learn", "CNN / ResNet", "LSTM", "Transformers", "Hugging Face"] },
-    { "group": "LLM & RAG", "items": ["LangChain", "FAISS", "Gemini API", "Whisper", "Prompt engineering"] },
-    { "group": "Backend & Web", "items": ["FastAPI", "REST APIs", "Streamlit", "React", "Vite", "Pytest"] },
-    { "group": "Foundations", "items": ["Data structures & algorithms", "OOP", "DBMS", "Operating systems", "Computer networks"] },
-    { "group": "Tools", "items": ["Git & GitHub", "AWS", "Docker basics", "OpenCV", "Shopify", "ElevenLabs"] }
+    {
+      "group": "Languages",
+      "items": [
+        "Python",
+        "TypeScript",
+        "Java",
+        "C++",
+        "SQL"
+      ]
+    },
+    {
+      "group": "ML & AI",
+      "items": [
+        "PyTorch",
+        "TensorFlow",
+        "Keras",
+        "Scikit-learn",
+        "CNN / ResNet",
+        "LSTM",
+        "Transformers",
+        "Hugging Face"
+      ]
+    },
+    {
+      "group": "LLM & RAG",
+      "items": [
+        "LangChain",
+        "FAISS",
+        "Gemini API",
+        "Whisper",
+        "Prompt engineering"
+      ]
+    },
+    {
+      "group": "Backend & Web",
+      "items": [
+        "FastAPI",
+        "REST APIs",
+        "Streamlit",
+        "React",
+        "Vite",
+        "Pytest"
+      ]
+    },
+    {
+      "group": "Foundations",
+      "items": [
+        "Data structures & algorithms",
+        "OOP",
+        "DBMS",
+        "Operating systems",
+        "Computer networks"
+      ]
+    },
+    {
+      "group": "Tools",
+      "items": [
+        "Git & GitHub",
+        "AWS",
+        "Docker basics",
+        "OpenCV",
+        "Shopify",
+        "ElevenLabs"
+      ]
+    }
   ],
   "experience": [
     {
       "company": "Strategy Fox International Pvt. Ltd.",
       "url": "https://strategyfox.in",
-      "about": "Software and AI-automation studio in Bangalore that builds websites, SaaS platforms, internal tools and AI agents for D2C and retail brands.",
+      "about": "A Bangalore studio that builds websites, SaaS products, internal tools and AI agents for D2C and retail brands.",
       "title": "AI & Software Engineering Intern",
-      "period": "May 2026 – June 2026",
+      "period": "May 2026 to June 2026",
       "location": "Remote / Bangalore",
       "points": [
-        "Built a real-time AI voice agent with ElevenLabs that handled customer conversations, cutting the manual follow-up work the team did by hand.",
-        "Wired conversational flows to REST APIs with dynamic variables, so an agent could look up live order and customer data mid-call.",
-        "Customised and maintained client Shopify storefronts: new features, bug fixes and ongoing store upkeep.",
-        "Worked with a cross-functional team on production client work, from first requirement to deployed feature."
+        "Built a real time AI voice agent with ElevenLabs that held conversations with customers and took over follow up work the team used to do by hand.",
+        "Connected those conversations to REST APIs using dynamic variables, so the agent could look up a customer's live order details in the middle of a call.",
+        "Looked after client Shopify stores: added new features, fixed bugs and kept them running smoothly.",
+        "Worked with a mixed team on live client projects, from the very first requirement all the way to the feature going live."
       ],
-      "stack": ["ElevenLabs", "REST APIs", "Python", "Shopify"]
+      "stack": [
+        "ElevenLabs",
+        "REST APIs",
+        "Python",
+        "Shopify"
+      ]
     }
   ],
   "education": [
     {
       "school": "Vellore Institute of Technology, Chennai",
       "degree": "B.Tech, Computer Science and Engineering (AI & ML)",
-      "period": "2023 – 2027",
+      "period": "2023 to 2027",
       "detail": "CGPA 8.24 / 10 · Coursework: DSA, OOP, DBMS, operating systems, computer networks, system design"
     }
   ],
   "certifications": [
-    "IBM Generative AI with watsonx — VIT (2025)"
+    "IBM Generative AI with watsonx, VIT (2025)"
   ],
   "links": [
-    { "label": "GITHUB", "url": "https://github.com/JNT-h04" },
-    { "label": "LINKEDIN", "url": "https://linkedin.com/in/janit2006" },
-    { "label": "EMAIL", "url": "mailto:janit.b2006@gmail.com" }
+    {
+      "label": "GITHUB",
+      "url": "https://github.com/JNT-h04"
+    },
+    {
+      "label": "LINKEDIN",
+      "url": "https://linkedin.com/in/janit2006"
+    },
+    {
+      "label": "EMAIL",
+      "url": "mailto:janit.b2006@gmail.com"
+    }
   ]
 }

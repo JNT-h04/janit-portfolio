@@ -146,7 +146,7 @@ export const COMMANDS: Record<string, Command> = {
       const node = lookup(resolve(ctx.cwd, args[0]))
       if (!node) return c.hot(`cat: ${args[0]}: no such file`)
       if (node.type === 'dir') return c.hot(`cat: ${args[0]}: is a directory`)
-      if (node.locked) return c.hot('ACCESS DENIED') + c.dim(' — clearance level insufficient. (maybe try sudo?)')
+      if (node.locked) return c.hot('ACCESS DENIED') + c.dim(': clearance level insufficient. (maybe try sudo?)')
       return node.content
     },
   },

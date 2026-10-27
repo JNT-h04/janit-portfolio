@@ -46,15 +46,15 @@ export default function EchoDemo() {
       <UploadZone
         accept="audio/*,video/mp4,video/webm,.m4a,.mp3,.wav,.ogg,.flac"
         title="DROP A MEETING RECORDING"
-        hint="wav / mp3 / m4a / mp4 / ogg / flac - up to 100 MB, 5 per hour"
+        hint="wav / mp3 / m4a / mp4 / ogg / flac / up to 100 MB, 5 per hour"
         busy={
           busy
             ? {
                 label: STAGE_LABEL[job?.stage ?? 'uploading'],
                 detail:
                   job === null
-                    ? `sending ${filename} - ${Math.round(uploadFraction * 100)}%`
-                    : `${filename} - asking the server every ${POLL_MS / 1000}s`,
+                    ? `sending ${filename}: ${Math.round(uploadFraction * 100)}%`
+                    : `${filename}: asking the server every ${POLL_MS / 1000}s`,
                 progress: job === null ? uploadFraction * 0.2 : job.percent / 100,
               }
             : null
@@ -112,7 +112,7 @@ function JobTicker({ job }: { job: Job }) {
           job <span className="text-neon">{job.id.slice(0, 8)}</span>
         </span>
         <span className="text-dim">
-          {elapsed}s elapsed - polling every {POLL_MS / 1000}s
+          {elapsed}s elapsed, checking every {POLL_MS / 1000}s
         </span>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
@@ -132,7 +132,7 @@ function JobTicker({ job }: { job: Job }) {
         ))}
       </div>
       <p className="mt-3 text-dim">
-        A long recording takes a while. The browser is not frozen - it is asking the server for this job's
+        A long recording takes a while. The browser is not frozen. It is asking the server for this job's
         status, over and over, until the minutes are ready.
       </p>
     </div>
@@ -146,7 +146,7 @@ function Report({ minutes, seconds }: { minutes: Minutes; seconds: number }) {
   return (
     <>
       <div className="hud-panel p-5">
-        <p className="font-mono text-xs tracking-widest text-dim">MINUTES - {seconds}s</p>
+        <p className="font-mono text-xs tracking-widest text-dim">MINUTES / {seconds}s</p>
         <h2 className="mt-1 font-display text-3xl text-neon text-glow">{minutes.title}</h2>
         <p className="mt-3 leading-relaxed">{minutes.summary}</p>
         {minutes.topics.length > 0 && (
@@ -177,7 +177,7 @@ function Report({ minutes, seconds }: { minutes: Minutes; seconds: number }) {
               <span>
                 {action.task}
                 <span className="ml-1 font-mono text-xs text-dim">
-                  [{action.owner} - {action.due}]
+                  [{action.owner}, {action.due}]
                 </span>
               </span>
             </li>
@@ -186,7 +186,7 @@ function Report({ minutes, seconds }: { minutes: Minutes; seconds: number }) {
       </div>
 
       <div className="hud-panel p-5">
-        <p className="font-mono text-xs tracking-widest text-dim">TRANSCRIPT - {speakers.length} voices</p>
+        <p className="font-mono text-xs tracking-widest text-dim">TRANSCRIPT / {speakers.length} voices</p>
         <div className="mt-3 max-h-[28rem] space-y-3 overflow-y-auto pr-2">
           {minutes.transcript.map((turn, i) => (
             <div key={i} className="grid grid-cols-[auto_1fr] gap-3">

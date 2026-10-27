@@ -23,7 +23,7 @@ export default function CortexDemo() {
   return (
     <div className="mt-10 space-y-6">
       <div className="border border-hot/50 bg-hot/5 px-4 py-3 font-mono text-sm text-hot">
-        ⚠ RESEARCH DEMO — NOT A MEDICAL DEVICE. This cannot diagnose anyone. See the limitations below before reading
+        ⚠ RESEARCH DEMO, NOT A MEDICAL DEVICE. This cannot diagnose anyone. See the limitations below before reading
         anything into a result.
       </div>
 
@@ -134,7 +134,7 @@ export default function CortexDemo() {
           {!view && !busy && (
             <p className="font-mono text-dim">
               {mode === 'series'
-                ? 'Upload every slice you have of one patient, or run a test-set patient. Each slice is scored, then the scores are averaged — the same trick that takes accuracy from 60% to about 82%.'
+                ? 'Upload every slice you have of one patient, or run a test-set patient. Each slice is scored, then the scores are averaged. That is the same trick that takes accuracy from 60% to about 82%.'
                 : "Upload an axial MRI slice, or pick a sample. You get a predicted stage, the model's confidence, and a Grad-CAM heatmap showing which pixels drove that decision."}
             </p>
           )}
@@ -158,10 +158,10 @@ export default function CortexDemo() {
                 {truth && (
                   <p className="mt-2 font-mono text-sm">
                     {truth === view.prediction ? (
-                      <span className="text-acid">✓ correct — the true label is “{truth}”</span>
+                      <span className="text-acid">✓ correct. The true label is “{truth}”</span>
                     ) : (
                       <span className="text-hot">
-                        ✗ wrong — the true label is “{truth}”.
+                        ✗ wrong. The true label is “{truth}”.
                       </span>
                     )}
                   </p>
@@ -243,7 +243,7 @@ export default function CortexDemo() {
 
               {result && result.excluded.length > 0 && (
                 <p className="border-l-2 border-hot/60 pl-3 font-mono text-xs text-dim">
-                  {result.excluded.join(', ')} is excluded from predictions — see why below.
+                  {result.excluded.join(', ')} is left out of predictions. See why below.
                 </p>
               )}
             </div>

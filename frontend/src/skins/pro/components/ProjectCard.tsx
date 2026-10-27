@@ -57,14 +57,7 @@ export default function ProjectCard({ project, index }: { project: Project; inde
           >
             {project.codename}
           </span>
-          <span className="inline-flex items-center gap-1.5 font-sans text-xs text-quiet">
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                project.online
-                  ? 'bg-jade shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-jade)_18%,transparent)]'
-                  : 'bg-quiet/40'
-              }`}
-            />
+          <span className="font-sans text-xs text-quiet">
             {{ live: 'Live demo', offline: 'Demo offline', 'local-only': 'Runs locally' }[demoState(project)]}
           </span>
         </div>

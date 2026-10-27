@@ -17,7 +17,7 @@ export default function TryStrip() {
       kicker: canRunQuick ? 'Live · about 5 seconds' : 'Demo',
       title: 'Run a real AI model',
       body: canRunQuick
-        ? `One tap sends a sample crack photo to ${quick?.codename}, the deployed model, and shows its verdict and how long it took.`
+        ? `One tap sends a sample crack photo to ${quick?.codename}. You get the model's verdict and how long it took.`
         : `Open ${quick?.codename} and see how the model works on your own photo.`,
       action: canRunQuick ? 'Run it now' : 'Open the demo',
       onClick: runDemo,
@@ -26,7 +26,7 @@ export default function TryStrip() {
       tone: 'var(--color-violet)',
       kicker: 'Interactive',
       title: 'Use the console',
-      body: 'A command line built into the site. Type help, projects or resume — it answers like a real terminal.',
+      body: 'There is a command line built into the site. Type help, projects or resume and it answers like a real terminal.',
       action: 'Open console',
       onClick: openTerminal,
     },
@@ -34,7 +34,7 @@ export default function TryStrip() {
       tone: 'var(--color-amber)',
       kicker: 'Second version',
       title: 'See the cyberpunk version',
-      body: 'The same work rebuilt as a neon city, with a tour guide drone you can talk to.',
+      body: 'The same work rebuilt as a neon city, with a little drone that shows you around.',
       action: 'Switch look',
       onClick: toggle,
     },
@@ -45,7 +45,7 @@ export default function TryStrip() {
       <Reveal>
         <p className="font-sans text-xs tracking-[0.25em] text-quiet uppercase">Not just a page to read</p>
         <h2 id="try-heading" className="mt-2 font-serif text-[clamp(24px,3vw,32px)] font-semibold text-ink">
-          Everything here actually runs. Try it.
+          Everything here really works. Have a go.
         </h2>
       </Reveal>
       <div className="mt-6 grid gap-4 md:grid-cols-3">

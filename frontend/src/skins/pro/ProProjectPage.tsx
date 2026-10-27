@@ -70,7 +70,7 @@ export default function ProProjectPage() {
           <p className="mb-6 max-w-2xl font-sans text-[15px] leading-relaxed text-quiet">
             {state === 'live'
               ? 'This is the real system, running against the same backend. Use your own file, or pick one of the provided samples.'
-              : 'The demo takes your own file and runs the real model on it — it is not a recording. It needs the API running, which this copy of the site does not have.'}
+              : 'The demo runs the real model on your own file. It is not a recording. It needs the API running, which this copy of the site does not have.'}
           </p>
         </Reveal>
 

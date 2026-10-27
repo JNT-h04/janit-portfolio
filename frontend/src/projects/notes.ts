@@ -34,7 +34,7 @@ export const FRACTURE_NOTES: Note[] = [
   },
   {
     label: 'Intensity, age and cause',
-    body: 'Classical computer-vision heuristics — Canny edges, edge density and Hough line angles — not things the model learned. They are indicative only.',
+    body: 'These come from classic computer vision rules (Canny edges, edge density and Hough line angles), not from anything the model learned. Treat them as a rough guide.',
   },
   {
     label: 'Not structural advice',
@@ -50,7 +50,7 @@ export const CORTEX_NOTES: Note[] = [
   },
   {
     label: 'The leakage story',
-    body: 'The first version of this project scored about 99% — because the dataset was split by image. An MRI volume gives many slices per patient, so nearly every patient appeared in both the training and the test set, and the network could recognise the person instead of the disease. Splitting by patient instead, so nobody appears twice, tells the real story.',
+    body: 'The first version of this project scored about 99%, but only because the dataset was split by image. An MRI volume gives many slices per patient, so nearly every patient appeared in both the training and the test set, and the network could recognise the person instead of the disease. Splitting by patient instead, so nobody appears twice, tells the real story.',
     table: {
       caption: 'Same data, two ways of splitting it',
       head: ['Split', 'Classes', 'Test accuracy'],
@@ -68,15 +68,15 @@ export const CORTEX_NOTES: Note[] = [
   },
   {
     label: 'This model',
-    body: 'Two networks vote — a ResNet18 retrained for this site and the older ResNet50, both trained on the same patient-level split. Together they score 60.2% accuracy and macro F1 0.59 on 693 held-out slices (alone: 58.0% / 0.565 and 58.2% / 0.550). The blend weight was chosen on the validation split, never on the test set. The heatmap comes from the ResNet18, because an explanation has to belong to one network to mean anything.',
+    body: 'Two networks vote: a ResNet18 retrained for this site and the older ResNet50, both trained on the same patient-level split. Together they score 60.2% accuracy and macro F1 0.59 on 693 held-out slices (alone: 58.0% / 0.565 and 58.2% / 0.550). The blend weight was chosen on the validation split, never on the test set. The heatmap comes from the ResNet18, because an explanation has to belong to one network to mean anything.',
   },
   {
     label: 'One slice is a hard question',
-    body: 'A radiologist reads a whole scan, not a single slice. Letting every slice of a patient vote lifts accuracy from 58.0% to 81.5% across 54 held-out patients (macro F1 0.59 to 0.66). Worth knowing: 40 of those 54 are healthy, so always answering "Non Demented" would already score 74% — the voting model beats that on the rarer classes, which is where it counts. Switch to patient-series mode above to run it that way.',
+    body: 'A radiologist reads a whole scan, not a single slice. Letting every slice of a patient vote lifts accuracy from 58.0% to 81.5% across 54 held-out patients (macro F1 0.59 to 0.66). Worth knowing: 40 of those 54 are healthy, so always answering "Non Demented" would already score 74%. The voting model beats that on the rarer classes, which is where it counts. Switch to patient-series mode above to run it that way.',
   },
   {
     label: 'Tried and rejected',
-    body: 'A 15-recipe training sweep on a GPU (ResNet18/34, EfficientNet-B0, two image sizes, light vs strong augmentation, class- vs patient-balanced sampling, and schedules from 1 to 8 epochs) produced a model slightly better per slice and slightly worse per patient — a tie within the noise of a 54-patient test set. Flip-averaging at prediction time made things worse. The search lives in scripts/train_cortex.py; the limit here is the number of patients, not the training.',
+    body: 'A 15-recipe training sweep on a GPU (ResNet18/34, EfficientNet-B0, two image sizes, light vs strong augmentation, class- vs patient-balanced sampling, and schedules from 1 to 8 epochs) produced a model slightly better per slice and slightly worse per patient, which is a tie within the noise of a 54-patient test set. Flip-averaging at prediction time made things worse. The search lives in scripts/train_cortex.py; the limit here is the number of patients, not the training.',
   },
   {
     label: 'Dataset',
@@ -92,7 +92,7 @@ export const CORTEX_NOTES: Note[] = [
 export const LEXICON_NOTES: Note[] = [
   {
     label: 'How it reads a book',
-    body: 'The file is parsed on the server — PyMuPDF for PDF, python-docx for DOCX, a zip reader for EPUB, plain text otherwise — and split into chapters by detecting headings, not by cutting at a fixed page count.',
+    body: 'The server reads the file (PyMuPDF for PDF, python-docx for DOCX, a zip reader for EPUB, plain text for the rest) and splits it into chapters by finding the headings, not by cutting every few pages.',
   },
   {
     label: 'How it summarises',
