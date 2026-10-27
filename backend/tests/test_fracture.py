@@ -40,6 +40,28 @@ def test_large_images_are_shrunk():
     assert max(analysis.decode(png.tobytes()).shape[:2]) == analysis.MAX_SIDE
 
 
+def test_decode_keeps_colour_channels_in_rgb_order():
+    img = np.zeros((50, 50, 3), np.uint8)
+    img[..., 2] = 255  # pure red in OpenCV's BGR
+    ok, png = cv2.imencode(".png", img)
+    assert analysis.decode(png.tobytes())[0, 0].tolist() == [255, 0, 0]
+
+
+def test_big_jpegs_are_decoded_at_reduced_scale():
+    big = np.full((4000, 6000, 3), 128, np.uint8)
+    ok, jpg = cv2.imencode(".jpg", big)
+    assert analysis.decode(jpg.tobytes()).shape[:2] == (426, 640)
+
+
+def test_decompression_bombs_are_refused_before_decoding():
+    # 0.4 MB on the wire, 400 megapixels once decoded: this took the hosted
+    # instance past its memory limit before the header check existed.
+    bomb = np.zeros((20000, 20000), np.uint8)
+    ok, png = cv2.imencode(".png", bomb, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+    with pytest.raises(ValueError, match="too large"):
+        analysis.decode(png.tobytes())
+
+
 @pytest.fixture
 def ready_model(monkeypatch):
     monkeypatch.setattr(model.slot, "state", "ready")

@@ -21,6 +21,9 @@ google-genai>=1.0
 onnxruntime>=1.17
 opencv-python-headless>=4.9
 numpy>=1.26
+# Reads an upload's pixel size from its header before decoding, and decodes
+# JPEGs at reduced scale: the guard that keeps big photos under the memory limit.
+pillow>=10
 
 # Contact form: posts to the Resend HTTPS API (the free host blocks SMTP).
 httpx>=0.27
