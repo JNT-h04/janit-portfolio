@@ -55,7 +55,7 @@ export default function ProProjectPage() {
           <Fact label="Built with">
             <span className="flex flex-wrap gap-1.5">
               {project.stack.map((s) => (
-                <span key={s} className="rounded border border-rule bg-card px-2 py-0.5 text-xs text-quiet">
+                <span key={s} className="tone-chip rounded-full px-2.5 py-0.5 text-xs">
                   {s}
                 </span>
               ))}

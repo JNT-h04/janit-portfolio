@@ -105,7 +105,7 @@ function Choice({ skin, index, label, blurb, onChoose, onFocus, children }: Choi
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.25 + index * 0.12, duration: 0.5 }}
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -2 }}
     >
       {/* A small, honest preview of what the visitor is about to get. */}
       <div className="mb-5 hidden overflow-hidden rounded-lg border border-white/10 sm:block">{children}</div>
@@ -120,51 +120,84 @@ function Choice({ skin, index, label, blurb, onChoose, onFocus, children }: Choi
   )
 }
 
-/** Miniature of the professional home page. */
+/** Miniature of the professional home page: script name, arched portrait,
+ *  warm colour pools and the skyline, sized to fill its frame. */
 function ProPreview() {
   return (
-    <div className="aspect-[16/9] w-full bg-paper p-3">
-      <div className="flex items-center justify-between border-b border-rule pb-2">
-        <span className="font-sans text-[7px] font-semibold text-ink">Janit B</span>
-        <span className="font-sans text-[6px] text-quiet">Work · About · Contact</span>
+    <div className="relative flex aspect-[16/9] w-full flex-col overflow-hidden bg-paper px-4 pt-3">
+      <div className="absolute -top-8 -left-8 h-36 w-36 rounded-full bg-coral/25 blur-3xl" />
+      <div className="absolute top-8 right-16 h-28 w-28 rounded-full bg-violet/20 blur-3xl" />
+      <div className="absolute bottom-6 left-1/3 h-24 w-32 rounded-full bg-amber/20 blur-3xl" />
+      <div className="relative flex items-center justify-between border-b border-rule pb-2">
+        <span className="bg-gradient-to-r from-violet to-coral bg-clip-text font-sans text-[9px] font-bold text-transparent">Janit B</span>
+        <span className="flex items-center gap-2 font-sans text-[8px] text-quiet">
+          Work · About · Experience
+          <span className="rounded-full border border-coral/40 px-1.5 py-[1px] text-ink">&#8644; Switch</span>
+        </span>
       </div>
-      <div className="mt-3 h-1 w-10 bg-coral" />
-      <div className="mt-2 font-serif text-[11px] leading-tight text-ink">AI/ML Engineer</div>
-      <div className="mt-1 h-[3px] w-24 rounded bg-rule" />
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {[0, 1].map((i) => (
-          <div key={i} className="rounded border border-rule bg-card p-1.5">
-            <div className="h-[3px] w-10 rounded bg-ink/70" />
-            <div className="mt-1 h-[2px] w-full rounded bg-rule" />
-            <div className="mt-[3px] h-[2px] w-3/4 rounded bg-rule" />
+      <div className="relative flex flex-1 items-center justify-between gap-3 pb-7">
+        <div>
+          <div className="bg-gradient-to-r from-violet via-[#a24fd8] to-coral bg-clip-text pr-2 pl-2 -ml-1 font-script text-[clamp(30px,4.2vw,44px)] leading-[1.1] text-transparent">
+            Janit B
           </div>
+          <div className="mt-1 h-[2px] w-12 rounded bg-gradient-to-r from-coral via-amber to-violet" />
+          <div className="mt-2 font-sans text-[10px] font-medium text-ink">AI/ML Engineer</div>
+          <div className="mt-1.5 h-[3px] w-32 rounded bg-rule" />
+          <div className="mt-1 h-[3px] w-24 rounded bg-rule" />
+          <div className="mt-3 flex gap-1.5">
+            <span className="rounded-full bg-gradient-to-r from-coral to-violet px-2.5 py-1 font-sans text-[7px] font-semibold text-white">View work</span>
+            <span className="rounded-full border border-violet/40 bg-white px-2.5 py-1 font-sans text-[7px] font-semibold text-violet">R&eacute;sum&eacute;</span>
+          </div>
+        </div>
+        <div className="relative mr-2 h-[62%] max-h-[120px] aspect-[3/4] rounded-t-full rounded-b-md bg-gradient-to-b from-[#3a3046] to-[#120f18] shadow-[0_10px_30px_-10px_var(--color-violet)] ring-1 ring-amber/70">
+          <span className="absolute top-[22%] left-1/2 h-[22%] w-[30%] -translate-x-1/2 rounded-full bg-[#5a5066]" />
+          <span className="absolute bottom-0 left-1/2 h-[42%] w-[64%] -translate-x-1/2 rounded-t-[40%] bg-[#2a2236]" />
+        </div>
+      </div>
+      <div className="absolute inset-x-0 bottom-0 flex h-8 items-end gap-[3px] px-1">
+        {[55, 80, 40, 100, 65, 50, 88, 38, 72, 60, 95, 46, 78, 58, 84, 42].map((h, i) => (
+          <span key={i} className="relative flex-1 border border-b-0 border-ink/20 bg-paper/90" style={{ height: `${h}%` }}>
+            {i % 3 === 0 && <span className="absolute top-1.5 left-1 h-1 w-1 bg-amber/70" />}
+          </span>
         ))}
       </div>
     </div>
   )
 }
 
-/** Miniature of the cyberpunk home page. */
+/** Miniature of the cyberpunk home page, at the same scale. */
 function SysPreview() {
   return (
-    <div className="aspect-[16/9] w-full bg-void p-3">
-      <div className="flex items-center justify-between border-b border-neon/20 pb-2">
-        <span className="font-display text-[7px] font-bold tracking-widest text-neon">
+    <div className="relative flex aspect-[16/9] w-full flex-col overflow-hidden bg-void px-4 pt-3">
+      <div className="absolute top-10 right-8 h-28 w-40 rounded-full bg-neon/10 blur-3xl" />
+      <div className="absolute bottom-4 left-10 h-24 w-32 rounded-full bg-hot/10 blur-3xl" />
+      <div className="relative flex items-center justify-between border-b border-neon/20 pb-2">
+        <span className="font-display text-[9px] font-bold tracking-widest text-neon">
           JANIT<span className="text-hot">://</span>SYS
         </span>
-        <span className="border border-acid px-1 font-mono text-[6px] text-acid">&gt;_</span>
+        <span className="border border-acid px-1.5 font-mono text-[8px] text-acid">&gt;_</span>
       </div>
-      <div className="mt-3 font-mono text-[6px] tracking-[0.2em] text-hot">&gt; IDENTITY CONFIRMED</div>
-      <div className="mt-1 font-display text-[13px] font-black tracking-wider text-neon [text-shadow:0_0_8px_#00f0ff]">
-        JANIT B
+      <div className="relative flex flex-1 flex-col justify-center pb-7">
+        <div className="font-mono text-[8px] tracking-[0.25em] text-hot">&gt; IDENTITY CONFIRMED</div>
+        <div className="mt-1 font-display text-[clamp(22px,3vw,30px)] font-black tracking-wider text-neon [text-shadow:0_0_12px_#00f0ff]">
+          JANIT B
+        </div>
+        <div className="mt-1 font-mono text-[8px] text-neon/60">ai/ml operator &middot; 4 missions online</div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {['LEXICON', 'FRACTURE', 'ECHO'].map((m) => (
+            <div key={m} className="border border-neon/25 bg-panel px-1.5 py-1">
+              <div className="font-mono text-[7px] text-neon">{m}</div>
+              <div className="mt-1 h-[2px] w-full bg-grid" />
+              <div className="mt-[3px] h-[2px] w-2/3 bg-grid" />
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {[0, 1].map((i) => (
-          <div key={i} className="border border-neon/25 bg-panel p-1.5">
-            <div className="h-[3px] w-10 bg-neon/70" />
-            <div className="mt-1 h-[2px] w-full bg-grid" />
-            <div className="mt-[3px] h-[2px] w-3/4 bg-grid" />
-          </div>
+      <div className="absolute inset-x-0 bottom-0 flex h-8 items-end gap-[3px] px-1">
+        {[70, 45, 95, 60, 82, 40, 100, 55, 76, 48, 90, 62, 85, 50, 68, 44].map((h, i) => (
+          <span key={i} className="relative flex-1 border border-b-0 border-neon/35 bg-void" style={{ height: `${h}%` }}>
+            {i % 4 === 1 && <span className="absolute top-1.5 left-1 h-1 w-1 bg-hot/80" />}
+          </span>
         ))}
       </div>
     </div>

@@ -1,11 +1,12 @@
 import type { Skin } from '../../skin/context'
 
 /**
- * The front door's background: a board of orthogonal traces running in from
- * both edges toward the middle, drawing themselves once on load and then
- * carrying pulses along their length. Warm traces come from the professional
- * side, neon ones from the casual side, and they meet in the centre under the
- * two choices.
+ * The front door's background: a sparse board of orthogonal traces running in
+ * from both edges, drawn once on arrival. Warm traces come from the
+ * professional side, neon ones from the casual side.
+ *
+ * Deliberately minimal: a dozen faint traces and only a few slow pulses, so the
+ * page reads as alive without anything competing with the two choices.
  *
  * Deterministic: the layout is generated once at module load from a fixed seed,
  * so it is the same board every visit and nothing is recomputed on render.
@@ -29,16 +30,17 @@ export default function GateCircuit({ focus }: { focus: Skin | null }) {
               pathLength={100}
               style={{ animationDelay: `${t.delay}ms` }}
             />
-            <circle r={0.22} className="gq-pad">
-              {/* The pulse rides the trace it belongs to. */}
-              <animateMotion
-                dur={`${t.pulse}s`}
-                begin={`${t.delay / 1000 + 0.6}s`}
-                repeatCount="indefinite"
-                path={t.d}
-              />
-            </circle>
-            <circle cx={t.endX} cy={t.endY} r={0.3} className="gq-via" />
+            {t.pulse > 0 && (
+              <circle r={0.2} className="gq-pad">
+                {/* The pulse rides the trace it belongs to. */}
+                <animateMotion
+                  dur={`${t.pulse}s`}
+                  begin={`${t.delay / 1000 + 1.2}s`}
+                  repeatCount="indefinite"
+                  path={t.d}
+                />
+              </circle>
+            )}
           </g>
         ))}
       </svg>
@@ -56,8 +58,8 @@ const TRACES = (() => {
     return seed / 2147483648
   }
 
-  const out: { d: string; warm: boolean; delay: number; pulse: number; endX: number; endY: number }[] = []
-  for (let i = 0; i < 22; i++) {
+  const out: { d: string; warm: boolean; delay: number; pulse: number }[] = []
+  for (let i = 0; i < 12; i++) {
     const warm = i % 2 === 0
     // Warm traces enter from the left edge, cool ones from the right.
     const startX = warm ? -2 : 102
@@ -80,13 +82,14 @@ const TRACES = (() => {
     x += last
     d += ` L ${x.toFixed(1)} ${cy.toFixed(1)}`
 
+    const delay = Math.round(rand() * 1400)
+    const speed = rand()
     out.push({
       d,
       warm,
-      delay: Math.round(rand() * 1800),
-      pulse: 6 + rand() * 5,
-      endX: x,
-      endY: cy,
+      delay,
+      // Only every third trace carries a pulse, and slowly.
+      pulse: i % 3 === 0 ? 14 + speed * 6 : 0,
     })
   }
   return out

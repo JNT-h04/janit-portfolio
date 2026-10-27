@@ -161,7 +161,7 @@ function Report({ minutes, seconds }: { minutes: Minutes; seconds: number }) {
         {minutes.topics.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-1.5">
             {minutes.topics.map((topic) => (
-              <span key={topic} className="rounded border border-rule bg-paper px-2 py-0.5 font-sans text-xs text-quiet">
+              <span key={topic} className="tone-chip rounded-full px-2.5 py-0.5 font-sans text-xs">
                 {topic}
               </span>
             ))}

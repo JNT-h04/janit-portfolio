@@ -36,7 +36,7 @@ export default function ProHome() {
         </Reveal>
       )}
 
-      <Section id="work" title="Selected work" number="01">
+      <Section id="work" title="Selected work" kicker="Things I built" number="01">
         <p className="-mt-2 mb-8 max-w-2xl font-sans text-[15px] leading-relaxed text-quiet">
           {!HAS_API
             ? 'Every project below is a working system with an interactive demo — this published copy is the frontend, so the demos run when the API is started alongside it. Results are reported honestly, including where they fall short.'
@@ -58,7 +58,7 @@ export default function ProHome() {
 
       {profile && (
         <>
-          <Section id="about" title="About" number="02">
+          <Section id="about" title="About" kicker="Who I am" number="02">
             <div className="grid gap-10 md:grid-cols-[1.4fr_1fr]">
               <div className="space-y-4">
                 {profile.about.map((para, i) => (
@@ -67,27 +67,6 @@ export default function ProHome() {
                   </Reveal>
                 ))}
 
-                {/* Every figure here is counted from the real data on this page,
-                    not typed in by hand, so none of it can quietly go stale. */}
-                <Reveal delay={0.18}>
-                  <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    <Stat n={PROJECTS.length} label="Projects" tone="var(--color-coral)" />
-                    {/* On a build with a backend this counts the demos actually
-                        answering; on the frontend-only copy it counts the demos
-                        that exist and says where they run. */}
-                    <Stat
-                      n={!HAS_API ? PROJECTS.length : PROJECTS.filter((p) => demoState(p) === 'live').length}
-                      label={!HAS_API ? 'Demos (run locally)' : 'Live demos'}
-                      tone="var(--color-amber)"
-                    />
-                    <Stat
-                      n={profile.skills.reduce((t, g) => t + g.items.length, 0)}
-                      label="Tools used"
-                      tone="var(--color-violet)"
-                    />
-                    <Stat n={profile.experience.length} label="Internship" tone="var(--color-jade)" />
-                  </dl>
-                </Reveal>
               </div>
               <Reveal delay={0.1}>
                 <div className="paper-card p-5">
@@ -104,14 +83,43 @@ export default function ProHome() {
               </Reveal>
             </div>
 
+            {/* Every figure here is counted from the real data on this page,
+                not typed in by hand, so none of it can quietly go stale. */}
+            <Reveal delay={0.12}>
+              <dl className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <Stat n={PROJECTS.length} label="Projects" tone="var(--color-coral)" />
+                    {/* On a build with a backend this counts the demos actually
+                        answering; on the frontend-only copy it counts the demos
+                        that exist and says where they run. */}
+                    <Stat
+                      n={!HAS_API ? PROJECTS.length : PROJECTS.filter((p) => demoState(p) === 'live').length}
+                      label={!HAS_API ? 'Demos (run locally)' : 'Live demos'}
+                      tone="var(--color-amber)"
+                    />
+                    <Stat
+                      n={profile.skills.reduce((t, g) => t + g.items.length, 0)}
+                      label="Tools used"
+                      tone="var(--color-violet)"
+                    />
+                    <Stat n={profile.experience.length} label="Internship" tone="var(--color-jade)" />
+              </dl>
+            </Reveal>
+
           </Section>
 
-          <Section id="skills" title="Skills" number="03">
+          <Section id="skills" title="Skills" kicker="My toolkit" number="03">
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {profile.skills.map((group, i) => (
                 <Reveal key={group.group} delay={i * 0.05}>
                   <div className="paper-card h-full p-5">
-                    <h3 className="font-sans text-sm font-semibold text-ink">{group.group}</h3>
+                    <h3 className="flex items-center gap-2 font-sans text-sm font-semibold text-ink">
+                      <span
+                        aria-hidden
+                        className="h-2 w-2 rounded-full"
+                        style={{ background: ['var(--color-coral)', 'var(--color-amber)', 'var(--color-violet)'][i % 3] }}
+                      />
+                      {group.group}
+                    </h3>
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {group.items.map((item, n) => (
                         <motion.span
@@ -122,7 +130,7 @@ export default function ProHome() {
                               'var(--color-coral)',
                               'var(--color-amber)',
                               'var(--color-violet)',
-                            ][(i + n) % 3],
+                            ][i % 3],
                           }}
                           initial={{ opacity: 0, y: 6 }}
                           whileInView={{ opacity: 1, y: 0 }}
@@ -139,7 +147,7 @@ export default function ProHome() {
             </div>
           </Section>
 
-          <Section id="experience" title="Experience" number="04">
+          <Section id="experience" title="Experience" kicker="Where I have worked" number="04">
             <div className="space-y-5">
               {profile.experience.map((job, i) => (
                 <Reveal key={job.company} delay={i * 0.06}>
@@ -174,7 +182,7 @@ export default function ProHome() {
                     </ul>
                     <div className="mt-4 flex flex-wrap gap-1.5">
                       {job.stack.map((s) => (
-                        <span key={s} className="rounded border border-rule px-2 py-0.5 font-sans text-xs text-quiet">
+                        <span key={s} className="tone-chip rounded-full px-2.5 py-0.5 font-sans text-xs">
                           {s}
                         </span>
                       ))}
@@ -184,7 +192,7 @@ export default function ProHome() {
               ))}
             </div>
 
-            <div className="mt-5 grid gap-5 md:grid-cols-2">
+            <div className="mt-5 grid gap-5 md:grid-cols-[1.5fr_1fr]">
               <Reveal>
                 <div className="paper-card h-full p-6">
                   <h3 className="font-sans text-xs tracking-widest text-quiet uppercase">Education</h3>
@@ -214,7 +222,7 @@ export default function ProHome() {
             </div>
           </Section>
 
-          <Section id="contact" title="Contact" number="05">
+          <Section id="contact" title="Contact" kicker="Get in touch" number="05">
             <Reveal>
               <ContactForm profile={profile} />
             </Reveal>
@@ -435,7 +443,7 @@ function Hero({ profile }: { profile: Profile | null }) {
         <Magnetic>
           <Link
             to="/#work"
-            className="shimmer relative inline-block overflow-hidden rounded-full bg-gradient-to-r from-coral via-coral to-violet px-7 py-3 font-sans text-sm font-semibold text-white shadow-[0_12px_30px_-10px_var(--color-coral)] transition-shadow hover:shadow-[0_18px_40px_-10px_var(--color-coral)]"
+            className="shimmer relative inline-flex overflow-hidden rounded-full border border-transparent bg-gradient-to-r from-coral via-coral to-violet px-7 py-3 font-sans text-sm font-semibold text-white shadow-[0_12px_30px_-10px_var(--color-coral)] transition-shadow hover:shadow-[0_18px_40px_-10px_var(--color-coral)]"
           >
             View work
           </Link>
@@ -571,23 +579,30 @@ function LetterReveal({ text }: { text: string }) {
 function Section({
   id,
   title,
+  kicker,
   number,
   children,
 }: {
   id: string
   title: string
+  /** A few words above the title, so the eyebrow adds something instead of repeating it. */
+  kicker: string
   number: string
   children: React.ReactNode
 }) {
   return (
     <section id={id} className="scroll-mt-20 py-14">
       <Reveal>
-        <h2 className="mb-8 flex items-baseline gap-3">
-          <span className="num-badge font-code text-base font-bold">{number}</span>
-          <span className="font-serif text-[clamp(28px,3.4vw,38px)] font-semibold text-ink">{title}</span>
+        <p className="mb-2 flex items-center gap-2.5 font-sans text-xs font-semibold tracking-[0.25em] text-quiet uppercase">
+          <span className="num-badge font-code tracking-normal">{number}</span>
+          <span aria-hidden className="h-px w-6 bg-gradient-to-r from-coral to-violet" />
+          {kicker}
+        </p>
+        <h2 className="mb-8 flex items-center gap-4">
+          <span className="font-serif text-[clamp(30px,3.6vw,42px)] leading-tight font-semibold text-ink">{title}</span>
           <motion.span
             aria-hidden
-            className="ml-2 hidden h-px flex-1 origin-left bg-gradient-to-r from-coral/40 via-amber/30 to-transparent sm:block"
+            className="hidden h-px flex-1 origin-left bg-gradient-to-r from-coral/40 via-amber/30 to-transparent sm:block"
             initial={{ scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
             viewport={{ once: true, margin: '-60px' }}

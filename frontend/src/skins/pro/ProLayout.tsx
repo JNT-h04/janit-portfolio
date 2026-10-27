@@ -119,12 +119,14 @@ function ProHeader() {
             </NavLink>
           ))}
 
+          <span aria-hidden className="mx-1.5 hidden h-5 w-px bg-ink/10 sm:block" />
+
           <button
             onClick={() => terminal.setOpen(!terminal.open)}
-            className={`ml-1 rounded-full border px-3.5 py-1.5 font-sans text-sm transition-all sm:px-4 ${
+            className={`rounded-full border px-3 py-1.5 font-sans text-sm transition-all ${
               terminal.open
                 ? 'border-transparent bg-gradient-to-r from-coral to-violet text-white shadow-[0_8px_20px_-8px_var(--color-coral)]'
-                : 'border-ink/10 bg-card/50 text-ink backdrop-blur hover:border-coral/45 hover:text-coral'
+                : 'border-ink/10 bg-card/50 text-ink backdrop-blur hover:border-coral/45 hover:text-coral sm:border-transparent sm:bg-transparent sm:backdrop-blur-none'
             }`}
             title="Open the console (` key)"
             aria-label="Open the console"
@@ -137,7 +139,7 @@ function ProHeader() {
               in the menu, with a sentence each saying where they lead. */}
           <button
             onClick={toggle}
-            className="ml-1 hidden rounded-full border border-ink/10 bg-card/50 px-3.5 py-1.5 font-sans text-sm text-ink backdrop-blur transition-all hover:border-violet/45 hover:text-violet sm:inline-block"
+            className="hidden rounded-full px-3 py-1.5 font-sans text-sm text-ink transition-colors hover:text-violet sm:inline-block"
             title="Switch to the casual, cyberpunk version of this site"
           >
             Casual view

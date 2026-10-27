@@ -57,8 +57,8 @@ export default function DropZone({
         onDragLeave={() => setHover(false)}
         onDrop={onDrop}
         onClick={() => !busy && input.current?.click()}
-        className={`relative flex min-h-56 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed p-10 text-center transition-colors ${
-          hover ? 'border-coral bg-coral-soft' : 'border-rule bg-card hover:border-coral/50'
+        className={`relative flex min-h-56 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed p-10 text-center transition-colors ${
+          hover ? 'border-coral bg-coral-soft' : 'border-violet/25 bg-card/85 hover:border-coral/60 hover:bg-coral-soft/40'
         } ${busy ? 'cursor-default' : ''}`}
       >
         <input
@@ -89,6 +89,14 @@ export default function DropZone({
           </>
         ) : (
           <>
+            <span
+              aria-hidden
+              className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-coral to-violet text-white shadow-[0_10px_24px_-10px_var(--color-coral)]"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 16V4M6 10l6-6 6 6M4 20h16" />
+              </svg>
+            </span>
             <p className="font-serif text-xl text-ink">{title}</p>
             <p className="mt-1.5 font-sans text-sm text-quiet">or click to choose a file</p>
             <p className="mt-4 font-sans text-xs text-quiet">{hint}</p>

@@ -31,7 +31,7 @@
   --color-violet-soft: #efeaff;
   --color-jade: #14b88a; /* reserved for "this is live" and "this was right" */
   --color-mist: #fdf1ea;
-  --color-quiet: #7a7288; /* warm grey */
+  --color-quiet: #655d74; /* warm grey, ~5.6:1 on paper */
   --color-rule: #f2e3d8; /* warm hairline */
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -74,7 +74,7 @@ html.skin-pro ::selection {
    the gradient. */
 .paper-card {
   position: relative;
-  background: color-mix(in srgb, var(--color-card) 72%, transparent);
+  background: color-mix(in srgb, var(--color-card) 84%, transparent);
   backdrop-filter: blur(14px) saturate(1.4);
   -webkit-backdrop-filter: blur(14px) saturate(1.4);
   border: 1px solid color-mix(in srgb, var(--color-ink) 7%, transparent);
@@ -792,15 +792,13 @@ html.skin-pro ::selection {
 @keyframes gq-draw {
   to { stroke-dashoffset: 0; }
 }
-.gq-warm path { stroke: rgb(255 158 96 / 0.5); }
-.gq-warm .gq-pad { fill: #ffb347; }
-.gq-warm .gq-via { fill: rgb(255 107 90 / 0.35); }
-.gq-cool path { stroke: rgb(0 228 255 / 0.45); }
-.gq-cool .gq-pad { fill: #00f0ff; }
-.gq-cool .gq-via { fill: rgb(0 240 255 / 0.3); }
+.gq-warm path { stroke: rgb(255 158 96 / 0.26); }
+.gq-warm .gq-pad { fill: rgb(255 179 71 / 0.85); }
+.gq-cool path { stroke: rgb(0 228 255 / 0.22); }
+.gq-cool .gq-pad { fill: rgb(0 240 255 / 0.8); }
 /* Hovering a choice brightens that side's traces and dims the other. */
 .gq-lean-pro .gq-cool,
-.gq-lean-sys .gq-warm { opacity: 0.25; }
+.gq-lean-sys .gq-warm { opacity: 0.35; }
 .gq-lean-pro .gq-warm,
 .gq-lean-sys .gq-cool { opacity: 1; }
 .gq-trace { transition: opacity 0.5s ease; }
@@ -808,8 +806,8 @@ html.skin-pro ::selection {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(55% 45% at 22% 62%, rgb(255 150 90 / 0.16), transparent 70%),
-    radial-gradient(55% 45% at 78% 38%, rgb(0 240 255 / 0.14), transparent 70%);
+    radial-gradient(55% 45% at 22% 62%, rgb(255 150 90 / 0.1), transparent 70%),
+    radial-gradient(55% 45% at 78% 38%, rgb(0 240 255 / 0.08), transparent 70%);
 }
 .gq-vignette {
   position: absolute;
@@ -825,8 +823,9 @@ html.skin-pro ::selection {
 }
 
 /* ---------- and its motion ----------
-   Kept calm on purpose: a sweeping light band and vias blinking in hard steps
-   made the start page look like it was crashing. Only the pulses move now. */
+   Kept minimal on purpose: a sweeping light band and blinking vias made the
+   start page look like it was crashing, and a pulse on every trace was still
+   busy. Now: one draw-in on arrival, four slow pulses, and a hover lean. */
 
 /* ---------- Casual transition: the rest of the glitch ----------
    Tearing bands, chromatic ghosts on a few blocks, analogue static, a slice
