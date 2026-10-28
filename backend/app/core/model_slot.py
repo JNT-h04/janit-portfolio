@@ -11,6 +11,7 @@ So: the server starts at once, a background thread loads the model, and the
 model's endpoint answers "warming up" (503) until the slot says it's ready.
 """
 
+import ctypes
 import logging
 import threading
 import time
@@ -21,6 +22,21 @@ log = logging.getLogger(__name__)
 
 T = TypeVar("T")
 State = Literal["idle", "loading", "ready", "missing", "error"]
+
+
+def give_back_memory() -> None:
+    """Return memory the process has freed to the operating system.
+
+    Loading a model allocates far more than the model keeps (the file is parsed,
+    then optimised into a new copy). On Linux, glibc holds on to what was freed
+    rather than handing it back, so the process stays at its loading peak for
+    good: measured on the host, 505 MB of a 512 MB limit while idle, and the next
+    request went over. malloc_trim releases it. Elsewhere this does nothing.
+    """
+    try:
+        ctypes.CDLL("libc.so.6").malloc_trim(0)
+    except (OSError, AttributeError):
+        pass  # not Linux with glibc
 
 
 class ModelMissing(Exception):
@@ -50,6 +66,7 @@ class ModelSlot(Generic[T]):
         started = time.time()
         try:
             self._model = self._loader()
+            give_back_memory()
             self.load_seconds = round(time.time() - started, 1)
             self.state = "ready"
             log.info("%s model ready in %.1fs", self.name, self.load_seconds)

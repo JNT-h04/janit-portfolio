@@ -13,7 +13,7 @@ from typing import Any
 import numpy as np
 
 from app.core.config import settings
-from app.core.model_slot import ModelMissing, ModelSlot
+from app.core.model_slot import ModelMissing, ModelSlot, give_back_memory
 from app.core.weights import ensure_local
 
 CLASSES = ["Minor", "Moderate", "No_Crack", "Severe"]  # the order the model was trained with
@@ -65,4 +65,5 @@ def predict(img_rgb: np.ndarray) -> dict[str, float]:
     with slot.lock:
         session = slot.model
         probs = session.run(None, {session.get_inputs()[0].name: batch})[0][0]
+        give_back_memory()  # a few ms; keeps each request from ratcheting memory up
     return {name: round(float(p), 4) for name, p in zip(CLASSES, probs, strict=True)}
