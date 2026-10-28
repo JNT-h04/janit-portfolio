@@ -34,7 +34,15 @@ def _load() -> Any:
     # tests, never pay for loading it.
     import onnxruntime as ort
 
-    session = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+    # The free host gives a fraction of one CPU and 512 MB. By default ONNX
+    # Runtime starts a thread per core it can see (many, on a shared machine)
+    # and keeps a growing memory arena; neither helps on a fraction of a CPU,
+    # and both cost memory. One thread, no arena.
+    options = ort.SessionOptions()
+    options.intra_op_num_threads = 1
+    options.inter_op_num_threads = 1
+    options.enable_cpu_mem_arena = False
+    session = ort.InferenceSession(str(path), options, providers=["CPUExecutionProvider"])
     name = session.get_inputs()[0].name
     session.run(None, {name: np.zeros((1, SIZE, SIZE, 3), np.float32)})  # warm-up
     return session

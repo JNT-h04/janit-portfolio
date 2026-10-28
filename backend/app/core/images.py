@@ -9,6 +9,10 @@ from PIL import Image, ImageOps
 
 MAX_SIDE = 640  # images sent back to the browser are shrunk to this
 
+# OpenCV starts a worker thread per core it can see; on a host with a fraction
+# of one CPU those only add memory. The images here are small anyway.
+cv2.setNumThreads(1)
+
 # Memory guard. The hosted API has 512 MB and sits near 260 MB once the crack
 # model is loaded, while a decoded photo costs 3 bytes per pixel *before* it is
 # shrunk. Measured: one 8000x6000 JPEG peaked the process at 556 MB, and a
